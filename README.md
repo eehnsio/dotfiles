@@ -19,7 +19,3 @@ Each folder should be stowed using:
 ```
 stow folder --target=$HOME -v
 ```
-
-```
-
-```
