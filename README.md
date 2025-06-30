@@ -14,8 +14,8 @@ Each directory represents a package that can be independently stowed:
 
 # Stow
 
-Each folder should be stowed using:
+I use GNU Stow to handle the files - Each folder can be stowed using:
 
 ```
-stow folder --target=$HOME -v
+stow <folder> --target=$HOME -v
 ```
