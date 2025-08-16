@@ -10,6 +10,7 @@ Each directory represents a package that can be independently stowed:
 .dotfiles/
 ├── ghostty/          # Terminal emulator
 ├── nvim/             # Neovim editor
+├── zsh/              # zsh shell
 ```
 
 # Stow
