@@ -19,6 +19,11 @@ macos-titlebar-style = tabs
 background-opacity = 0.90
 background-blur-radius = 20
 
+window-padding-x = 10
+window-padding-y = 10
+window-padding-balance = true
+window-padding-color = extend 
+
 # Poimandres Storm theme
 cursor-color = #607487
 background = #1B1E28
@@ -49,4 +54,5 @@ palette = 14=#ADD7FF
 # white
 palette = 7=#ffffff
 palette = 15=#ffffff
-keybind = shift+enter=text:\n
+
+# keybind = shift+enter=text:\n
