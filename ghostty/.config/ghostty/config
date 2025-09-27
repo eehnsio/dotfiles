@@ -7,17 +7,22 @@ adjust-cursor-height = 25%
 adjust-underline-position = 40%
 adjust-underline-thickness = -60%
 
-cursor-style = bar
-
-keybind = ctrl+|=new_split:right
+cursor-style = underline
+shell-integration-features = no-cursor
 
 clipboard-paste-protection = false
-unfocused-split-opacity = 1.0
+unfocused-split-opacity = 0.30
+#unfocused-split-fill = #000000
 
-macos-titlebar-style = tabs
+split-divider-color = 607487
+
+#macos-titlebar-style = tabs
+macos-titlebar-style = hidden
+macos-window-buttons = hidden
+macos-non-native-fullscreen = true
 
 background-opacity = 0.90
-background-blur-radius = 20
+background-blur-radius = 70
 
 window-padding-x = 10
 window-padding-y = 10
@@ -27,8 +32,6 @@ window-padding-color = extend
 # Poimandres Storm theme
 cursor-color = #607487
 background = #1B1E28
-
-
 
 # black
 palette = 0=#1B1E28
@@ -56,3 +59,6 @@ palette = 7=#ffffff
 palette = 15=#ffffff
 
 # keybind = shift+enter=text:\n
+
+copy-on-select = clipboard
+

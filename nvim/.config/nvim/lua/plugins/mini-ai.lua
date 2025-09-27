@@ -1,5 +1,5 @@
 return {
-	"echasnovski/mini.ai",
+	"nvim-mini/mini.ai",
 	n_lines = 500,
 
 	-- Better Around/Inside textobjects
