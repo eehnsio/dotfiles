@@ -1,5 +1,5 @@
 return { -- Collection of various small independent plugins/modules
-	"echasnovski/mini.nvim",
+	"nvim-mini/mini.move",
 	-- You can customize mappings here or leave them as defaults
 	mappings = {
 		left = "<M-Left>",
