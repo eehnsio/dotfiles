@@ -1,21 +1,20 @@
-# dotfiles
+# Dotfiles
 
-Collection of my configs and settings for some applications
+Personal configuration files for development environment setup.
 
-# Structure
+> **Note:** These configurations are optimized for macOS and may require adjustments for other operating systems.
 
-Each directory represents a package that can be independently stowed:
+## What's Included
 
-```
-.dotfiles/
-├── ghostty/          # Terminal emulator
-├── nvim/             # Neovim editor
-├── zsh/              # zsh shell
-```
+- **ghostty** - Terminal emulator configuration
+- **nvim** - Neovim editor with plugins and themes
+- **zsh** - Shell configuration and aliases
 
-# Setup
+## Installation
 
-## Prerequisites
+Uses [GNU Stow](https://www.gnu.org/software/stow/) for symlink management.
+
+### Prerequisites
 
 Install GNU Stow:
 
@@ -30,58 +29,38 @@ sudo apt install stow
 sudo pacman -S stow
 ```
 
-## Initial Setup
-
-1. Clone this repository to your preferred location:
-```bash
-git clone <repo-url> ~/.dotfiles
-cd ~/.dotfiles
-```
-
-2. Stow the configurations you want:
-```bash
-# Stow individual packages
-stow ghostty
-stow nvim
-stow zsh
-
-# Or stow everything at once
-stow */
-```
-
-# Usage
-
-## Stowing Configurations
-
-Each folder can be stowed using:
+### Quick Setup
 
 ```bash
-stow <folder> --target=$HOME -v
+git clone <repo-url> ~/Developer/dotfiles
+cd ~/Developer/dotfiles
+./install
 ```
 
-The `--target=$HOME` is optional (it's the default), and `-v` enables verbose output.
+The install script will automatically stow all configurations to your home directory.
 
-## Working with Configuration Updates
+### Selective Installation
 
-When you make changes to configuration files:
-
-1. **Edit files directly** in this dotfiles directory (not in your home directory)
-2. **Re-stow** to update symlinks:
-```bash
-stow <folder>
-```
-
-3. **No need to unstow first** - stow will update existing symlinks
-
-## Managing Conflicts
-
-If you encounter conflicts during stowing:
+Install only specific packages:
 
 ```bash
-# Remove conflicting files manually, then stow
-rm ~/.config/conflicting-file
-stow <folder>
-
-# Or use --adopt to move existing files into the stow directory
-stow --adopt <folder>
+STOW_FOLDERS="nvim,zsh" ./install
 ```
+
+## Structure
+
+Each directory represents a package that can be independently stowed:
+
+```
+.dotfiles/
+├── ghostty/          # Terminal emulator
+├── nvim/             # Neovim editor
+└── zsh/              # Shell
+```
+
+## How It Works
+
+- **Stow creates symlinks** from this repo to your home directory
+- **Edit files here** in the dotfiles directory, not in `~/.config`
+- **Re-run `./install`** to update symlinks after pulling changes
+- **Conflicts?** The script automatically removes old symlinks before creating new ones
