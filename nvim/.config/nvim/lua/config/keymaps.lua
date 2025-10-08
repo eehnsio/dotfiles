@@ -1,31 +1,54 @@
--- define common options
-local opts = {
-	noremap = true, -- non-recursive
-	silent = true, -- do not show message
-}
+-- Keymaps are automatically loaded on the VeryLazy event
+-- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
+-- Add any additional keymaps here
 
------------------
--- Normal mode --
------------------
+-- Better diagnostic navigation for Swedish keyboard
+vim.keymap.set("n", "<leader>j", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+vim.keymap.set("n", "<leader>k", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
 
--- Hint: see `:h vim.map.set()`
--- Better window navigation
-vim.keymap.set("n", "<C-h>", "<C-w>h", opts)
-vim.keymap.set("n", "<C-j>", "<C-w>j", opts)
-vim.keymap.set("n", "<C-k>", "<C-w>k", opts)
-vim.keymap.set("n", "<C-l>", "<C-w>l", opts)
+-- Alternative: use Ctrl for navigation
+vim.keymap.set("n", "<C-n>", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+vim.keymap.set("n", "<C-p>", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
 
--- Resize with arrows
--- delta: 2 lines
-vim.keymap.set("n", "<C-Up>", ":resize -2<CR>", opts)
-vim.keymap.set("n", "<C-Down>", ":resize +2<CR>", opts)
-vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", opts)
-vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", opts)
+-- Harpoon keymaps
+local harpoon = require("harpoon")
 
------------------
--- Visual mode --
------------------
+vim.keymap.set("n", "<leader>a", function()
+	harpoon:list():add()
+end, { desc = "Add to Harpoon" })
 
--- Hint: start visual mode with the same area as the previous area and the same mode
-vim.keymap.set("v", "<", "<gv", opts)
-vim.keymap.set("v", ">", ">gv", opts)
+vim.keymap.set("n", "<leader>h", function()
+	harpoon.ui:toggle_quick_menu(harpoon:list())
+end, { desc = "Open harpoon menu" })
+
+-- Disable LazyVim's default <leader>1-4 keybinds for buffers
+pcall(vim.keymap.del, "n", "<leader>1")
+pcall(vim.keymap.del, "n", "<leader>2")
+pcall(vim.keymap.del, "n", "<leader>3")
+pcall(vim.keymap.del, "n", "<leader>4")
+
+-- Harpoon quick select
+vim.keymap.set("n", "<leader>1", function()
+	harpoon:list():select(1)
+end, { desc = "Harpoon file 1" })
+
+vim.keymap.set("n", "<leader>2", function()
+	harpoon:list():select(2)
+end, { desc = "Harpoon file 2" })
+
+vim.keymap.set("n", "<leader>3", function()
+	harpoon:list():select(3)
+end, { desc = "Harpoon file 3" })
+
+vim.keymap.set("n", "<leader>4", function()
+	harpoon:list():select(4)
+end, { desc = "Harpoon file 4" })
+
+-- Harpoon navigation
+vim.keymap.set("n", "<C-q>", function()
+	harpoon:list():prev()
+end, { desc = "Harpoon prev" })
+
+vim.keymap.set("n", "<C-e>", function()
+	harpoon:list():next()
+end, { desc = "Harpoon next" })
