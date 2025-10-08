@@ -1,37 +1,23 @@
 return {
-  "sindrets/diffview.nvim",
-  keys = {
-    { "<leader>da", mode = { "n", "v" }, "<cmd>DiffviewOpen<cr>", desc = "Open diffview" },
-    { "<leader>dfh", mode = { "n", "v" }, "<cmd>DiffviewFileHistory %<CR>", desc = "File history" },
-    { "<leader>dbh", mode = { "n", "v" }, "<cmd>DiffviewFileHistory<CR>", desc = "Current branch history" },
-    { "<leader>dq", mode = { "n", "v" }, "<cmd>DiffviewClose<cr>", desc = "Close diffview" },
-  },
-  opts = {
-    keymaps = {
-      view = {
-        -- Custom navigation keymaps
-        ["<leader>dm"] = "select_next_entry", -- Next file (was ]f)
-        ["<leader>dn"] = "select_prev_entry", -- Previous file (was [f)
-        ["<leader>dt"] = function()
-          require("diffview.config").actions.goto_file_tab()
-        end, -- Open file in new tab
-        -- Disable default keymaps
-        ["]f"] = false,
-        ["[f"] = false,
-        ["<tab>"] = false,
-        ["<s-tab>"] = false,
-      },
-      file_panel = {
-        -- Custom navigation keymaps for file panel
-        ["<leader>dm"] = "select_next_entry", -- Next file (was <tab>)
-        ["<leader>dn"] = "select_prev_entry", -- Previous file (was <s-tab>)
-        ["<leader>dt"] = function()
-          require("diffview.config").actions.goto_file_tab()
-        end, -- Open file in new tab
-        -- Disable default keymaps
-        ["<tab>"] = false,
-        ["<s-tab>"] = false,
-      },
-    },
-  },
+	"sindrets/diffview.nvim",
+	keys = {
+		{ "<leader>gd", mode = { "n", "v" }, "<cmd>DiffviewOpen<cr>", desc = "Open git diff" },
+		{ "<leader>gh", mode = { "n", "v" }, "<cmd>DiffviewFileHistory %<CR>", desc = "File history" },
+		{ "<leader>gH", mode = { "n", "v" }, "<cmd>DiffviewFileHistory<CR>", desc = "Branch history" },
+		{ "<leader>gq", mode = { "n", "v" }, "<cmd>DiffviewClose<cr>", desc = "Close diffview" },
+	},
+	opts = {
+		keymaps = {
+			view = {
+				["<C-n>"] = "select_next_entry", -- Next file
+				["<C-p>"] = "select_prev_entry", -- Previous file
+			},
+			file_panel = {
+				["j"] = "next_entry", -- Next file
+				["k"] = "prev_entry", -- Previous file
+				["<cr>"] = "select_entry",
+				["q"] = "close",
+			},
+		},
+	},
 }
