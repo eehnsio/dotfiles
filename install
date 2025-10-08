@@ -1,0 +1,20 @@
+#!/usr/bin/env zsh
+
+# Set defaults if not already set
+if [[ -z $STOW_FOLDERS ]]; then
+    STOW_FOLDERS="ghostty,nvim,zsh"
+fi
+
+if [[ -z $DOTFILES ]]; then
+    DOTFILES="$(cd "$(dirname "$0")" && pwd)"
+fi
+
+# Install each package
+pushd $DOTFILES
+for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")
+do
+    echo "stow $folder"
+    stow -D --target=$HOME --verbose $folder
+    stow --target=$HOME --verbose $folder
+done
+popd

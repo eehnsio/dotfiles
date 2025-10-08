@@ -24,3 +24,4 @@ alias sep='cal -m 09'
 alias oct='cal -m 10'
 alias nov='cal -m 11'
 alias dec='cal -m 12'
+export PATH="$HOME/.local/bin:$PATH"
