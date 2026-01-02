@@ -15,6 +15,7 @@ vim.opt.relativenumber = true -- add numbers to each line on the left side
 vim.opt.cursorline = true -- highlight cursor line underneath the cursor horizontally
 vim.opt.splitbelow = true -- open new vertical split bottom
 vim.opt.splitright = true -- open new horizontal splits right
+vim.opt.guicursor = "" -- use block cursor in all modes
 -- vim.opt.termguicolors = true        -- enabl 24-bit RGB color in the TUI
 vim.opt.showmode = false -- we are experienced, wo don't need the "-- INSERT --" mode hint
 
@@ -23,3 +24,23 @@ vim.opt.incsearch = true -- search as characters are entered
 vim.opt.hlsearch = false -- do not highlight matches
 vim.opt.ignorecase = true -- ignore case in searches by default
 vim.opt.smartcase = true -- but make it case sensitive if an uppercase is entered
+
+-- Detect .mdx files as markdown
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = "*.mdx",
+  callback = function()
+    vim.bo.filetype = "markdown"
+  end,
+})
+
+-- Line wrapping for markdown files
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "markdown", "mdx" },
+  callback = function()
+    vim.opt_local.wrap = true -- enable line wrapping
+    vim.opt_local.linebreak = true -- break lines at word boundaries
+    vim.opt_local.breakindent = true -- preserve indentation in wrapped lines
+    vim.opt_local.spell = true -- enable spell checking
+    vim.opt_local.spelllang = "sv,en" -- use Swedish and English dictionaries
+  end,
+})

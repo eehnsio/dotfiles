@@ -7,8 +7,8 @@ adjust-cursor-height = 25%
 adjust-underline-position = 40%
 adjust-underline-thickness = -60%
 
-cursor-style = underline
-shell-integration-features = no-cursor
+cursor-style = block
+# shell-integration-features = no-cursor
 
 clipboard-paste-protection = false
 unfocused-split-opacity = 0.30
@@ -58,7 +58,6 @@ palette = 14=#ADD7FF
 palette = 7=#ffffff
 palette = 15=#ffffff
 
-# keybind = shift+enter=text:\n
-
 copy-on-select = clipboard
 
+keybind = shift+enter=text:\x1b\r

@@ -25,3 +25,10 @@ alias oct='cal -m 10'
 alias nov='cal -m 11'
 alias dec='cal -m 12'
 export PATH="$HOME/.local/bin:$PATH"
+
+# bun completions
+[ -s "/Users/erik/.bun/_bun" ] && source "/Users/erik/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
