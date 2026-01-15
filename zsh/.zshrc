@@ -1,3 +1,6 @@
+# Node.js 24 (Homebrew keg-only)
+export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
+
 # License: MIT Enable color support of ls
 if ls --color=auto &>/dev/null; then
 	alias ls='ls -p --color=auto'
