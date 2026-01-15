@@ -1,2 +1,5 @@
 .DS_Store
 ssh/
+
+# Företagsinterna skills (ej för publicering)
+claude/.claude/skills/consid-ui.md
