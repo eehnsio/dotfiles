@@ -1,3 +1,8 @@
+# Fix TERM for remote machines that don't recognize ghostty
+if [[ "$TERM" == "xterm-ghostty" ]] && [[ -n "$SSH_CONNECTION" ]]; then
+  export TERM=xterm-256color
+fi
+
 # Node.js 24 (Homebrew keg-only)
 export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
 
@@ -13,6 +18,11 @@ fi
 alias ..='cd ..;pwd'
 alias tree='tree --dirsfirst -F'
 
+# Walle Kiosk
+alias walle='ssh walle'
+alias walle-logs='ssh walle "journalctl -u walle -f"'
+alias walle-restart='ssh walle "sudo systemctl restart walle"'
+alias walle-deploy='ssh walle "cd ~/walle && git pull && ~/.bun/bin/bun run build && sudo systemctl restart walle && sudo systemctl restart lightdm"'
 
 # Calendar
 alias jan='cal -m 01'
