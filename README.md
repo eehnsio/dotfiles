@@ -6,6 +6,7 @@ Personal configuration files for development environment setup.
 
 ## What's Included
 
+- **claude** - Claude Code CLI settings, skills, and commands
 - **ghostty** - Terminal emulator configuration
 - **nvim** - Neovim editor with plugins and themes
 - **zsh** - Shell configuration and aliases
@@ -53,6 +54,7 @@ Each directory represents a package that can be independently stowed:
 
 ```
 .dotfiles/
+├── claude/           # Claude Code CLI
 ├── ghostty/          # Terminal emulator
 ├── nvim/             # Neovim editor
 └── zsh/              # Shell
@@ -64,3 +66,9 @@ Each directory represents a package that can be independently stowed:
 - **Edit files here** in the dotfiles directory, not in `~/.config`
 - **Re-run `./install`** to update symlinks after pulling changes
 - **Conflicts?** The script automatically removes old symlinks before creating new ones
+
+## Claude Code
+
+Marketplace plugins are declared in `claude/.claude/settings.json` and installed automatically by Claude Code — no local copies needed.
+
+Custom skills live in `claude/.claude/skills/`. Private or company-internal skills use the `-private` suffix (e.g. `my-skill-private/`) and are excluded from git via a wildcard pattern in `.gitignore`.
