@@ -15,9 +15,22 @@ To create a commit, just type:
 1. Checks which files are staged with `git status`
 2. If 0 files are staged, automatically adds all modified and new files with `git add`
 3. Performs a `git diff` to understand what changes are being committed
-4. Analyzes the diff to determine if multiple distinct logical changes are present
-5. If multiple distinct changes are detected, suggests breaking the commit into multiple smaller commits
-6. For each commit (or the single commit if not split), creates a commit message conventional commit format
+4. **Reviews documentation impact**: Checks if any changed code affects existing documentation (e.g., new features, changed APIs, renamed files, modified behavior). If relevant docs exist in `/docs/`, suggests or makes documentation updates to keep them in sync.
+5. Analyzes the diff to determine if multiple distinct logical changes are present
+6. If multiple distinct changes are detected, suggests breaking the commit into multiple smaller commits
+7. For each commit (or the single commit if not split), creates a commit message conventional commit format
+
+## Documentation Review
+
+Before committing, always check if the changes affect documentation:
+
+1. **New features or modules**: Check if `/docs/features/`, `/docs/architecture/`, or `/docs/user-guides/` need updates
+2. **Changed file structure**: Check if component or file references in docs still match reality
+3. **API or behavior changes**: Check if code examples in docs are still accurate
+4. **New dependencies or tools**: Check if version references in docs need updating
+5. **Removed functionality**: Check if docs reference things that no longer exist
+
+If documentation updates are needed, include them in the same commit (type `docs:`) or suggest a separate docs commit.
 
 ## Best Practices for Commits
 
