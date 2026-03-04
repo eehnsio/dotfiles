@@ -46,3 +46,6 @@ export POSTHOG_MCP_URL="https://mcp-eu.posthog.com/mcp"
 
 eval "$(atuin init zsh)"
 eval "$(zoxide init zsh)"
+
+# Privata alias och config (ej versionshanterad)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

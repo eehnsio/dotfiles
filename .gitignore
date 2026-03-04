@@ -3,3 +3,6 @@ ssh/
 
 # Privata skills (ej för publicering)
 claude/.claude/skills/*-private/
+
+# Privat zsh-config
+zsh/.zshrc.local
