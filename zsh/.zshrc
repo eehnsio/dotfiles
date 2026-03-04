@@ -18,12 +18,6 @@ fi
 alias ..='cd ..;pwd'
 alias tree='tree --dirsfirst -F'
 
-# Walle Kiosk
-alias walle='ssh walle'
-alias walle-logs='ssh walle "journalctl -u walle -f"'
-alias walle-restart='ssh walle "sudo systemctl restart walle"'
-alias walle-deploy='ssh walle "cd ~/walle && git pull && ~/.bun/bin/bun run build && sudo systemctl restart walle && sudo systemctl restart lightdm"'
-
 # Calendar
 alias jan='cal -m 01'
 alias feb='cal -m 02'
@@ -51,3 +45,4 @@ export POSTHOG_MCP_URL="https://mcp-eu.posthog.com/mcp"
 . "$HOME/.atuin/bin/env"
 
 eval "$(atuin init zsh)"
+eval "$(zoxide init zsh)"
