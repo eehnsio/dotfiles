@@ -1,0 +1,16 @@
+classic: false
+blocks:
+  - permission
+  - user
+  - group
+  - size
+  - date
+  - name
+date: relative
+icons:
+  when: auto
+  separator: " "
+sorting:
+  dir-grouping: first
+  column: name
+header: false

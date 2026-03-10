@@ -2,7 +2,7 @@
 
 # Set defaults if not already set
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="atuin,claude,ghostty,nvim,zsh"
+    STOW_FOLDERS="atuin,claude,ghostty,lsd,nvim,zsh"
 fi
 
 if [[ -z $DOTFILES ]]; then

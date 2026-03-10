@@ -1,0 +1,47 @@
+# Poimandres Storm palette for lsd
+# Based on Ghostty theme colors
+
+user: 91
+group: 91
+permission:
+  read: "#5DE4C7"
+  write: "#D0679D"
+  exec: "#FFFAC2"
+  exec-sticky: "#FFFAC2"
+  no-access: "#506477"
+  octal: "#89DDFF"
+  acl: "#ADD7FF"
+  context: "#ADD7FF"
+
+date:
+  hour-old: "#5DE4C7"
+  day-old: "#ADD7FF"
+  older: "#506477"
+
+size:
+  none: "#506477"
+  small: "#5DE4C7"
+  medium: "#FFFAC2"
+  large: "#D0679D"
+
+inode:
+  valid: "#ADD7FF"
+  invalid: "#506477"
+
+links:
+  valid: "#ADD7FF"
+  invalid: "#D0679D"
+
+tree-edge: "#506477"
+
+git-status:
+  default: "#506477"
+  unmodified: "#506477"
+  ignored: "#506477"
+  new-in-index: "#5DE4C7"
+  new-in-workdir: "#5DE4C7"
+  typechange: "#FFFAC2"
+  deleted: "#D0679D"
+  renamed: "#89DDFF"
+  modified: "#FFFAC2"
+  conflicted: "#D0679D"
