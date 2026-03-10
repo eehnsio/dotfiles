@@ -1,47 +1,46 @@
-# Poimandres Storm palette for lsd
-# Based on Ghostty theme colors
+# Catppuccin Macchiato palette for lsd
 
 user: 91
 group: 91
 permission:
-  read: "#5DE4C7"
-  write: "#D0679D"
-  exec: "#FFFAC2"
-  exec-sticky: "#FFFAC2"
-  no-access: "#506477"
-  octal: "#89DDFF"
-  acl: "#ADD7FF"
-  context: "#ADD7FF"
+  read: "#a6da95"      # green
+  write: "#ed8796"     # red
+  exec: "#eed49f"      # yellow
+  exec-sticky: "#eed49f"
+  no-access: "#6e738d"  # overlay0
+  octal: "#8aadf4"     # blue
+  acl: "#b7bdf8"       # lavender
+  context: "#b7bdf8"
 
 date:
-  hour-old: "#5DE4C7"
-  day-old: "#ADD7FF"
-  older: "#506477"
+  hour-old: "#a6da95"  # green
+  day-old: "#8aadf4"   # blue
+  older: "#6e738d"     # overlay0
 
 size:
-  none: "#506477"
-  small: "#5DE4C7"
-  medium: "#FFFAC2"
-  large: "#D0679D"
+  none: "#6e738d"      # overlay0
+  small: "#a6da95"     # green
+  medium: "#eed49f"    # yellow
+  large: "#ed8796"     # red
 
 inode:
-  valid: "#ADD7FF"
-  invalid: "#506477"
+  valid: "#b7bdf8"     # lavender
+  invalid: "#6e738d"   # overlay0
 
 links:
-  valid: "#ADD7FF"
-  invalid: "#D0679D"
+  valid: "#b7bdf8"     # lavender
+  invalid: "#ed8796"   # red
 
-tree-edge: "#506477"
+tree-edge: "#6e738d"   # overlay0
 
 git-status:
-  default: "#506477"
-  unmodified: "#506477"
-  ignored: "#506477"
-  new-in-index: "#5DE4C7"
-  new-in-workdir: "#5DE4C7"
-  typechange: "#FFFAC2"
-  deleted: "#D0679D"
-  renamed: "#89DDFF"
-  modified: "#FFFAC2"
-  conflicted: "#D0679D"
+  default: "#6e738d"
+  unmodified: "#6e738d"
+  ignored: "#6e738d"
+  new-in-index: "#a6da95"
+  new-in-workdir: "#a6da95"
+  typechange: "#eed49f"
+  deleted: "#ed8796"
+  renamed: "#8aadf4"
+  modified: "#eed49f"
+  conflicted: "#ed8796"
