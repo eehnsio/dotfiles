@@ -35,3 +35,6 @@ background = #1a1b26
 copy-on-select = clipboard
 
 keybind = shift+enter=text:\x1b\r
+
+# Jämna ut splits (som en tiling wm)
+keybind = cmd+shift+e=equalize_splits
