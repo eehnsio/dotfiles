@@ -26,8 +26,9 @@
       }
     }
   },
+  "effortLevel": "xhigh",
   "theme": "dark-daltonized",
   "autoCompactEnabled": false,
-  "skipAutoPermissionPrompt": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }
