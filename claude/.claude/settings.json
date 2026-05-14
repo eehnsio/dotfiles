@@ -15,8 +15,8 @@
     "posthog@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
-    "greptile@claude-plugins-official": true,
-    "swift-lsp@claude-plugins-official": true
+    "swift-lsp@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "cloudflare": {
@@ -25,5 +25,9 @@
         "repo": "cloudflare/skills"
       }
     }
-  }
+  },
+  "theme": "dark-daltonized",
+  "autoCompactEnabled": false,
+  "skipAutoPermissionPrompt": true,
+  "agentPushNotifEnabled": true
 }
