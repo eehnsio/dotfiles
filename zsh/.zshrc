@@ -41,9 +41,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 export POSTHOG_MCP_URL="https://mcp-eu.posthog.com/mcp"
 
-. "$HOME/.atuin/bin/env"
-
-eval "$(atuin init zsh)"
 eval "$(zoxide init zsh)"
 
 # Privata alias och config (ej versionshanterad)
