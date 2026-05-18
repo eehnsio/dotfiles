@@ -3,6 +3,8 @@ ssh/
 
 # Privata skills (ej för publicering)
 claude/.claude/skills/*-private/
+claude/.claude/skills/ehnsio-review/
+claude/.claude/skills/ehnsio-write/
 
 # Privat zsh-config
 zsh/.zshrc.local
