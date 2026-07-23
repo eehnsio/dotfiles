@@ -3,8 +3,8 @@ if [[ "$TERM" == "xterm-ghostty" ]] && [[ -n "$SSH_CONNECTION" ]]; then
   export TERM=xterm-256color
 fi
 
-# Node.js 24 (Homebrew keg-only)
-export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
+# Node.js 24 (Homebrew keg-only) — macOS only
+[[ -d "/opt/homebrew/opt/node@24/bin" ]] && export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
 
 # lsd aliases
 alias ls='lsd'
@@ -33,7 +33,7 @@ alias dec='cal -m 12'
 export PATH="$HOME/.local/bin:$PATH"
 
 # bun completions
-[ -s "/Users/erik/.bun/_bun" ] && source "/Users/erik/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
@@ -41,7 +41,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 export POSTHOG_MCP_URL="https://mcp-eu.posthog.com/mcp"
 
-eval "$(zoxide init zsh)"
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
 # Privata alias och config (ej versionshanterad)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
