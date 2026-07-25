@@ -43,5 +43,21 @@ export POSTHOG_MCP_URL="https://mcp-eu.posthog.com/mcp"
 
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
+# herdr (testar som tmux-ersättare)
+if command -v herdr &> /dev/null; then
+  eval "$(herdr completion zsh)"
+  alias hd='herdr'
+  alias hda='herdr session attach'
+  alias hds='herdr status'
+fi
+
+# Prompt: starship, Pure-stil (config: starship-paketet → ~/.config/starship.toml)
+eval "$(starship init zsh)"
+
+# Deja — historik-autocomplete (daemonen auto-spawnas vid första prompten)
+if command -v deja &> /dev/null; then
+  eval "$(deja init zsh)"
+fi
+
 # Privata alias och config (ej versionshanterad)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

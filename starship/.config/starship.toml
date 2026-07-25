@@ -1,0 +1,10 @@
+# Pure-stil: cyan katalog + magenta ❯ (röd vid fel) — inspirerad av deja-repots demo-gif
+format = "$directory$character"
+
+[directory]
+style = "cyan"
+truncation_length = 1   # bara mappnamnet, som "deja ❯"
+
+[character]
+success_symbol = "[❯](bold purple)"
+error_symbol = "[❯](bold red)"
