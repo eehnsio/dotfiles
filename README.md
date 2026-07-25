@@ -9,6 +9,7 @@ Personal configuration files for development environment setup.
 - **claude** - Claude Code CLI settings, skills, and commands
 - **ghostty** - Terminal emulator configuration
 - **nvim** - Neovim editor with plugins and themes
+- **starship** - Prompt (Pure-style: cyan dir + magenta `❯`, red on error)
 - **zsh** - Shell configuration and aliases
 
 ## Installation
@@ -57,8 +58,19 @@ Each directory represents a package that can be independently stowed:
 ├── claude/           # Claude Code CLI
 ├── ghostty/          # Terminal emulator
 ├── nvim/             # Neovim editor
+├── starship/         # Prompt (config → ~/.config/starship.toml)
 └── zsh/              # Shell
 ```
+
+## Shell Extras (installed via Homebrew, wired up in `zsh/.zshrc`)
+
+| Tool | Install | Purpose |
+|------|---------|---------|
+| [starship](https://starship.rs) | `brew install starship` | Prompt — config in the `starship` package |
+| [deja](https://github.com/Giammarco-ferranti/deja) | `brew install Giammarco-Ferranti/deja/deja` | History autocomplete (ghost text); daemon auto-spawns. Bootstrap history on a new machine: `deja import` |
+
+Both are guarded/initialized at the end of `zsh/.zshrc`. Prompt colors map to the
+terminal's ANSI palette — the exact look depends on the active Ghostty theme.
 
 ## How It Works
 
