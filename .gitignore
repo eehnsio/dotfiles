@@ -8,3 +8,9 @@ claude/.claude/skills/ehnsio-write/
 
 # Privat zsh-config
 zsh/.zshrc.local
+
+# Beroenden i skill-scripts
+node_modules/
+
+# Sparade browser-sessioner (cookies/tokens)
+.auth/
