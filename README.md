@@ -9,7 +9,7 @@ Personal configuration files for development environment setup.
 - **claude** - Claude Code CLI settings, skills, and commands
 - **ghostty** - Terminal emulator configuration
 - **nvim** - Neovim editor with plugins and themes
-- **starship** - Prompt (Pure-style: cyan dir + magenta `❯`, red on error)
+- **starship** - Prompt (Pure-style: green host + cyan path + magenta `❯`, red on error; `user@host` over SSH)
 - **zsh** - Shell configuration and aliases
 
 ## Installation

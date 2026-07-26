@@ -1,9 +1,22 @@
 # Pure-stil: cyan katalog + magenta ❯ (röd vid fel) — inspirerad av deja-repots demo-gif
-format = "$directory$character"
+format = "$username$hostname$directory$character"
+
+[username]
+# visas bara vid SSH eller som root → "erik@server"
+format = "[$user]($style)@"
+style_user = "bold dimmed green"
+
+[hostname]
+ssh_only = false
+format = "[$hostname]($style) "
+style = "bold green"
+aliases = { "Eriks-MacBook-Pro" = "mac" }
 
 [directory]
 style = "cyan"
-truncation_length = 1   # bara mappnamnet, som "deja ❯"
+truncation_length = 3   # ~/Developer/dotfiles visas helt, djupare paths blir …/Developer/dotfiles
+truncation_symbol = "…/"
+truncate_to_repo = false
 
 [character]
 success_symbol = "[❯](bold purple)"
