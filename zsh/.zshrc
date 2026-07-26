@@ -43,14 +43,6 @@ export POSTHOG_MCP_URL="https://mcp-eu.posthog.com/mcp"
 
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
-# herdr (testar som tmux-ersättare)
-if command -v herdr &> /dev/null; then
-  eval "$(herdr completion zsh)"
-  alias hd='herdr'
-  alias hda='herdr session attach'
-  alias hds='herdr status'
-fi
-
 # Prompt: starship, Pure-stil (config: starship-paketet → ~/.config/starship.toml)
 eval "$(starship init zsh)"
 
