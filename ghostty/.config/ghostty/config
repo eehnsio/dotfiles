@@ -38,3 +38,12 @@ keybind = shift+enter=text:\x1b\r
 
 # Jämna ut splits (som en tiling wm)
 keybind = cmd+shift+e=equalize_splits
+
+# herdr: cykla workspaces (skickar prefix ctrl+b = \x02 följt av j/k,
+# se ~/.config/herdr/config.toml)
+# Svensk layout: §-tangenten under Esc (= "cmd+tilde"-positionen)
+keybind = cmd+§=text:\x02f
+keybind = cmd+shift+§=text:\x02d
+# US/chocofi-layout: samma fysiska position = backtick
+keybind = cmd+grave_accent=text:\x02f
+keybind = cmd+shift+grave_accent=text:\x02d
