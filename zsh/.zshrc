@@ -1,8 +1,3 @@
-# Fix TERM for remote machines that don't recognize ghostty
-if [[ "$TERM" == "xterm-ghostty" ]] && [[ -n "$SSH_CONNECTION" ]]; then
-  export TERM=xterm-256color
-fi
-
 # Node.js 24 (Homebrew keg-only) — macOS only
 [[ -d "/opt/homebrew/opt/node@24/bin" ]] && export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
 

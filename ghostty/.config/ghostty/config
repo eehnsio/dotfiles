@@ -8,7 +8,10 @@ adjust-underline-position = 40%
 adjust-underline-thickness = -60%
 
 cursor-style = block
-# shell-integration-features = no-cursor
+
+# ssh-terminfo installerar ghosttys terminfo på fjärrhosten (kräver tic där),
+# ssh-env sköter TERM-fallbacken om det misslyckas. Resten = ghosttys defaults.
+shell-integration-features = cursor,no-sudo,title,ssh-env,ssh-terminfo,path
 
 clipboard-paste-protection = false
 unfocused-split-opacity = 0.85
