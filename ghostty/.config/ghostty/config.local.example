@@ -6,5 +6,9 @@
 #
 # font-size = 14
 #
-# Om skärmarna har olika DPI är det oftast bättre att skala i kompositorn än
-# att pilla på font-size — då följer allt annat med. Se niri/local.kdl.
+# Om skärmarna har olika DPI vill man helst skala i kompositorn i stället, så
+# att allt annat följer med. Men skalan måste vara minst 1 på varje skärm:
+# Chromium klampar skalfaktorn där och ritar Electron-appar fel på allt
+# därunder. Går skärmarna inte att matcha inom den ramen är font-size här
+# vägen — och ghostty ändrar dessutom storlek per fönster i farten med
+# ctrl++, ctrl+- och ctrl+0. Se niri/local.kdl för resonemanget.
