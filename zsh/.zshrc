@@ -36,6 +36,14 @@ zle -N down-line-or-beginning-search
 bindkey '^[[A' up-line-or-beginning-search
 bindkey '^[[B' down-line-or-beginning-search
 
+# Hoppa ord med alt+pil (macOS-vana). Emacs-lagets ^[b och ^[f gor redan detta,
+# men terminalen skickar CSI-sekvenser for alt+pil som zsh inte binder sjalv.
+# Ctrl+pil med, eftersom niri bara tar Mod+Ctrl+pil och lamnar Ctrl+pil ifred.
+bindkey '^[[1;3D' backward-word   # alt+vanster
+bindkey '^[[1;3C' forward-word    # alt+hoger
+bindkey '^[[1;5D' backward-word   # ctrl+vanster
+bindkey '^[[1;5C' forward-word    # ctrl+hoger
+
 # ── Prompt ──────────────────────────────────────────────────────────────
 # Pure-stil i ren zsh: grön hostname, cyan katalog, lila ❯ som blir röd vid felkod.
 # %m = hostname · %(4~|…/%3~|%~) = full path upp till 3 nivåer, annars …/tre-sista
