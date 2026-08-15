@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""Starta ett program och lägg fönstret i kolumnen man redan står i.
+
+Niri öppnar alltid nya fönster i en egen kolumn till höger. Att få dem i
+befintlig kolumn kräver normalt två steg: gå tillbaka till vänster och köra
+consume-window-into-column. Det här skriptet gör båda i ett svep — det
+väntar in det nya fönstret och drar in det åt vänster.
+
+Anrop:  niri-spawn-in-column ghostty
+"""
+
+import json
+import subprocess
+import sys
+import time
+
+# Hur länge vi väntar på att fönstret ska dyka upp. Ghostty är snabb, men en
+# kallstartad app kan behöva mer — vi ger upp hellre än att hänga för evigt.
+TIMEOUT_S = 5.0
+POLL_S = 0.05
+
+
+def niri(*args):
+    return subprocess.run(
+        ["niri", "msg", *args], capture_output=True, text=True, check=True
+    ).stdout
+
+
+def window_ids():
+    return {w["id"] for w in json.loads(niri("--json", "windows"))}
+
+
+def main():
+    command = sys.argv[1:]
+    if not command:
+        sys.exit("användning: niri-spawn-in-column <kommando> [argument...]")
+
+    before = window_ids()
+    subprocess.Popen(command, start_new_session=True)
+
+    deadline = time.monotonic() + TIMEOUT_S
+    while time.monotonic() < deadline:
+        time.sleep(POLL_S)
+        new = window_ids() - before
+        if not new:
+            continue
+
+        # Fönstret finns, men niri kan behöva ett ögonblick till på att
+        # flytta fokus dit. Utan det skulle vi konsumera fel fönster.
+        focused = json.loads(niri("--json", "focused-window") or "null")
+        if focused and focused["id"] in new:
+            niri("action", "consume-or-expel-window-left")
+            even_out_column_heights()
+            return
+
+
+def even_out_column_heights():
+    """Ge alla fönster i kolumnen automatisk höjd.
+
+    Utan det ärver det inkonsumerade fönstret bara det som blir över när
+    grannen redan har en manuellt satt höjd — på en stående skärm kan det bli
+    en terminal på tre rader.
+    """
+    windows = json.loads(niri("--json", "windows"))
+    focused = next((w for w in windows if w.get("is_focused")), None)
+    if focused is None:
+        return
+
+    column, row = focused["layout"]["pos_in_scrolling_layout"]
+    siblings = [
+        w
+        for w in windows
+        if w["workspace_id"] == focused["workspace_id"]
+        and w["layout"]["pos_in_scrolling_layout"][0] == column
+    ]
+
+    # Indexen är 1-baserade i niri, och reset-window-height gäller det
+    # fokuserade fönstret — så vi går igenom kolumnen och återställer var och en.
+    for i in range(1, len(siblings) + 1):
+        niri("action", "focus-window-in-column", str(i))
+        niri("action", "reset-window-height")
+
+    niri("action", "focus-window-in-column", str(row))
+
+    print("inget nytt fönster inom tidsgränsen", file=sys.stderr)
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

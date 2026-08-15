@@ -7,6 +7,7 @@ Personal configuration files for development environment setup.
 
 ## What's Included
 
+- **bin** - Small helper scripts to `~/.local/bin` (niri window helpers)
 - **claude** - Claude Code CLI settings, skills, and commands
 - **ghostty** - Terminal emulator configuration (incl. cursor shader)
 - **niri** - Scrolling tiling compositor, Linux only. See caveats below
@@ -57,6 +58,7 @@ Each directory represents a package that can be independently stowed:
 
 ```
 .dotfiles/
+├── bin/              # Helper scripts → ~/.local/bin
 ├── claude/           # Claude Code CLI
 ├── ghostty/          # Terminal emulator
 ├── niri/             # Compositor (Linux only)
@@ -75,8 +77,13 @@ Not portable as-is — two things are machine-specific and need editing on a new
   the config until DMS has run once on the new machine.
 
 Keybinds follow macOS muscle memory where possible: `Mod+W` closes, `Mod+Space`
-launches, `Mod+Shift+3/4/5` screenshots, `Mod+§` cycles windows within an app
-(via `~/.local/bin/niri-cycle-app-windows`, also not in this repo yet).
+launches, `Mod+Shift+3/4/5` screenshots, `Mod+§` cycles windows within an app,
+`Mod+Shift+Return` opens a terminal inside the current column.
+
+The last two are scripts from the `bin` package. niri spawns them by absolute
+path (`/home/erik/.local/bin/...`) because niri is started by greetd and its
+`PATH` does not include `~/.local/bin` — that only gets added by `.zshrc`, which
+interactive shells read and niri does not.
 
 App-specific `super` → `ctrl` translation is handled by
 [xremap](https://github.com/xremap/xremap) with the `niri` feature, started from
