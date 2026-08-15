@@ -42,7 +42,7 @@ input {
 // ─── Layout ─────────────────────────────────────────────────────────────
 
 layout {
-    gaps 10
+    gaps 20
     center-focused-column "never"
 
     preset-column-widths {
@@ -74,28 +74,102 @@ layout {
     }
 }
 
+// ─── Miljo ──────────────────────────────────────────────────────────────
+
+environment {
+    // Electron-appar (Discord m.fl.) kor annars pa XWayland, som inte klarar
+    // bruten skalning. Pa DP-1 (scale 0.85) blev Discord ritad i 0.85 av sin
+    // egen fonsterruta — glapp till hoger och nertill, for liten text, och
+    // krympt ett snapp till varje gang man slappte den efter en flytt.
+    // "auto" valjer Wayland nar sessionen ar Wayland, annars X11.
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+}
+
 // ─── Uppstart ───────────────────────────────────────────────────────────
 
 spawn-at-startup "dms" "run"
 
 // xremap: mac-liknande genvagar per app (super+t → ctrl+t i Zen osv).
 // Startas harifran for att arva niris NIRI_SOCKET, som den behover for att
-// veta vilket fonster som ar aktivt. Config: ~/.config/xremap/config.yml
-spawn-at-startup "xremap" "--watch=config,device" "/home/erik/.config/xremap/config.yml"
+// veta vilket fonster som ar aktivt. Config: xremap-paketet i dotfiles.
+//
+// Absolut sokvag av samma skal som skriptet nedan: niris PATH ar
+// /usr/local/sbin:/usr/local/bin:/usr/bin:... och innehaller inte
+// ~/.local/bin, dar xremap-binaren ligger. Med bara "xremap" startar den inte.
+spawn-at-startup "/home/erik/.local/bin/xremap" "--watch=config,device" "/home/erik/.config/xremap/config.yml"
 
 hotkey-overlay {
     // Ingen "Important Hotkeys"-popup vid uppstart — visa med Mod+Shift+Escape.
     skip-at-startup
 }
 
+gestures {
+    // Overview ska bara ga att na med Mod+O, inte genom att rakas dra musen
+    // upp i ett horn.
+    hot-corners {
+        off
+    }
+}
+
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 // ─── Fonsterregler ──────────────────────────────────────────────────────
+
+// Utan match-rad galler regeln ALLA fonster. Reglerna appliceras uppifran och
+// ner, sa den har maste ligga forst — en senare regel kan skriva over den for
+// sina egna fonster.
+//
+// geometry-corner-radius rundar bara niris egna lager (fokusring, kant,
+// skugga). clip-to-geometry klipper aven sjalva fonsterinnehallet, annars
+// sticker apparnas fyrkantiga horn ut genom rundningen.
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+}
 
 // Bild-i-bild ska sväva, inte kaklas. Matchar bade Firefox och Zen.
 window-rule {
     match app-id=r#"(firefox|zen)$"# title="^Picture-in-Picture$"
     open-floating true
+
+    // Ligger efter regeln ovan och vinner darfor for just PiP-fonster.
+    geometry-corner-radius 2
+    clip-to-geometry true
+}
+
+// Flytande terminal. Samma ghostty som vanligt, men startad med ett eget
+// app-id sa att regeln kan skilja den fran de kaklade fonstren — ghostty tar
+// alla sina config-nycklar som flaggor, darav --class. Se Mod+Ctrl+T.
+window-rule {
+    match app-id=r#"^com\.mitchellh\.ghostty\.floating$"#
+    open-floating true
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.5; }
+}
+
+// Filhanteraren ar en dialog i praktiken — den ska sväva, inte ata en kolumn.
+// Galler alla Nautilus-fonster, alltsa aven Mod+E.
+window-rule {
+    match app-id=r#"^org\.gnome\.Nautilus$"#
+    open-floating true
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.6; }
+}
+
+// Bitwardens upplasningsruta. Zen ger sina extension-popups titeln
+// "Extension: (<namn>) - ..." medan sjalva valvet heter "Bitwarden Web vault",
+// sa den har matchningen tar popupen utan att rora en vanlig flik. Vill du att
+// alla extension-popups ska sväva racker det att korta titeln till
+// r#"^Extension: "#.
+//
+// block-out-from doljer fonstret i skarmdelning och inspelning — det syns
+// normalt for dig sjalv, men inte for den du delar skarmen med.
+window-rule {
+    match app-id=r#"^zen$"# title=r#"^Extension: \(Bitwarden"#
+    open-floating true
+    default-column-width { fixed 420; }
+    default-window-height { fixed 600; }
+    block-out-from "screencast"
 }
 
 // ─── Bindningar ─────────────────────────────────────────────────────────
@@ -109,6 +183,12 @@ binds {
     Mod+Space hotkey-overlay-title="Run an Application: DankShell" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+B hotkey-overlay-title="Open the Browser: Zen" { spawn "zen-browser"; }
     Mod+E hotkey-overlay-title="Open Files: Nautilus" { spawn "nautilus"; }
+
+    // Flytande terminal ovanpa det man haller pa med. Egna app-id:t plockas
+    // upp av window-rule ovan; det ar hela mekanismen.
+    Mod+Ctrl+T hotkey-overlay-title="Open a Floating Terminal: ghostty" {
+        spawn "ghostty" "--class=com.mitchellh.ghostty.floating";
+    }
 
     // Visa/dolj DankBar. Selektorn ar typen av uppslag ("id"), inte varde —
     // darav "id" "default", dar default ar barens id i settings.json.
@@ -133,6 +213,11 @@ binds {
     Mod+O repeat=false { toggle-overview; }
     Mod+W repeat=false { close-window; }
     Mod+Q repeat=false { close-window; }
+
+    // Stanger fonstret aven i appar dar Mod+W ar omdirigerad till "stang flik"
+    // av xremap. Ligger i niri och inte i xremap med flit: da behover den inte
+    // veta vad varje app har for egen genvag for Close Window.
+    Mod+Shift+W repeat=false { close-window; }
     Mod+V       { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
 
@@ -251,6 +336,13 @@ binds {
     // Storlek
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { switch-preset-column-width-back; }
+
+    // Satt bredden direkt i stallet for att cykla dit med Mod+R. Anvandbart
+    // nar ett fonster vuxit och trangt undan grannen till halva synligheten.
+    Mod+Alt+1 { set-column-width "33.333%"; }
+    Mod+Alt+2 { set-column-width "50%"; }
+    Mod+Alt+3 { set-column-width "66.667%"; }
+    Mod+Alt+4 { set-column-width "100%"; }
     Mod+Ctrl+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
     Mod+F { maximize-column; }
@@ -273,6 +365,10 @@ binds {
     Mod+Shift+3 { screenshot-screen; }
     Mod+Shift+4 { screenshot; }
     Mod+Shift+5 { screenshot-window; }
+
+    // Har lag tidigare binds for att andra skarmskalan i steg. Borttagna:
+    // bada skarmarna kor scale 1, och storleksskillnaden mellan dem tas i
+    // ghostty i stallet, med dess egna ctrl++ / ctrl+- / ctrl+0 per fonster.
 
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
