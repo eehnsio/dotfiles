@@ -79,13 +79,17 @@ Not portable as-is — two things are machine-specific and need editing on a new
   the config until DMS has run once on the new machine.
 
 Keybinds follow macOS muscle memory where possible: `Mod+W` closes, `Mod+Space`
-launches, `Mod+Shift+3/4/5` screenshots, `Mod+§` cycles windows within an app,
-`Mod+Shift+Return` opens a terminal inside the current column.
+launches, `Mod+B`/`Mod+E` open browser and files, `Mod+Shift+3/4/5` take
+screenshots, and `Mod+§` cycles windows within an app.
 
-The last two are scripts from the `bin` package. niri spawns them by absolute
-path (`/home/erik/.local/bin/...`) because niri is started by greetd and its
-`PATH` does not include `~/.local/bin` — that only gets added by `.zshrc`, which
-interactive shells read and niri does not.
+`Mod+§` is `niri-cycle-app-windows` from the `bin` package — niri has no
+built-in equivalent because it does not group windows by app. niri spawns it by
+absolute path (`/home/erik/.local/bin/...`): niri is started by greetd and its
+`PATH` does not include `~/.local/bin`, since that is only added by `.zshrc`,
+which interactive shells read and niri does not.
+
+Swedish layout note: `[` and `]` sit behind AltGr, so consume/expel is also
+bound to `Mod+Å` and `Mod+¨` — the same physical keys.
 
 App-specific `super` → `ctrl` translation is handled by
 [xremap](https://github.com/xremap/xremap) with the `niri` feature, started from

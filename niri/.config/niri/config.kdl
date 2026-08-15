@@ -380,9 +380,7 @@ binds {
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
     Mod+Return hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-    // Skriptet niri-spawn-in-column finns kvar i bin-paketet men är avbundet:
-    // det gav två animationer (öppna till höger, dra tillbaka) och kändes
-    // ryckigt. Använd niris egna consume-bindningar istället.
+    // Ny terminal i befintlig kolumn: Mod+Return och sedan Mod+Å.
     Mod+Space hotkey-overlay-title="Run an Application: DankShell" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+B hotkey-overlay-title="Open the Browser: Zen" { spawn "zen-browser"; }
     Mod+E hotkey-overlay-title="Open Files: Nautilus" { spawn "nautilus"; }
