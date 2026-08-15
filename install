@@ -2,7 +2,13 @@
 
 # Set defaults if not already set
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="atuin,claude,ghostty,lsd,nvim,zsh"
+    STOW_FOLDERS="bin,claude,ghostty,lsd,nvim,zsh"
+
+    # niri finns bara på Linux. chocofi och zoom75 är referensmappar för
+    # tangentbordslayouter — de ska aldrig stowas.
+    if [[ "$(uname)" == "Linux" ]]; then
+        STOW_FOLDERS="$STOW_FOLDERS,niri"
+    fi
 fi
 
 if [[ -z $DOTFILES ]]; then

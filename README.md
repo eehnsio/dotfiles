@@ -59,6 +59,8 @@ Each directory represents a package that can be independently stowed:
 ```
 .dotfiles/
 ├── bin/              # Helper scripts → ~/.local/bin
+├── chocofi/          # Keyboard layout (reference, not stowed)
+├── zoom75/           # Keyboard layout (reference, not stowed)
 ├── claude/           # Claude Code CLI
 ├── ghostty/          # Terminal emulator
 ├── niri/             # Compositor (Linux only)

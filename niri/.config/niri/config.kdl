@@ -380,11 +380,12 @@ binds {
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
     Mod+Return hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-    // Ny terminal direkt i kolumnen man står i, utan att gå tillbaka och
-    // konsumera manuellt. Skriptet väntar in fönstret och drar in det.
-    Mod+Shift+Return hotkey-overlay-title="Terminal i samma kolumn" { spawn "/home/erik/.local/bin/niri-spawn-in-column" "ghostty"; }
+    // Skriptet niri-spawn-in-column finns kvar i bin-paketet men är avbundet:
+    // det gav två animationer (öppna till höger, dra tillbaka) och kändes
+    // ryckigt. Använd niris egna consume-bindningar istället.
     Mod+Space hotkey-overlay-title="Run an Application: DankShell" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+B hotkey-overlay-title="Open the Browser: Zen" { spawn "zen-browser"; }
+    Mod+E hotkey-overlay-title="Open Files: Nautilus" { spawn "nautilus"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: DankShell" { spawn "dms" "ipc" "call" "lock" "lock"; }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
@@ -583,8 +584,12 @@ binds {
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.
     // If the window is already in a column, they will expel it out.
-    Mod+BracketLeft  { consume-or-expel-window-left; }
-    Mod+BracketRight { consume-or-expel-window-right; }
+    // Svensk layout: [ och ] ligger bakom AltGr och är opraktiska. Å och ¨
+    // sitter på samma fysiska tangenter som [ och ] gör på us-layout.
+    Mod+Aring          { consume-or-expel-window-left; }
+    Mod+Dead_Diaeresis { consume-or-expel-window-right; }
+    Mod+BracketLeft    { consume-or-expel-window-left; }
+    Mod+BracketRight   { consume-or-expel-window-right; }
 
     // Consume one window from the right to the bottom of the focused column.
     Mod+Comma  { consume-window-into-column; }
@@ -675,7 +680,8 @@ binds {
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
     // The quit action will show a confirmation dialog to avoid accidental exits.
-    Mod+Shift+E { quit; }
+    // Mod+Shift+E borttagen — låg för nära Mod+E (filhanteraren).
+    // Ctrl+Alt+Delete är kvar som utgång, med bekräftelsedialog.
     Ctrl+Alt+Delete { quit; }
 
     // Powers off the monitors. To turn them back on, do any input like
