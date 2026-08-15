@@ -14,3 +14,7 @@ node_modules/
 
 # Sparade browser-sessioner (cookies/tokens)
 .auth/
+
+# Maskinspecifikt (skarmar, fontstorlek) — skapas av install fran .example
+niri/.config/niri/local.kdl
+ghostty/.config/ghostty/config.local

@@ -50,3 +50,7 @@ keybind = shift+enter=text:\x1b\r
 
 # Jämna ut splits (som en tiling wm)
 keybind = cmd+shift+e=equalize_splits
+
+# Maskinspecifikt sist, sa det vinner over allt ovan. ?-prefixet gor filen
+# valfri — ghostty klagar inte om den saknas.
+config-file = ?config.local

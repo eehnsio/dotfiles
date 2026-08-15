@@ -1,0 +1,10 @@
+# Maskinspecifik ghostty-config. Kopieras till config.local av install.
+#
+# Laddas SIST, så allt här vinner över config. Bra för sådant som skiljer sig
+# mellan maskinerna — typiskt teckenstorlek, eftersom skärmarnas pixeltäthet
+# inte är densamma.
+#
+# font-size = 14
+#
+# Om skärmarna har olika DPI är det oftast bättre att skala i kompositorn än
+# att pilla på font-size — då följer allt annat med. Se niri/local.kdl.

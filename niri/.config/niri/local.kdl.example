@@ -1,0 +1,21 @@
+// Maskinspecifik niri-config. Kopieras till local.kdl av install-skriptet.
+//
+// Hitta skarmnamn, lagen och upplosningar med:
+//
+//     niri msg outputs
+//
+// Filen maste finnas — niri vagrar starta om en include saknas. En tom fil
+// duger om maskinen inte behover nagra overrides.
+
+// output "DP-1" {
+//     mode "2560x1440@144"
+//     position x=0 y=0
+//     variable-refresh-rate
+//
+//     // Skala om skarmen har annan pixeltathet an de ovriga, sa att text blir
+//     // lika stor fysiskt. Rakna ut som pitch_referens / pitch_denna.
+//     // scale 0.85
+//
+//     // Roterad panel: normal, 90, 180, 270, flipped, flipped-90, ...
+//     // transform "90"
+// }

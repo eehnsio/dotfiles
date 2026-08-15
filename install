@@ -15,6 +15,25 @@ if [[ -z $DOTFILES ]]; then
     DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 fi
 
+# Maskinspecifika filer skapas från sina .example innan stow körs.
+#
+# De är gitignorerade men ligger inuti paketen, så stow symlänkar dem som
+# vanligt — innehållet stannar lokalt medan sökvägen är densamma överallt.
+# niri är kinkig här: den vägrar starta om en include saknas, så filen måste
+# finnas redan första gången.
+seed_local() {
+    local target=$1 template=$2
+    if [[ ! -f $target ]]; then
+        echo "skapar $target från $(basename $template)"
+        cp $template $target
+    fi
+}
+
+seed_local "$DOTFILES/niri/.config/niri/local.kdl" \
+           "$DOTFILES/niri/.config/niri/local.kdl.example"
+seed_local "$DOTFILES/ghostty/.config/ghostty/config.local" \
+           "$DOTFILES/ghostty/.config/ghostty/config.local.example"
+
 # Install each package
 pushd $DOTFILES
 for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")
