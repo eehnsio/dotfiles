@@ -1,6 +1,6 @@
 # font-family = Berkeley Mono Variable
 font-family = Hack Nerd Font Mono
-font-size = 16
+font-size = 14
 
 adjust-cell-height = 25%
 adjust-cursor-height = 25%
@@ -8,6 +8,11 @@ adjust-underline-position = 40%
 adjust-underline-thickness = -60%
 
 cursor-style = block
+
+# Cursor-trail-shader (från github.com/webhooked/.dotfiles).
+# Alternativ: shaders/cursor_blaze.glsl
+custom-shader = shaders/cursor_smear.glsl
+custom-shader-animation = true
 
 # ssh-terminfo installerar ghosttys terminfo på fjärrhosten (kräver tic där),
 # ssh-env sköter TERM-fallbacken om det misslyckas. Resten = ghosttys defaults.
@@ -32,7 +37,7 @@ window-padding-y = 10
 window-padding-balance = true
 window-padding-color = extend 
 
-theme = Catppuccin Macchiato
+theme = noctalia
 background = #1a1b26
 
 copy-on-select = clipboard
