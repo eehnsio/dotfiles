@@ -29,6 +29,7 @@
   "effortLevel": "xhigh",
   "skipWorkflowUsageWarning": true,
   "theme": "dark-daltonized",
+  "tui": "fullscreen",
   "autoCompactEnabled": false,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true
