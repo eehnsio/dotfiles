@@ -42,7 +42,7 @@ input {
 // ─── Layout ─────────────────────────────────────────────────────────────
 
 layout {
-    gaps 5
+    gaps 10
     center-focused-column "never"
 
     preset-column-widths {
@@ -109,6 +109,10 @@ binds {
     Mod+Space hotkey-overlay-title="Run an Application: DankShell" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+B hotkey-overlay-title="Open the Browser: Zen" { spawn "zen-browser"; }
     Mod+E hotkey-overlay-title="Open Files: Nautilus" { spawn "nautilus"; }
+
+    // Visa/dolj DankBar. Selektorn ar typen av uppslag ("id"), inte varde —
+    // darav "id" "default", dar default ar barens id i settings.json.
+    Mod+Shift+B hotkey-overlay-title="Toggle the Bar" { spawn "dms" "ipc" "call" "bar" "toggle" "id" "default"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: DankShell" { spawn "dms" "ipc" "call" "lock" "lock"; }
     Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
 
