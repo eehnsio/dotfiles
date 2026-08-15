@@ -1,0 +1,42 @@
+# xremap — mac-liknande genvägar per app.
+#
+# xremap sitter under kompositorn: den fångar tangenttrycket på evdev-nivå och
+# skickar ut ett nytt. Niri ser alltså bara resultatet. Därför gäller att varje
+# tangent som mappas om här SLUTAR nå niris egna binds i just den appen.
+#
+# exact_match: true är viktigt. Utan den matchar xremap luddigt: Super-l fångar
+# även Super+Alt+L och Super+Shift+L, skickar vidare extramodifieraren och äter
+# alltså niris lasskarm och flytta-kolumn. Med exact_match gäller raden nedan
+# bara exakt den kombinationen; allt annat gar orort vidare till niri.
+#
+# App-klasserna kommer från `xremap --list-windows`.
+
+keymap:
+  # Skyddade systemgenvagar. Galler alla appar och ligger forst — xremap tar
+  # forsta keymappen som matchar, sa inget app-block nedan kan komma at dem.
+  # Identitetsmappning betyder "skicka vidare orort" till niri.
+  # Lasskarmen ska ga att na aven om en app-mappning nedan blir slarvig.
+  - name: Skyddade systemgenvagar
+    exact_match: true
+    remap:
+      Super-Alt-l: Super-Alt-l  # las skarmen (niri: Super+Alt+L)
+
+  # Zen (Firefox-baserad) — cmd-genvägarna från macOS.
+  # Mod+W stänger fliken. Mod+Shift+W stänger fönstret, men den bindningen
+  # ligger i niri och ska INTE mappas om hit: Zen har sitt Close Window på
+  # Ctrl+Shift+Q, inte Ctrl+Shift+W, sa en oversattning hit hamnade i tomma
+  # intet. Niris close-window fungerar oavsett vad appen har for genvagar.
+  # Super-f är medvetet inte mappad: den är niris maximize-column. Sök på sidan
+  # ligger på Alt+F i Zens egna genvägsinställningar.
+  - name: Zen browser
+    application:
+      only: [zen]
+    exact_match: true
+    remap:
+      Super-t: C-t             # ny flik
+      Super-w: C-w             # stäng flik
+      Super-Shift-t: C-Shift-t # återöppna stängd flik
+      Super-n: C-n             # nytt fönster
+      Super-l: C-l             # adressfältet
+      Super-r: C-r             # ladda om
+      Super-d: C-d             # bokmärk

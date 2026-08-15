@@ -110,8 +110,14 @@ bound to `Mod+Å` and `Mod+¨` — the same physical keys.
 
 App-specific `super` → `ctrl` translation is handled by
 [xremap](https://github.com/xremap/xremap) with the `niri` feature, started from
-`spawn-at-startup`. Its config lives at `~/.config/xremap/config.yml` and needs
-the user in the `input` group plus a udev rule for `/dev/uinput`.
+`spawn-at-startup`. It lives in its own `xremap` package and needs the user in
+the `input` group plus a udev rule for `/dev/uinput`.
+
+Every app block sets `exact_match: true`. Without it xremap matches loosely, so
+a rule for `Super-l` also swallows `Super+Alt+L` and passes the extra modifier
+through — which ate the lock screen bind whenever that app had focus. A first
+keymap with no `application` filter identity-maps the lock screen, so no later
+block can reach it at all.
 ```
 
 ## Shell Extras
