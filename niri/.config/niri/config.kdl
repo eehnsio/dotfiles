@@ -83,6 +83,12 @@ environment {
     // krympt ett snapp till varje gang man slappte den efter en flytt.
     // "auto" valjer Wayland nar sessionen ar Wayland, annars X11.
     ELECTRON_OZONE_PLATFORM_HINT "auto"
+
+    // 10 GiB shader-diskcache at NVIDIA-drivrutinen, mot standardens 1024 MB.
+    // Dotas fardigbyggda cache ar 1.05 GB och sprangde alltsa gransen direkt,
+    // varpa drivrutinen rensade den och allt byggdes om vid varje start.
+    // Variabeln heter GL men galler aven Vulkan-pipelines.
+    __GL_SHADER_DISK_CACHE_SIZE "10737418240"
 }
 
 // ─── Uppstart ───────────────────────────────────────────────────────────
