@@ -705,6 +705,10 @@ output "DP-1" {
     mode "1920x1080@143.614"
     position x=2560 y=0
     transform "90"
+
+    // 1920x1080 pa 24.5" = ~90 ppi, mot DP-2:s ~109 ppi. Med scale 1 blir
+    // text ~21% fysiskt storre har. 0.85 matchar DP-2 utan att bli suddigt.
+    scale 0.85
 }
 
 // ---------------------------------------------------------------

@@ -8,15 +8,19 @@ adjust-underline-position = 40%
 adjust-underline-thickness = -60%
 
 cursor-style = block
+cursor-style-blink = true
 
 # Cursor-trail-shader (från github.com/webhooked/.dotfiles).
 # Alternativ: shaders/cursor_blaze.glsl
 custom-shader = shaders/cursor_smear.glsl
 custom-shader-animation = true
 
+# no-cursor: låt inte skalet styra markörformen. Med "cursor" påslaget sätter
+# zsh en stapel och skriver över cursor-style = block ovan — och shadern får
+# en markör som byter form under sig.
 # ssh-terminfo installerar ghosttys terminfo på fjärrhosten (kräver tic där),
 # ssh-env sköter TERM-fallbacken om det misslyckas. Resten = ghosttys defaults.
-shell-integration-features = cursor,no-sudo,title,ssh-env,ssh-terminfo,path
+shell-integration-features = no-cursor,no-sudo,title,ssh-env,ssh-terminfo,path
 
 clipboard-paste-protection = false
 unfocused-split-opacity = 0.85
