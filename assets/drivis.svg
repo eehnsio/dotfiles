@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="JetBrainsMono Nerd Font Mono, JetBrains Mono, monospace">
+
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#0d0f13"/>
+      <stop offset="1" stop-color="#131720"/>
+    </linearGradient>
+
+    <!-- Svagt sken bakom fonstret, i accentfargen. Ger djup utan att lagga
+         till en andra kulor pa ytan. -->
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#7fc8ff" stop-opacity="0.13"/>
+      <stop offset="1" stop-color="#7fc8ff" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="ramp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1d4e6b"/>
+      <stop offset="1" stop-color="#a6dbff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#ground)"/>
+  <ellipse cx="830" cy="300" rx="480" ry="330" fill="url(#glow)"/>
+
+  <!-- ── Vanster kolumn ───────────────────────────────────────────────── -->
+
+  <text x="72" y="196" font-size="13" letter-spacing="3.2" fill="#7fc8ff">niri · DankMaterialShell · ghostty</text>
+
+  <text x="70" y="278" font-size="76" font-weight="700" letter-spacing="-2"
+        font-family="Adwaita Sans, Noto Sans, sans-serif" fill="#e8ecf2">Drivis</text>
+
+  <text x="72" y="322" font-size="17" font-family="Adwaita Sans, Noto Sans, sans-serif" fill="#98a0b4">En accent, delad av fokusringen, skalet</text>
+  <text x="72" y="348" font-size="17" font-family="Adwaita Sans, Noto Sans, sans-serif" fill="#98a0b4">och terminalen. Neutrala ytor omkring.</text>
+  <text x="72" y="374" font-size="17" font-family="Adwaita Sans, Noto Sans, sans-serif" fill="#98a0b4">Varmt sparas till det som är fel.</text>
+
+  <!-- Paletten som en ramp: djupt vatten till is. -->
+  <rect x="72" y="418" width="326" height="10" rx="5" fill="url(#ramp)"/>
+
+  <g font-size="12" fill="#5c6478">
+    <text x="72" y="452">#1d4e6b</text>
+    <text x="326" y="452">#a6dbff</text>
+  </g>
+
+  <g font-size="12.5" fill="#7fc8ff">
+    <text x="72" y="492">■ #7fc8ff</text>
+    <text x="160" y="492" fill="#5c6478">accent · fokusring</text>
+  </g>
+
+  <!-- ── Fonstret ─────────────────────────────────────────────────────── -->
+  <!-- Ingen titelrad och inga knappar: niri kor prefer-no-csd, sa ett
+       fokuserat fonster ar exakt det har — en yta och en ring. -->
+
+  <rect x="521" y="151" width="618" height="288" rx="9" fill="#16181d"/>
+  <rect x="521" y="151" width="618" height="288" rx="9" fill="none" stroke="#7fc8ff" stroke-width="2"/>
+
+  <!-- xml:space="preserve" ar nodvandigt: utan den kollapsar SVG alla
+       mellanslagsserier till ett, vilket bade limmar ihop orden och forstor
+       kolumnjusteringen som hela listningen bygger pa. Darfor ligger ocksa
+       varje rads innehall pa en enda rad — radbrytning i kallan skulle sjalv
+       bli ett mellanslag. -->
+  <g font-size="15" xml:space="preserve">
+    <text x="549" y="196"><tspan fill="#9ece6a">arch</tspan><tspan fill="#7dcfff"> ~/Developer/dotfiles</tspan><tspan fill="#bb9af7"> ❯ </tspan><tspan fill="#c0caf5">ll</tspan></text>
+    <text x="549" y="228"><tspan fill="#7aa2f7">drwxr-xr-x</tspan><tspan fill="#414868"> erik erik  200B a day ago     </tspan><tspan fill="#7aa2f7">bin</tspan></text>
+    <text x="549" y="256"><tspan fill="#414868">.rw-r--r-- erik erik  2.7K a day ago     </tspan><tspan fill="#c0caf5">CLAUDE.md</tspan></text>
+    <text x="549" y="284"><tspan fill="#414868">.rwxr-xr-x erik erik  1.4K </tspan><tspan fill="#a9b1d6">an hour ago</tspan><tspan fill="#414868">  </tspan><tspan fill="#9ece6a">install</tspan></text>
+    <text x="549" y="312"><tspan fill="#7aa2f7">drwxr-xr-x</tspan><tspan fill="#414868"> erik erik   14B a day ago     </tspan><tspan fill="#7aa2f7">niri</tspan></text>
+    <text x="549" y="340"><tspan fill="#414868">.rw-r--r-- erik erik  6.9K a day ago     </tspan><tspan fill="#c0caf5">README.md</tspan></text>
+  </g>
+
+  <line x1="549" y1="374" x2="1111" y2="374" stroke="#23262e" stroke-width="1"/>
+
+  <text x="549" y="406" font-size="13.5" xml:space="preserve"><tspan fill="#bb9af7">Opus 5</tspan><tspan fill="#a9b1d6"> in </tspan><tspan fill="#7dcfff">~/…/Developer/dotfiles</tspan><tspan fill="#a9b1d6"> (</tspan><tspan fill="#7aa2f7">main</tspan><tspan fill="#9ece6a"> ↑2 +47/-12</tspan><tspan fill="#a9b1d6">) | </tspan><tspan fill="#9ece6a">67% free</tspan></text>
+
+</svg>

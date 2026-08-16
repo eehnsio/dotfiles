@@ -1,5 +1,7 @@
 # Dotfiles
 
+![Drivis](assets/drivis.png)
+
 Personal configuration files for development environment setup.
 
 > **Note:** Used on both macOS and Arch Linux. The `niri` package is Linux-only —
