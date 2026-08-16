@@ -31,6 +31,12 @@ return {
 		"nyoom-engineering/oxocarbon.nvim",
 		lazy = false,
 		priority = 1000,
+		-- Repot innehaller en rockspec, sa lazy satter automatiskt
+		-- build = "rockspec" och forsoker kora luarocks — som inte finns
+		-- installerat har. Bygget misslyckas och Lazy visar temat som
+		-- "Failed" trots att det fungerar. Oxocarbon ar ren Lua utan
+		-- beroenden och behover inget bygge alls.
+		build = false,
 		config = function()
 			-- Oxocarbon har ingen transparensinstallning. Den hardkodar
 			-- bg = #161616 pa Normal och ett tjugotal andra grupper, sa

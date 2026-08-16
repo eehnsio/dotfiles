@@ -3,15 +3,19 @@
 # Fargerna anges som ANSI-koder, inte hex, sa statuslinjen foljer terminalens
 # aktiva tema — samma princip som lsd och zsh-prompten.
 #
-# Tre nivaer i stallet for sju farger:
+# Fyra nivaer, och bara den lagsta ar riktigt dampad:
 #
-#   ACCENT  katalogen. Det enda man faktiskt letar efter i raden, och i
-#           noctalia-paletten ar cyan #7dcfff, allts samma bla som niris
+#   ACCENT  katalogen. Det man faktiskt letar efter i raden, och i
+#           noctalia-paletten ar cyan #7dcfff, alltsa samma bla som niris
 #           fokusring.
-#   FG      grenen. Viktig men inte det man scannar efter forst, sa den far
-#           normal ljusstyrka utan egen kulor.
-#   DIM     allt ovrigt. Modell, radraknare, pilar och avskiljare ar sammanhang,
-#           inte information man agerar pa.
+#   FG      modell och gren — radens innehall, i normal ljusstyrka.
+#   SOFT    siffror: radantal, pilar, procent. Lasbara men underordnade.
+#   DIM     BARA bindeord och skiljetecken: "in", parenteser, stapeln.
+#
+# DIM ar \033[90m, vilket i den har paletten ar #414868 — nastan bakgrunds-
+# farg. Den duger for tecken man aldrig behover lasa, men allt som bar
+# information maste ligga hogre. Ett forsta forsok satte hela raden pa DIM
+# och blev oläsbart.
 #
 # Gult och rott ar reserverat for kontextfonstret, och bara nar det borjar ta
 # slut. Semantisk farg och accentfarg ar tva olika saker: radantal fargas inte
@@ -19,6 +23,7 @@
 
 ACCENT='\033[36m'
 FG='\033[39m'
+SOFT='\033[37m'
 DIM='\033[90m'
 WARN='\033[33m'
 CRIT='\033[31m'
@@ -55,7 +60,7 @@ fi
 model_short=$(echo "$model_name" | sed -E 's/^Claude[[:space:]]+//' | sed -E 's/([0-9]+\.[0-9]+)[[:space:]]+([A-Z][a-z]+)/\2 \1/')
 
 line=""
-line+=$(printf "${DIM}%s in${RESET}" "$model_short")
+line+=$(printf "${FG}%s${RESET}${DIM} in${RESET}" "$model_short")
 line+=$(printf " ${ACCENT}%s${RESET}" "$dir_display")
 
 if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
@@ -70,8 +75,8 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
                     behind=$(echo "$counts" | awk '{print $1}')
                     ahead=$(echo "$counts" | awk '{print $2}')
 
-                    [ "$ahead" != "0" ] && ahead_behind+=$(printf " ${DIM}↑%s${RESET}" "$ahead")
-                    [ "$behind" != "0" ] && ahead_behind+=$(printf " ${DIM}↓%s${RESET}" "$behind")
+                    [ "$ahead" != "0" ] && ahead_behind+=$(printf " ${SOFT}↑%s${RESET}" "$ahead")
+                    [ "$behind" != "0" ] && ahead_behind+=$(printf " ${SOFT}↓%s${RESET}" "$behind")
                 fi
             fi
 
@@ -81,10 +86,10 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
 
             git_diff_str=""
             if [ -n "$lines_added" ] && [ "$lines_added" != "0" ]; then
-                git_diff_str+=$(printf " ${DIM}+%s${RESET}" "$lines_added")
-                [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ] && git_diff_str+=$(printf "${DIM}/-%s${RESET}" "$lines_removed")
+                git_diff_str+=$(printf " ${SOFT}+%s${RESET}" "$lines_added")
+                [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ] && git_diff_str+=$(printf "${SOFT}/-%s${RESET}" "$lines_removed")
             elif [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ]; then
-                git_diff_str+=$(printf " ${DIM}-%s${RESET}" "$lines_removed")
+                git_diff_str+=$(printf " ${SOFT}-%s${RESET}" "$lines_removed")
             fi
 
             line+=$(printf " ${DIM}(${RESET}${FG}%s${RESET}%s%s${DIM})${RESET}" \
@@ -107,7 +112,7 @@ if [ "$usage" != "null" ] && [ "$context_size" -gt 0 ]; then
 
     # Grtt sa lange det inte ar ett problem. Farg bara nar det borjar bli det.
     if [ $remaining -gt 50 ]; then
-        context_color="$DIM"
+        context_color="$SOFT"
     elif [ $remaining -gt 20 ]; then
         context_color="$WARN"
     else
