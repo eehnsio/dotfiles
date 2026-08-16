@@ -1,6 +1,6 @@
 # Dotfiles
 
-![Drivis](assets/drivis.png)
+![Drivis](.github/assets/drivis.png)
 
 Personal configuration files for development environment setup.
 
@@ -60,17 +60,25 @@ STOW_FOLDERS="nvim,zsh" ./install
 
 Each directory represents a package that can be independently stowed:
 
+**Every visible top-level directory is a stow package.** Anything that is not
+one lives out of the way: repo assets under `.github/`, and material that is
+kept for reference but never symlinked under `reference/`.
+
 ```
-.dotfiles/
+dotfiles/
+├── .github/assets/   # README banner (not a package)
+├── reference/        # Keyboard layouts, kept but never stowed
+│   ├── chocofi/
+│   └── zoom75/
 ├── bin/              # Helper scripts → ~/.local/bin
-├── chocofi/          # Keyboard layout (reference, not stowed)
-├── zoom75/           # Keyboard layout (reference, not stowed)
 ├── claude/           # Claude Code CLI
 ├── dms/              # DankMaterialShell theme + plugin lock (Linux only)
 ├── ghostty/          # Terminal emulator
+├── lsd/              # ls replacement, colors follow the terminal palette
 ├── niri/             # Compositor (Linux only)
 ├── nvim/             # Neovim editor
 ├── spotify/          # spotify-launcher args (Linux only)
+├── xremap/           # Key remapping below the compositor (Linux only)
 └── zsh/              # Shell (incl. prompt)
 ```
 
