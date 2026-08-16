@@ -2,92 +2,57 @@
 
 ![Drivis](.github/assets/drivis.png)
 
-Personal configuration files for development environment setup.
+Personal configuration for Arch Linux with niri, and macOS. Managed with
+[GNU Stow](https://www.gnu.org/software/stow/).
 
-> **Note:** Used on both macOS and Arch Linux. The `niri` package is Linux-only —
-> do not stow it on macOS.
+**Every visible top-level directory is a stow package**, and each one documents
+itself. Anything that is not a package lives out of the way: repo assets under
+`.github/`, and material kept for reference but never symlinked under
+`reference/`.
 
-## What's Included
-
-- **bin** - Small helper scripts to `~/.local/bin` (niri window helpers)
-- **claude** - Claude Code CLI settings, skills, and commands
-- **dms** - DankMaterialShell theme and plugin lockfile, Linux only
-- **ghostty** - Terminal emulator configuration (incl. cursor shader)
-- **niri** - Scrolling tiling compositor, Linux only. See caveats below
-- **nvim** - Neovim editor with plugins and themes
-- **spotify** - Forces the Spotify client onto native Wayland, Linux only
-- **zsh** - Shell configuration, history, completion and aliases. Prompt is plain zsh
-  (Pure-style: green host + cyan path + magenta `❯`, red on error; `user@host` over SSH) — no external prompt tool
+| Package | | Platform |
+|---|---|---|
+| [bin](bin/) | Helper scripts → `~/.local/bin` | both |
+| [claude](claude/) | Claude Code settings, skills, statusline | both |
+| [dms](dms/) | DankMaterialShell theme + plugin lock | Linux |
+| [ghostty](ghostty/) | Terminal emulator, incl. cursor shader | both |
+| [lsd](lsd/) | `ls` replacement, follows the terminal palette | both |
+| [niri](niri/) | Scrolling tiling compositor | Linux |
+| [nvim](nvim/) | Neovim (LazyVim) + keybind cheatsheet | both |
+| [spotify](spotify/) | Forces the client onto native Wayland | Linux |
+| [xremap](xremap/) | `super` → `ctrl` per app, below the compositor | Linux |
+| [zsh](zsh/) | Shell, prompt, aliases | both |
 
 ## Installation
 
-Uses [GNU Stow](https://www.gnu.org/software/stow/) for symlink management.
-
-### Prerequisites
-
-Install GNU Stow:
-
 ```bash
-# macOS
-brew install stow
-
-# Ubuntu/Debian
-sudo apt install stow
-
-# Arch Linux
-sudo pacman -S stow
-```
-
-### Quick Setup
-
-```bash
+sudo pacman -S stow          # or: brew install stow
 git clone <repo-url> ~/Developer/dotfiles
 cd ~/Developer/dotfiles
 ./install
 ```
 
-The install script will automatically stow all configurations to your home directory.
+`install` stows every package, picking the Linux-only ones by `uname`. Its
+package list is deliberately explicit rather than "every directory" —
+`reference/` and `.github/` sit at the top level too and must never be stowed.
 
-### Selective Installation
-
-Install only specific packages:
+Install a subset instead:
 
 ```bash
 STOW_FOLDERS="nvim,zsh" ./install
 ```
 
-## Structure
-
-Each directory represents a package that can be independently stowed:
-
-**Every visible top-level directory is a stow package.** Anything that is not
-one lives out of the way: repo assets under `.github/`, and material that is
-kept for reference but never symlinked under `reference/`.
-
-```
-dotfiles/
-├── .github/assets/   # README banner (not a package)
-├── reference/        # Keyboard layouts, kept but never stowed
-│   ├── chocofi/
-│   └── zoom75/
-├── bin/              # Helper scripts → ~/.local/bin
-├── claude/           # Claude Code CLI
-├── dms/              # DankMaterialShell theme + plugin lock (Linux only)
-├── ghostty/          # Terminal emulator
-├── lsd/              # ls replacement, colors follow the terminal palette
-├── niri/             # Compositor (Linux only)
-├── nvim/             # Neovim editor
-├── spotify/          # spotify-launcher args (Linux only)
-├── xremap/           # Key remapping below the compositor (Linux only)
-└── zsh/              # Shell (incl. prompt)
-```
+Package READMEs are not symlinked into `$HOME`. Stow ignores top-level
+`README.*` on its own — **do not add a `.stow-local-ignore` to "help" it.** A
+local ignore file *replaces* stow's built-in list rather than extending it,
+which is exactly how `~/KEYBINDS.md` once ended up as a symlink into this repo.
 
 ## Machine-specific config
 
 Anything that differs per machine — monitors, resolutions, scaling, font size —
-lives in `.local` files that are gitignored but sit *inside* the stow packages,
-so stow symlinks them like everything else. The content stays local while the
-path stays identical everywhere.
+lives in `.local` files that are gitignored but sit *inside* the packages, so
+stow symlinks them like everything else. The content stays local while the path
+stays identical everywhere.
 
 | File | Seeded from | Loaded by |
 |---|---|---|
@@ -96,132 +61,29 @@ path stays identical everywhere.
 | `zsh/.zshrc.local` | — | sourced if present |
 
 `./install` copies each `.example` to its real name when missing. That matters
-for niri: it refuses to start if an `include` target does not exist, so the file
-has to be there before the first launch. Ghostty is relaxed — the `?` prefix
-makes the include optional.
+for niri: it refuses to start when an `include` target does not exist, so the
+file has to be there before the first launch. Ghostty is relaxed — the `?`
+prefix makes the include optional.
 
 Both `.local` files load **last**, so they override whatever the tracked config
 set.
 
-## niri (Linux only)
-
-One remaining caveat: `config.kdl` ends with `include "dms/*.kdl"`. Those files
-are generated by `dms` and are *not* in this repo, so niri will fail to load the
-config until DMS has run once on a new machine.
-
-Keybinds follow macOS muscle memory where possible: `Mod+W` closes, `Mod+Space`
-launches, `Mod+B`/`Mod+E` open browser and files, `Mod+Shift+3/4/5` take
-screenshots, and `Mod+§` cycles windows within an app.
-
-`Mod+§` is `niri-cycle-app-windows` from the `bin` package — niri has no
-built-in equivalent because it does not group windows by app. niri spawns it by
-absolute path (`/home/erik/.local/bin/...`): niri is started by greetd and its
-`PATH` does not include `~/.local/bin`, since that is only added by `.zshrc`,
-which interactive shells read and niri does not.
-
-Swedish layout note: `[` and `]` sit behind AltGr, so consume/expel is also
-bound to `Mod+Å` and `Mod+¨` — the same physical keys.
-
-App-specific `super` → `ctrl` translation is handled by
-[xremap](https://github.com/xremap/xremap) with the `niri` feature, started from
-`spawn-at-startup`. It lives in its own `xremap` package and needs the user in
-the `input` group plus a udev rule for `/dev/uinput`.
-
-Every app block sets `exact_match: true`. Without it xremap matches loosely, so
-a rule for `Super-l` also swallows `Super+Alt+L` and passes the extra modifier
-through — which ate the lock screen bind whenever that app had focus. A first
-keymap with no `application` filter identity-maps the lock screen, so no later
-block can reach it at all.
-```
-
 ## Theme
 
 One accent, `#7fc8ff`, shared by niri's focus ring, the shell, the terminal
-listing and the statusline. Surfaces are near-neutral greys on purpose — the
-blue is what points, so nothing else should compete with it. Everything that
-can express colour as an ANSI index does, so it follows whatever theme Ghostty
-is set to rather than pinning a second palette.
+listing and the statusline. Surfaces are near-neutral greys on purpose: the blue
+is what points, so nothing else should compete with it.
 
-Warm colours are reserved: yellow and red appear only when something is wrong
-(git conflicts, a context window running out), never as decoration.
+Everything that can express colour as an ANSI index does — lsd, the zsh prompt,
+the Claude statusline — so they follow whatever theme Ghostty is set to instead
+of pinning a second palette that drifts.
 
-The DMS side lives in the `dms` package as `themes/drivis/theme.json`, pointed
-at by `customThemeFile` in the shell's own settings. That setting is *not* in
-this repo, so on a new machine set it once:
+Warm colours are reserved. Yellow and red appear only when something is wrong: a
+git conflict, a context window running out. Never as decoration.
 
-```bash
-dms ipc call settings set customThemeFile ~/.config/DankMaterialShell/themes/drivis/theme.json
-dms ipc call settings set currentThemeName custom
-```
+## How it works
 
-## DankMaterialShell (Linux only)
-
-Shell plugins are installed by DMS itself, not stowed. `plugins.lock.json` is
-stowed though — it pins each plugin to an exact commit, the same idea as
-`lazy-lock.json`. Restore them on a new machine with:
-
-```bash
-dms plugins restore
-```
-
-Note that `dms config resolve-include niri <file>.kdl` reports whether niri
-actually loads a given DMS-generated include. Two of them are deliberately left
-out; `niri/.config/niri/config.kdl` explains why.
-
-## Spotify (Linux only)
-
-The client picks X11 on its own and passes `--ozone-platform=x11` down to its
-subprocesses. `ELECTRON_OZONE_PLATFORM_HINT` does not help — that variable is
-Electron-specific and the Spotify client is CEF, so it never reads it. The
-`spotify` package sets `extra_arguments` in `spotify-launcher.conf` to override
-it.
-
-Under XWayland the window is `app_id=Chromium-browser`, a generic class shared
-with any other CEF app, and it refuses to be resized. On Wayland it becomes
-`app_id=spotify` and behaves like a normal window. Verify with:
-
-```bash
-spotify-launcher -v --skip-update --no-exec   # prints the assembled command
-niri msg --json windows | grep app_id
-```
-
-## Shell Extras
-
-The prompt, history and completion are plain zsh — no external tools needed. These
-add convenience on top and are wired up in `zsh/.zshrc`:
-
-| Tool | Install (Arch / macOS) | Purpose |
-|------|------------------------|---------|
-| [zoxide](https://github.com/ajeetdsouza/zoxide) | `pacman -S zoxide` / `brew install zoxide` | Smarter `cd` — jump to frecent dirs by fragment |
-| [fzf](https://github.com/junegunn/fzf) | `pacman -S fzf` / `brew install fzf` | Fuzzy `ctrl+r` history, `ctrl+t` files, `alt+c` cd |
-| [lsd](https://github.com/lsd-rs/lsd) | `pacman -S lsd` / `brew install lsd` | `ls`/`ll`/`la`/`lt` aliases |
-
-lsd needs `color: theme: custom` in its `config.yaml` before it reads
-`colors.yaml` at all — without that line it silently ignores the file and uses
-its built-in palette. The colors are ANSI indices rather than hex, so lsd
-follows the terminal theme the same way the prompt does. `lt` is depth-limited
-to 2; pass `--depth N` for more.
-
-Neovim additionally expects `ripgrep` + `fd` (fzf-lua / snacks pickers) and
-`lazygit` (`<leader>lg`):
-
-```bash
-sudo pacman -S ripgrep fd lazygit     # brew install ripgrep fd lazygit
-```
-
-Everything is guarded with `command -v`, so a missing tool degrades quietly
-instead of erroring on shell start. Prompt colors map to the terminal's ANSI
-palette — the exact look depends on the active Ghostty theme.
-
-## How It Works
-
-- **Stow creates symlinks** from this repo to your home directory
-- **Edit files here** in the dotfiles directory, not in `~/.config`
-- **Re-run `./install`** to update symlinks after pulling changes
-- **Conflicts?** The script automatically removes old symlinks before creating new ones
-
-## Claude Code
-
-Marketplace plugins are declared in `claude/.claude/settings.json` and installed automatically by Claude Code — no local copies needed.
-
-Custom skills live in `claude/.claude/skills/`. Private or company-internal skills use the `-private` suffix (e.g. `my-skill-private/`) and are excluded from git via a wildcard pattern in `.gitignore`.
+- Stow creates symlinks from this repo into `$HOME`
+- Edit files **here**, not in `~/.config`
+- Re-run `./install` after pulling; it unstows before stowing, so it is safe to
+  repeat

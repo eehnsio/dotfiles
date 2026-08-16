@@ -1,6 +1,0 @@
-# En egen .stow-local-ignore ERSATTER stows inbyggda standardlista, den
-# kompletterar den inte. Darfor maste allt som ska hoppas over rakans upp
-# har — annars hamnar det i hemkatalogen. ~/KEYBINDS.md lag dar i manader
-# av precis det skalet.
-\.DS_Store
-^/[^/]+\.md$

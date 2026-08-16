@@ -1,4 +1,20 @@
-# Neovim Keybinds Cheatsheet
+# nvim
+
+LazyVim-based. Colourschemes live in `lua/plugins/colorschemes.lua`:
+**kanagawa-wave** is active, **oxocarbon** is installed alongside it — switch in
+place with `:colorscheme`.
+
+Both run transparent so Ghostty's `background-opacity` and blur show through.
+Oxocarbon has no transparency setting at all — it hardcodes `bg = #161616` on
+`Normal` and a couple of dozen other groups — so an autocmd clears exactly the
+groups kanagawa makes transparent. `NormalFloat` deliberately keeps its panel in
+both: popups sit on top of code and need something to read against.
+
+`lazy-lock.json` pins plugin revisions.
+
+---
+
+# Keybinds
 
 ## File Navigation
 
