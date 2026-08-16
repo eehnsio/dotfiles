@@ -9,6 +9,7 @@ Personal configuration files for development environment setup.
 
 - **bin** - Small helper scripts to `~/.local/bin` (niri window helpers)
 - **claude** - Claude Code CLI settings, skills, and commands
+- **dms** - DankMaterialShell plugins, Linux only. Currently a launcher calculator
 - **ghostty** - Terminal emulator configuration (incl. cursor shader)
 - **niri** - Scrolling tiling compositor, Linux only. See caveats below
 - **nvim** - Neovim editor with plugins and themes
@@ -62,6 +63,7 @@ Each directory represents a package that can be independently stowed:
 ├── chocofi/          # Keyboard layout (reference, not stowed)
 ├── zoom75/           # Keyboard layout (reference, not stowed)
 ├── claude/           # Claude Code CLI
+├── dms/              # DankMaterialShell plugins (Linux only)
 ├── ghostty/          # Terminal emulator
 ├── niri/             # Compositor (Linux only)
 ├── nvim/             # Neovim editor
@@ -119,6 +121,17 @@ through — which ate the lock screen bind whenever that app had focus. A first
 keymap with no `application` filter identity-maps the lock screen, so no later
 block can reach it at all.
 ```
+
+## DankMaterialShell (Linux only)
+
+The `dms` package holds shell plugins, stowed into
+`~/.config/DankMaterialShell/plugins/`. Stow symlinks each plugin directory
+individually, so plugins installed by the DMS plugin manager are left alone.
+
+`dankCalc` is a launcher calculator — type an expression in spotlight and the
+answer appears on top. It has no trigger prefix, so it sees every launcher
+query; see the plugin README for why it parses expressions itself instead of
+calling `eval()`. Toggle it with `dms ipc call plugins enable|disable dankCalc`.
 
 ## Shell Extras
 

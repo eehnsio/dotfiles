@@ -4,10 +4,10 @@
 if [[ -z $STOW_FOLDERS ]]; then
     STOW_FOLDERS="bin,claude,ghostty,lsd,nvim,zsh"
 
-    # niri och xremap finns bara på Linux. chocofi och zoom75 är referensmappar
-    # för tangentbordslayouter — de ska aldrig stowas.
+    # niri, xremap och dms finns bara på Linux. chocofi och zoom75 är
+    # referensmappar för tangentbordslayouter — de ska aldrig stowas.
     if [[ "$(uname)" == "Linux" ]]; then
-        STOW_FOLDERS="$STOW_FOLDERS,niri,xremap"
+        STOW_FOLDERS="$STOW_FOLDERS,niri,xremap,dms"
     fi
 fi
 

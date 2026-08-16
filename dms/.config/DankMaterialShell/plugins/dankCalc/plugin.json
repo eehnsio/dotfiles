@@ -1,0 +1,17 @@
+{
+    "id": "dankCalc",
+    "name": "Kalkylator",
+    "description": "Rakna ut matematiska uttryck direkt i launchern, som Spotlight pa macOS",
+    "version": "1.0.0",
+    "author": "Erik",
+    "icon": "calculate",
+    "type": "launcher",
+    "capabilities": ["launcher", "clipboard"],
+    "component": "./DankCalcLauncher.qml",
+    "settings": "./DankCalcSettings.qml",
+    "trigger": "",
+    "permissions": [
+        "settings_read",
+        "settings_write"
+    ]
+}
