@@ -17,6 +17,16 @@ input {
         repeat-delay 200
         xkb {
             layout "se"
+
+            // nodeadkeys gor ~ ^ ` och ¨ till vanliga tecken i stallet for
+            // doda tangenter. I standardlayouten ligger AltGr+¨ som dead_tilde
+            // och skriver ingenting forran man tryckt mellanslag efter — det
+            // ser ut som att tangenten ar trasig.
+            //
+            // Priset ar att é, ü och ñ inte langre gar att komponera. Rimligt
+            // for nagon som skriver mer shell an franska; ta bort raden for att
+            // backa.
+            variant "nodeadkeys"
         }
         numlock
     }
