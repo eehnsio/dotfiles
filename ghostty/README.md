@@ -23,11 +23,23 @@ else. GTK's Wayland input module cannot handle dead keys at all — see
 set in niri's `environment` block rather than on the Ghostty spawn, because
 terminals also get launched from spotlight.
 
-That fix is invisible without `gtk-single-instance = false`, and the two belong
-together. With single-instance on, the first Ghostty process serves every later
-window, so a new terminal inherits an environment that may be hours old — a new
-variable appears to do nothing until the last window closes and the process
-finally exits. The workaround quoted in that issue includes
-`--gtk-single-instance=false` for exactly this reason.
+Single-instance is left **on**, which is worth explaining because the workaround
+quoted in that issue disables it.
 
-The cost is memory: windows no longer share a process.
+With single-instance on, the first Ghostty process serves every later window, so
+a new terminal inherits that process's environment — which may be hours old. That
+is why setting the variable appeared to do nothing: the running process predated
+it, and `Mod+T` never started a new one. Disabling single-instance is how you
+test the fix *without* logging out, not part of the fix.
+
+`niri.service` is a systemd user unit, so niri's `environment` block is applied
+at login, before anything is spawned. The first Ghostty process therefore already
+has the variable and single-instance spreads it to every window. Turning it off
+would only cost memory, since windows would stop sharing a process.
+
+If dead keys ever stop working after a change here, check the running process
+rather than the config:
+
+```bash
+tr '\0' '\n' < /proc/$(pgrep -x ghostty | head -1)/environ | grep GTK_IM_MODULE
+```
