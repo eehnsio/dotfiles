@@ -28,15 +28,6 @@ input {
             // backa.
             variant "nodeadkeys"
 
-            // ...och Caps Lock blir Compose i stallet, sa det gar att skriva
-            // é ü ñ anda. Doda tangenter ar bara ETT satt att komponera tecken,
-            // och det samsta: de kapar en tangent man anvander dagligen for att
-            // na nagot man behover en gang i manaden.
-            //
-            // Compose gor tvartom. Caps var oanvand, och sekvensen ar explicit:
-            // Caps, ' , e ger é. Den klarar dessutom langt mer an accenter —
-            // pilar, dash och matematiska tecken.
-            options "compose:caps"
         }
         numlock
     }

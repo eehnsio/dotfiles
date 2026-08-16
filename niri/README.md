@@ -25,21 +25,6 @@ waiting for a second key. In the stock layout `AltGr+¨` is `dead_tilde`, which
 prints nothing until you follow it with a space — indistinguishable from a broken
 key when you are reaching for `~` mid-command.
 
-Caps Lock is Compose (`compose:caps`), which buys back everything dead keys were
-for and more:
-
-| Sequence | |
-|---|---|
-| `Caps ' e` | é |
-| `Caps ^ e` | ê |
-| `Caps " u` | ü |
-| `Caps ~ n` | ñ |
-| `Caps - - -` | — |
-
-Dead keys hijack a key you press daily to reach something you need monthly.
-Compose inverts that: an unused key, and an explicit sequence only when you
-actually want the character.
-
 Swedish layout note: `[` and `]` sit behind AltGr, so consume/expel is also
 bound to `Mod+Å` and `Mod+¨`, the same physical keys.
 
