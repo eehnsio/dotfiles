@@ -15,6 +15,7 @@ Personal configuration files for development environment setup.
 - **ghostty** - Terminal emulator configuration (incl. cursor shader)
 - **niri** - Scrolling tiling compositor, Linux only. See caveats below
 - **nvim** - Neovim editor with plugins and themes
+- **spotify** - Forces the Spotify client onto native Wayland, Linux only
 - **zsh** - Shell configuration, history, completion and aliases. Prompt is plain zsh
   (Pure-style: green host + cyan path + magenta `❯`, red on error; `user@host` over SSH) — no external prompt tool
 
@@ -69,6 +70,7 @@ Each directory represents a package that can be independently stowed:
 ├── ghostty/          # Terminal emulator
 ├── niri/             # Compositor (Linux only)
 ├── nvim/             # Neovim editor
+├── spotify/          # spotify-launcher args (Linux only)
 └── zsh/              # Shell (incl. prompt)
 ```
 
@@ -157,6 +159,23 @@ dms plugins restore
 Note that `dms config resolve-include niri <file>.kdl` reports whether niri
 actually loads a given DMS-generated include. Two of them are deliberately left
 out; `niri/.config/niri/config.kdl` explains why.
+
+## Spotify (Linux only)
+
+The client picks X11 on its own and passes `--ozone-platform=x11` down to its
+subprocesses. `ELECTRON_OZONE_PLATFORM_HINT` does not help — that variable is
+Electron-specific and the Spotify client is CEF, so it never reads it. The
+`spotify` package sets `extra_arguments` in `spotify-launcher.conf` to override
+it.
+
+Under XWayland the window is `app_id=Chromium-browser`, a generic class shared
+with any other CEF app, and it refuses to be resized. On Wayland it becomes
+`app_id=spotify` and behaves like a normal window. Verify with:
+
+```bash
+spotify-launcher -v --skip-update --no-exec   # prints the assembled command
+niri msg --json windows | grep app_id
+```
 
 ## Shell Extras
 

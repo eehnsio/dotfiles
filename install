@@ -7,7 +7,7 @@ if [[ -z $STOW_FOLDERS ]]; then
     # niri, xremap och dms finns bara på Linux. chocofi och zoom75 är
     # referensmappar för tangentbordslayouter — de ska aldrig stowas.
     if [[ "$(uname)" == "Linux" ]]; then
-        STOW_FOLDERS="$STOW_FOLDERS,niri,xremap,dms"
+        STOW_FOLDERS="$STOW_FOLDERS,niri,xremap,dms,spotify"
     fi
 fi
 
