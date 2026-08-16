@@ -8,10 +8,18 @@
 #   8 gra (dampad)      9-15 ljusa varianter
 #
 # PRINCIPEN: metadata ar bakgrundsbrus och gar till 8. Filnamnet ar det man
-# laser, och lsd fargar det redan efter filtyp. Accenten 6 sparas till de fa
-# fall dar metadata faktiskt sager nagot ovantat — att en fil ar exekverbar,
-# ovanligt stor, eller andrad for en stund sedan. I noctalia-paletten ar
-# index 6 = #7dcfff, alltsa i praktiken samma bla som niris fokusring.
+# laser, och lsd fargar det redan efter filtyp. Accenten 6 sparas till det som
+# ar sallsynt — tander den pa nagot som finns pa varje rad blir den brus i sin
+# tur. I noctalia-paletten ar index 6 = #7dcfff, i praktiken samma bla som
+# niris fokusring.
+#
+# Hela rattighetsblocket ar darfor gratt, aven exec-biten. Kataloger ar ALLTID
+# exekverbara, sa i en mapp med mest kataloger tandes accenten pa varenda rad.
+# Och for filer bar den ingen egen information: lsd fargar redan namnet gront
+# nar nagot ar korbart, vilket ar bade tydligare och tar mindre plats.
+#
+# Datumet varieras med ljusstyrka i stallet for kulor: 7 ar samma neutrala gra
+# som 8, bara ljusare. Nyss andrat trader fram utan att lagga till en farg till.
 #
 # Rott behalls bara for det som ar illa pa riktigt: raderat och konflikt.
 # Det ar semantisk farg, inte accent, och de tva ska inte blandas ihop.
@@ -22,15 +30,15 @@ group: 8
 permission:
   read: 8
   write: 8
-  exec: 6
-  exec-sticky: 6
+  exec: 8
+  exec-sticky: 8
   no-access: 8
   octal: 8
   acl: 8
   context: 8
 
 date:
-  hour-old: 6
+  hour-old: 7
   day-old: 8
   older: 8
 
