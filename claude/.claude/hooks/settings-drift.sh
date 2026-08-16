@@ -7,10 +7,13 @@
 # börjar live-konfigurationen och flottans baslinje glida isär utan att
 # någon märker det. Den här kollen gör det synligt nästa gång du startar.
 
-# Av-knapp per maskin. ~/.claude/hooks ar en stow-symlank in i repot, sa
-# markeringen far INTE ligga dar — den hade folgt med i git. ~/.claude ar
-# daremot en riktig katalog.
-[ -e "$HOME/.claude/hooks.disabled" ] && exit 0
+# Opt-in per maskin: hookarna ar passiva tills nagon aktivt sager till.
+# Skripten delas via repot, men att de FINNS ska inte betyda att de griper in.
+#
+# Markeringen far inte ligga i ~/.claude/hooks — den katalogen ar en
+# stow-symlank in i repot, sa filen hade committats och slagit pa hookarna
+# pa alla maskiner samtidigt. ~/.claude ar daremot en riktig katalog.
+[ -e "$HOME/.claude/hooks.enabled" ] || exit 0
 
 set -uo pipefail
 

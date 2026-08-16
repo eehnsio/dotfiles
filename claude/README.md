@@ -55,17 +55,22 @@ is the only warm colour on the line.
 
 ## Hooks
 
-The scripts are shared through this repo; whether they are *active* is a
-per-machine decision:
+The scripts are shared through this repo, but **they are passive until a
+machine opts in.** Sharing a guard and imposing one are different things.
 
 ```bash
-touch ~/.claude/hooks.disabled     # off on this machine
-rm ~/.claude/hooks.disabled        # on again
+touch ~/.claude/hooks.enabled      # arm them on this machine
+rm ~/.claude/hooks.enabled         # back to passive
 ```
 
-All three check for that file first and exit silently. It deliberately lives in
-`~/.claude/` and not in `~/.claude/hooks/` — the latter is a stow symlink into
-this repo, so a marker there would be committed and disable the hooks everywhere.
+All three check for that file first and exit silently without it. It
+deliberately lives in `~/.claude/` and not in `~/.claude/hooks/` — the latter is
+a stow symlink into this repo, so a marker there would be committed and arm the
+hooks on every machine at once.
+
+The cost of opt-in is worth stating: a machine that had them armed loses that
+protection the moment it is set up fresh, and nothing announces it. Check with
+`ls ~/.claude/hooks.enabled` if you expect them to be running.
 
 **Run `./install` immediately after pulling.** `settings.json` is a symlink, so a
 pull activates new hook config the instant it lands — while the scripts it points

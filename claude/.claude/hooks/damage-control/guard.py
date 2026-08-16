@@ -15,12 +15,11 @@ en trasig vakt ska inte låsa sessionen. block-rm-rf.sh ligger kvar som
 oberoende skyddsnät.
 """
 
-import os as _os
 from pathlib import Path as _Path
 
-# Av-knapp per maskin, se de andra hookarna. Ligger utanfor den stowade
-# hooks-katalogen sa den aldrig hamnar i git.
-if (_Path.home() / ".claude" / "hooks.disabled").exists():
+# Opt-in per maskin, se de andra hookarna. Markeringen ligger utanfor den
+# stowade hooks-katalogen sa den aldrig hamnar i git.
+if not (_Path.home() / ".claude" / "hooks.enabled").exists():
     raise SystemExit(0)
 
 import fnmatch
