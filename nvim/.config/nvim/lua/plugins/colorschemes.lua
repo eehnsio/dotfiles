@@ -16,6 +16,14 @@ return {
 				dark = "wave",
 			},
 			colors = {
+				-- Enda avsteget fran kanagawas egen palett: springBlue dras till
+				-- exakt fokusringens #7fc8ff, sa nvim delar accent med resten av
+				-- riset. springBlue och inte crystalBlue med flit — crystalBlue
+				-- fargar funktionsnamn och hade lyft accenten till att dominera
+				-- hela bufferten, vilket ar mer an vi vill ata.
+				palette = {
+					springBlue = "#7fc8ff",
+				},
 				theme = {
 					all = {
 						ui = {

@@ -113,9 +113,18 @@ One accent, `#7fc8ff`, shared by niri's focus ring, the shell, the terminal
 listing and the statusline. Surfaces are near-neutral greys on purpose: the blue
 is what points, so nothing else should compete with it.
 
-Everything that can express colour as an ANSI index does — lsd, the zsh prompt,
-the Claude statusline — so they follow whatever theme Ghostty is set to instead
-of pinning a second palette that drifts.
+Ghostty carries the palette. lsd, the zsh prompt and the Claude statusline
+express all their colour as ANSI indices and own no palette of their own, so
+`ghostty/.config/ghostty/themes/drivis` decides how three tools look. The indices
+there are assigned by **role**, not by name — 6 is the accent, 4 is directories
+and branches, 8 is metadata everywhere — which is why an auto-generated palette
+was not usable: `dms dank16` put a dark blue at index 5, where magenta carries
+the prompt arrow and the model name.
+
+Index 8 matters most. Nearly every character in a listing is metadata, and the
+statusline rests on the same index. It sits deliberately lighter than Tokyo
+Night's `#414868`, which turned out unreadable once Claude Code's own dimming was
+applied on top.
 
 Warm colours are reserved. Yellow and red appear only when something is wrong: a
 git conflict, a context window running out. Never as decoration.

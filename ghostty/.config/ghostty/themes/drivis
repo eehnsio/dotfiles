@@ -1,0 +1,52 @@
+# Drivis — terminalpalett som matchar DMS-temat med samma namn.
+#
+# Den har filen ar viktigare an den ser ut. Allt i riset som uttrycker farg
+# som ANSI-index arver den: lsd, zsh-prompten och Claude-statuslinjen har
+# ingen egen palett alls. Andrar man ett varde har flyttar tre verktyg med.
+#
+# Darfor ar indexen tilldelade efter ROLL, inte efter vad de heter:
+#
+#   6  cyan     accenten. Samma #7fc8ff som niris fokusring och DMS primary.
+#               lsd anvander den for det ovanliga, statuslinjen for sokvagen.
+#   4  bla      kataloger och git-gren. Slakt med cyanen men tydligt morkare,
+#               annars gar de inte att skilja at i en listning.
+#   5  magenta  prompt-pilen och modellnamnet. Kall violett, inte rosa —
+#               den ska vara en egen ton utan att bli varm.
+#   2  gron     prompt-vard, exekverbara filer, raknare. Dampad salvia sa den
+#               inte konkurrerar med accenten.
+#   8  gra      metadata overallt. Ligger med flit HOGRE an Tokyo Nights
+#               #414868, som visade sig oläsbart i statuslinjen.
+#   7  vit      mellannivan mellan gratt och full styrka.
+#
+#   1  rod      fel, raderat, konflikt.
+#   3  gul      varning.
+#               De tva ar de enda varma fargerna i hela paletten. Det ar med
+#               flit: nar nagot ar fel ska det vara den enda varma saken pa
+#               skarmen och omojlig att missa.
+
+background = #16181d
+foreground = #c8cdd6
+
+cursor-color = #7fc8ff
+cursor-text = #101216
+
+selection-background = #2b3342
+selection-foreground = #d2d7df
+
+palette = 0=#101216
+palette = 1=#e06c75
+palette = 2=#8fb8a0
+palette = 3=#d8a657
+palette = 4=#6f9ad4
+palette = 5=#a893c9
+palette = 6=#7fc8ff
+palette = 7=#aeb4c0
+
+palette = 8=#4a505c
+palette = 9=#ec8891
+palette = 10=#a6cbb5
+palette = 11=#e6bd7d
+palette = 12=#8fb4e4
+palette = 13=#bfabdb
+palette = 14=#a6dbff
+palette = 15=#d2d7df
