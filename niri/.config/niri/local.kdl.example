@@ -6,16 +6,36 @@
 //
 // Filen maste finnas — niri vagrar starta om en include saknas. En tom fil
 // duger om maskinen inte behover nagra overrides.
+//
+// Namnge blocken efter EDID ("tillverkare modell serienummer", forsta raden i
+// niri msg outputs) och inte efter kontakten (DP-1, HDMI-A-1). Kontaktnamnet ar
+// ett uttag pa grafikkortet: byter man kabel, eller kopplar in en annan skarm
+// i samma port, arver den allt som star har — inklusive transform och lage.
+// Med EDID-namnet foljer installningarna skarmen i stallet.
+//
+// Nagon fallback behover inte skrivas. En skarm som inget block matchar far
+// niris standard (rekommenderat lage, automatisk skala, placerad till hoger om
+// de andra), och ett block som inte matchar nagon inkopplad skarm ignoreras
+// utan fel. Samma fil fungerar alltsa i alla setup.
 
-// output "DP-1" {
+// output "ASUSTek COMPUTER INC VG27AQM1A S2LMQS095480" {
 //     mode "2560x1440@144"
 //     position x=0 y=0
 //     variable-refresh-rate
 //
+//     // Skarmen som har fokus nar niri startar.
+//     // focus-at-startup
+//
 //     // Skala om skarmen har annan pixeltathet an de ovriga, sa att text blir
 //     // lika stor fysiskt. Rakna ut som pitch_referens / pitch_denna.
-//     // scale 0.85
+//     // Chromium klampar vid 1 — gar inte under utan att Electron-appar
+//     // ritas fel.
+//     // scale 1.25
 //
 //     // Roterad panel: normal, 90, 180, 270, flipped, flipped-90, ...
 //     // transform "90"
+//
+//     // Lamna position otillsatt pa alla utom en skarm. Logisk bredd = pixlar
+//     // delat med skala, sa fasta x-varden krockar sa fort en skala andras —
+//     // och vid krock kastar niri om placeringen for BADA skarmarna.
 // }
