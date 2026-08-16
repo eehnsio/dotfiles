@@ -1,32 +1,30 @@
-// Hardvaruvyn. Visas med `ffhw` (fastfetch --config hardware).
+// Hardvaruvyn. Visas med `ffhw`.
 //
-// Stilen: custom-moduler ritar rubrikraderna, nycklarna bar en enhetlig ledstang. Trad-
-// kopplingar (┌ ├ └) blir fel sa fort en modul ger noll eller flera rader,
-// vilket host, gpu och display gor, och ikonerna ar Nerd Font-glyfer ur Font Awesome-omradet
-// (\uf0xx-\uf2xx) som finns i alla Nerd Fonts. Terminalen kor UbuntuMono
-// Nerd Font Mono.
+// Ikon OCH text i nyckeln: ikonen ensam kraver att man vet vad varje glyf
+// betyder. Ikonerna ar Nerd Font-glyfer ur Font Awesome-omradet
+// (\uf0xx-\uf2xx), som finns i alla Nerd Fonts.
 //
-// Escape-sekvenser MASTE skrivas \u001b i JSON — raa kontrolltecken avvisas.
+// keyWidth ger raka kolon; utan den blir de raggiga eftersom nycklarna ar
+// olika langa. Escape-sekvenser MASTE skrivas \u001b i JSON.
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": { "padding": { "top": 1, "right": 3 } },
-  "display": { "separator": " : " },
-  // Ingen "title"-modul: den skriver ut anvandare@vardnamn, vilket ar
-  // onodigt att exponera i skarmdumpar och delade terminaler.
+  "display": { "separator": " : ", "key": { "width": 16 } },
+  // Ingen "title"-modul: den skriver ut anvandare@vardnamn.
   "modules": [
-    { "type": "custom", "format": "\u001b[90m──────────────\u001b[0m Machine \u001b[90m──────────────\u001b[0m" },
-    { "type": "host", "key": " \u250c  \uf108  ", "keyColor": "cyan" },
-    { "type": "cpu", "key": " \u251c  \uf2db  ", "keyColor": "cyan" },
-    { "type": "gpu", "key": " \u2514  \uf1b2  ", "keyColor": "cyan" },
+    { "type": "custom", "format": "\u001b[90m─────────────\u001b[0m Machine \u001b[90m─────────────\u001b[0m" },
+    { "type": "board", "key": " \u2502  \uf108  Board", "keyColor": "cyan" },
+    { "type": "cpu", "key": " \u2502  \uf2db  CPU", "keyColor": "cyan" },
+    { "type": "gpu", "key": " \u2502  \uf1b2  GPU", "keyColor": "cyan" },
     "break",
-    { "type": "custom", "format": "\u001b[90m──────────────\u001b[0m Memory \u001b[90m──────────────\u001b[0m" },
-    { "type": "memory", "key": " \u250c  \uf1c0  ", "keyColor": "magenta" },
-    { "type": "swap", "key": " \u251c  \uf0c7  ", "keyColor": "magenta" },
-    { "type": "disk", "key": " \u2514  \uf0a0  ", "keyColor": "magenta" },
+    { "type": "custom", "format": "\u001b[90m─────────────\u001b[0m Memory \u001b[90m─────────────\u001b[0m" },
+    { "type": "memory", "key": " \u2502  \uf1c0  Memory", "keyColor": "magenta" },
+    { "type": "swap", "key": " \u2502  \uf0c7  Swap", "keyColor": "magenta" },
+    { "type": "disk", "key": " \u2502  \uf0a0  Disk", "keyColor": "magenta" },
     "break",
-    { "type": "custom", "format": "\u001b[90m──────────────\u001b[0m Displays \u001b[90m──────────────\u001b[0m" },
-    { "type": "display", "key": " \u2514  \uf108  ", "keyColor": "blue" },
+    { "type": "custom", "format": "\u001b[90m─────────────\u001b[0m Displays \u001b[90m─────────────\u001b[0m" },
+    { "type": "display", "key": " \u2502  \uf108  Display", "keyColor": "blue" },
     "break",
-    "colors"
+    { "type": "colors", "symbol": "circle", "paddingLeft": 5 }
   ]
 }

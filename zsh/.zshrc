@@ -62,6 +62,7 @@ alias lt='lsd --tree --depth 2'
 
 # fastfetch delat i tva vyer: standard visar miljon man sitter i, hardware
 # visar specarna. Configarna ligger i ~/.config/fastfetch/.
+alias ff='fastfetch'
 alias ffhw='fastfetch --config hardware'
 
 alias ..='cd ..;pwd'

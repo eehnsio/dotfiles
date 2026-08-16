@@ -1,33 +1,32 @@
 // Standardvyn: miljon man sitter i. Hardvaran visas med `ffhw`.
 //
-// Stilen: custom-moduler ritar rubrikraderna, nycklarna bar en enhetlig ledstang. Trad-
-// kopplingar (┌ ├ └) blir fel sa fort en modul ger noll eller flera rader,
-// vilket host, gpu och display gor, och ikonerna ar Nerd Font-glyfer ur Font Awesome-omradet
-// (\uf0xx-\uf2xx) som finns i alla Nerd Fonts. Terminalen kor UbuntuMono
-// Nerd Font Mono.
+// Ikon OCH text i nyckeln: ikonen ensam kraver att man vet vad varje glyf
+// betyder. Ikonerna ar Nerd Font-glyfer ur Font Awesome-omradet
+// (\uf0xx-\uf2xx), som finns i alla Nerd Fonts.
 //
-// Escape-sekvenser MASTE skrivas \u001b i JSON — raa kontrolltecken avvisas.
+// keyWidth ger raka kolon; utan den blir de raggiga eftersom nycklarna ar
+// olika langa. Escape-sekvenser MASTE skrivas \u001b i JSON.
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": { "padding": { "top": 1, "right": 3 } },
-  "display": { "separator": " : " },
-  // Ingen "title"-modul: den skriver ut anvandare@vardnamn, vilket ar
-  // onodigt att exponera i skarmdumpar och delade terminaler.
+  "display": { "separator": " : ", "key": { "width": 16 } },
+  // Ingen "title"-modul: den skriver ut anvandare@vardnamn.
   "modules": [
-    { "type": "custom", "format": "\u001b[90m──────────────\u001b[0m System \u001b[90m──────────────\u001b[0m" },
-    { "type": "os", "key": " \u250c  \uf17c  ", "keyColor": "cyan" },
-    { "type": "kernel", "key": " \u251c  \uf085  ", "keyColor": "cyan" },
-    { "type": "packages", "key": " \u251c  \uf187  ", "keyColor": "cyan" },
-    { "type": "shell", "key": " \u2514  \uf489  ", "keyColor": "cyan" },
+    { "type": "custom", "format": "\u001b[90m─────────────\u001b[0m System \u001b[90m─────────────\u001b[0m" },
+    { "type": "os", "key": " \u2502  \uf17c  OS", "keyColor": "cyan" },
+    { "type": "kernel", "key": " \u2502  \uf085  Kernel", "keyColor": "cyan" },
+    { "type": "packages", "key": " \u2502  \uf187  Packages", "keyColor": "cyan" },
+    { "type": "shell", "key": " \u2502  \uf489  Shell", "keyColor": "cyan" },
     "break",
-    { "type": "custom", "format": "\u001b[90m──────────────\u001b[0m Session \u001b[90m──────────────\u001b[0m" },
-    { "type": "wm", "key": " \u250c  \uf2d0  ", "keyColor": "magenta" },
-    { "type": "terminal", "key": " \u251c  \uf120  ", "keyColor": "magenta" },
-    { "type": "terminalfont", "key": " \u2514  \uf031  ", "keyColor": "magenta" },
+    { "type": "custom", "format": "\u001b[90m─────────────\u001b[0m Session \u001b[90m─────────────\u001b[0m" },
+    { "type": "wm", "key": " \u2502  \uf2d0  WM", "keyColor": "magenta" },
+    { "type": "lm", "key": " \u2502  \uf023  Login", "keyColor": "magenta" },
+    { "type": "terminal", "key": " \u2502  \uf120  Terminal", "keyColor": "magenta" },
+    { "type": "terminalfont", "key": " \u2502  \uf031  Font", "keyColor": "magenta" },
     "break",
-    { "type": "custom", "format": "\u001b[90m──────────────\u001b[0m Uptime \u001b[90m──────────────\u001b[0m" },
-    { "type": "uptime", "key": " \u2514  \uf017  ", "keyColor": "blue" },
+    { "type": "custom", "format": "\u001b[90m─────────────\u001b[0m Uptime \u001b[90m─────────────\u001b[0m" },
+    { "type": "uptime", "key": " \u2502  \uf017  Uptime", "keyColor": "blue" },
     "break",
-    "colors"
+    { "type": "colors", "symbol": "circle", "paddingLeft": 5 }
   ]
 }
