@@ -1,4 +1,5 @@
 classic: false
+
 blocks:
   - permission
   - user
@@ -6,11 +7,26 @@ blocks:
   - size
   - date
   - name
+
+# theme: custom kravs for att colors.yaml ska las overhuvudtaget. Utan raden
+# ignorerar lsd filen tyst och kor sin inbyggda palett — vilket ar precis det
+# som gjorde att listningen inte matchade terminaltemat.
+color:
+  when: auto
+  theme: custom
+
+# Absoluta datum tar halva raden och sager sallan nagot. Relativt ger "2 days
+# ago" och later namnen fa plats.
 date: relative
+
+size: short
+
 icons:
   when: auto
   separator: " "
+
 sorting:
   dir-grouping: first
   column: name
+
 header: false

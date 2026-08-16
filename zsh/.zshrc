@@ -56,7 +56,9 @@ unset _prompt_user
 alias ls='lsd'
 alias ll='lsd -la'
 alias la='lsd -a'
-alias lt='lsd --tree'
+# Djupbegransat med flit: ett obegransat trad i ett repo med node_modules
+# scrollar forbi i evigheter. Djupare vid behov: lsd --tree --depth 4
+alias lt='lsd --tree --depth 2'
 
 alias ..='cd ..;pwd'
 alias tree='tree --dirsfirst -F'

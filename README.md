@@ -144,6 +144,12 @@ add convenience on top and are wired up in `zsh/.zshrc`:
 | [fzf](https://github.com/junegunn/fzf) | `pacman -S fzf` / `brew install fzf` | Fuzzy `ctrl+r` history, `ctrl+t` files, `alt+c` cd |
 | [lsd](https://github.com/lsd-rs/lsd) | `pacman -S lsd` / `brew install lsd` | `ls`/`ll`/`la`/`lt` aliases |
 
+lsd needs `color: theme: custom` in its `config.yaml` before it reads
+`colors.yaml` at all — without that line it silently ignores the file and uses
+its built-in palette. The colors are ANSI indices rather than hex, so lsd
+follows the terminal theme the same way the prompt does. `lt` is depth-limited
+to 2; pass `--depth N` for more.
+
 Neovim additionally expects `ripgrep` + `fd` (fzf-lua / snacks pickers) and
 `lazygit` (`<leader>lg`):
 

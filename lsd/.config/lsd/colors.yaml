@@ -1,46 +1,56 @@
-# Catppuccin Macchiato palette for lsd
+# Fargerna anges som ANSI-index (0-15), inte hex.
+#
+# Da foljer lsd terminalens aktiva tema av sig sjalvt, precis som zsh-prompten
+# gor. Byter du ghostty-tema flyttar lsd med utan att den har filen rors. En
+# hardkodad hex-palett skulle i stallet lasa lsd vid ett tema och sticka ut sa
+# fort resten av skalet bytte utseende.
+#
+#   0 svart   1 rod     2 gron    3 gul
+#   4 bla     5 magenta 6 cyan    7 vit
+#   8 gra (dampad)      9-15 ljusa varianter
 
-user: 91
-group: 91
+user: 6
+group: 8
+
 permission:
-  read: "#a6da95"      # green
-  write: "#ed8796"     # red
-  exec: "#eed49f"      # yellow
-  exec-sticky: "#eed49f"
-  no-access: "#6e738d"  # overlay0
-  octal: "#8aadf4"     # blue
-  acl: "#b7bdf8"       # lavender
-  context: "#b7bdf8"
+  read: 2
+  write: 1
+  exec: 3
+  exec-sticky: 5
+  no-access: 8
+  octal: 4
+  acl: 5
+  context: 5
 
 date:
-  hour-old: "#a6da95"  # green
-  day-old: "#8aadf4"   # blue
-  older: "#6e738d"     # overlay0
+  hour-old: 2
+  day-old: 4
+  older: 8
 
 size:
-  none: "#6e738d"      # overlay0
-  small: "#a6da95"     # green
-  medium: "#eed49f"    # yellow
-  large: "#ed8796"     # red
+  none: 8
+  small: 2
+  medium: 3
+  large: 1
 
 inode:
-  valid: "#b7bdf8"     # lavender
-  invalid: "#6e738d"   # overlay0
+  valid: 5
+  invalid: 8
 
 links:
-  valid: "#b7bdf8"     # lavender
-  invalid: "#ed8796"   # red
+  valid: 5
+  invalid: 1
 
-tree-edge: "#6e738d"   # overlay0
+tree-edge: 8
 
 git-status:
-  default: "#6e738d"
-  unmodified: "#6e738d"
-  ignored: "#6e738d"
-  new-in-index: "#a6da95"
-  new-in-workdir: "#a6da95"
-  typechange: "#eed49f"
-  deleted: "#ed8796"
-  renamed: "#8aadf4"
-  modified: "#eed49f"
-  conflicted: "#ed8796"
+  default: 8
+  unmodified: 8
+  ignored: 8
+  new-in-index: 2
+  new-in-workdir: 2
+  typechange: 3
+  deleted: 1
+  renamed: 4
+  modified: 3
+  conflicted: 1
