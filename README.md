@@ -9,7 +9,7 @@ Personal configuration files for development environment setup.
 
 - **bin** - Small helper scripts to `~/.local/bin` (niri window helpers)
 - **claude** - Claude Code CLI settings, skills, and commands
-- **dms** - DankMaterialShell plugins, Linux only. Currently a launcher calculator
+- **dms** - DankMaterialShell theme and plugin lockfile, Linux only
 - **ghostty** - Terminal emulator configuration (incl. cursor shader)
 - **niri** - Scrolling tiling compositor, Linux only. See caveats below
 - **nvim** - Neovim editor with plugins and themes
@@ -63,7 +63,7 @@ Each directory represents a package that can be independently stowed:
 ├── chocofi/          # Keyboard layout (reference, not stowed)
 ├── zoom75/           # Keyboard layout (reference, not stowed)
 ├── claude/           # Claude Code CLI
-├── dms/              # DankMaterialShell plugins (Linux only)
+├── dms/              # DankMaterialShell theme + plugin lock (Linux only)
 ├── ghostty/          # Terminal emulator
 ├── niri/             # Compositor (Linux only)
 ├── nvim/             # Neovim editor
@@ -122,16 +122,39 @@ keymap with no `application` filter identity-maps the lock screen, so no later
 block can reach it at all.
 ```
 
+## Theme
+
+One accent, `#7fc8ff`, shared by niri's focus ring, the shell, the terminal
+listing and the statusline. Surfaces are near-neutral greys on purpose — the
+blue is what points, so nothing else should compete with it. Everything that
+can express colour as an ANSI index does, so it follows whatever theme Ghostty
+is set to rather than pinning a second palette.
+
+Warm colours are reserved: yellow and red appear only when something is wrong
+(git conflicts, a context window running out), never as decoration.
+
+The DMS side lives in the `dms` package as `themes/drivis/theme.json`, pointed
+at by `customThemeFile` in the shell's own settings. That setting is *not* in
+this repo, so on a new machine set it once:
+
+```bash
+dms ipc call settings set customThemeFile ~/.config/DankMaterialShell/themes/drivis/theme.json
+dms ipc call settings set currentThemeName custom
+```
+
 ## DankMaterialShell (Linux only)
 
-The `dms` package holds shell plugins, stowed into
-`~/.config/DankMaterialShell/plugins/`. Stow symlinks each plugin directory
-individually, so plugins installed by the DMS plugin manager are left alone.
+Shell plugins are installed by DMS itself, not stowed. `plugins.lock.json` is
+stowed though — it pins each plugin to an exact commit, the same idea as
+`lazy-lock.json`. Restore them on a new machine with:
 
-`dankCalc` is a launcher calculator — type an expression in spotlight and the
-answer appears on top. It has no trigger prefix, so it sees every launcher
-query; see the plugin README for why it parses expressions itself instead of
-calling `eval()`. Toggle it with `dms ipc call plugins enable|disable dankCalc`.
+```bash
+dms plugins restore
+```
+
+Note that `dms config resolve-include niri <file>.kdl` reports whether niri
+actually loads a given DMS-generated include. Two of them are deliberately left
+out; `niri/.config/niri/config.kdl` explains why.
 
 ## Shell Extras
 

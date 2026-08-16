@@ -1,6 +1,6 @@
 {
   "dark": {
-    "name": "Erik Blue",
+    "name": "Drivis",
     "primary": "#7fc8ff",
     "primaryText": "#0b1016",
     "primaryContainer": "#2b6d95",
@@ -20,7 +20,7 @@
     "info": "#7fc8ff"
   },
   "light": {
-    "name": "Erik Blue Day",
+    "name": "Drivis Dag",
     "primary": "#1d7fb8",
     "primaryText": "#f4f9fd",
     "primaryContainer": "#bfe4fb",
