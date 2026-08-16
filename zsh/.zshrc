@@ -60,6 +60,10 @@ alias la='lsd -a'
 # scrollar forbi i evigheter. Djupare vid behov: lsd --tree --depth 4
 alias lt='lsd --tree --depth 2'
 
+# fastfetch delat i tva vyer: standard visar miljon man sitter i, hardware
+# visar specarna. Configarna ligger i ~/.config/fastfetch/.
+alias ffhw='fastfetch --config hardware'
+
 alias ..='cd ..;pwd'
 alias tree='tree --dirsfirst -F'
 

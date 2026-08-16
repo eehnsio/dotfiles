@@ -15,6 +15,7 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [bin](bin/) | Helper scripts → `~/.local/bin` | both |
 | [claude](claude/) | Claude Code settings, skills, statusline | both |
 | [dms](dms/) | DankMaterialShell theme + plugin lock | Linux |
+| [fastfetch](fastfetch/) | Two views: environment, and `ffhw` for hardware | both |
 | [ghostty](ghostty/) | Terminal emulator, incl. cursor shader | both |
 | [lsd](lsd/) | `ls` replacement, follows the terminal palette | both |
 | [niri](niri/) | Scrolling tiling compositor | Linux |
