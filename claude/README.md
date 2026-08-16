@@ -52,3 +52,28 @@ became invisible. Colour was the fix, not a brighter grey.
 
 Yellow and red are reserved for the context window running low, so the warning
 is the only warm colour on the line.
+
+## Hooks
+
+The scripts are shared through this repo; whether they are *active* is a
+per-machine decision:
+
+```bash
+touch ~/.claude/hooks.disabled     # off on this machine
+rm ~/.claude/hooks.disabled        # on again
+```
+
+All three check for that file first and exit silently. It deliberately lives in
+`~/.claude/` and not in `~/.claude/hooks/` — the latter is a stow symlink into
+this repo, so a marker there would be committed and disable the hooks everywhere.
+
+**Run `./install` immediately after pulling.** `settings.json` is a symlink, so a
+pull activates new hook config the instant it lands — while the scripts it points
+at are still missing until stow has run. A hook that cannot start counts as
+blocking, and the tool it guards dies. That window is unrecoverable from inside
+Claude Code when the blocked tool is Bash.
+
+The hook commands are written as `[ -f <script> ] && <run> || exit 0` for the
+same reason: a missing file now fails open instead of taking the session with it.
+`guard.py` already defends every internal failure this way, including Python
+older than 3.11 without `tomllib`, but it cannot defend against not existing.

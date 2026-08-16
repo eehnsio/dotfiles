@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/block-rm-rf.sh",
+            "command": "[ -f ~/.claude/hooks/block-rm-rf.sh ] && bash ~/.claude/hooks/block-rm-rf.sh || exit 0",
             "timeout": 10
           }
         ]
@@ -25,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/damage-control/guard.py",
+            "command": "[ -f ~/.claude/hooks/damage-control/guard.py ] && python3 ~/.claude/hooks/damage-control/guard.py || exit 0",
             "timeout": 10
           }
         ]
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/settings-drift.sh",
+            "command": "[ -f ~/.claude/hooks/settings-drift.sh ] && bash ~/.claude/hooks/settings-drift.sh || exit 0",
             "timeout": 5
           }
         ]

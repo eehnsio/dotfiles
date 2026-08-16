@@ -9,6 +9,11 @@
 #
 # Emits an "ask" decision so the command still runs after you approve it.
 
+# Av-knapp per maskin. ~/.claude/hooks ar en stow-symlank in i repot, sa
+# markeringen far INTE ligga dar — den hade folgt med i git. ~/.claude ar
+# daremot en riktig katalog.
+[ -e "$HOME/.claude/hooks.disabled" ] && exit 0
+
 set -uo pipefail
 
 payload=$(cat)

@@ -7,6 +7,11 @@
 # börjar live-konfigurationen och flottans baslinje glida isär utan att
 # någon märker det. Den här kollen gör det synligt nästa gång du startar.
 
+# Av-knapp per maskin. ~/.claude/hooks ar en stow-symlank in i repot, sa
+# markeringen far INTE ligga dar — den hade folgt med i git. ~/.claude ar
+# daremot en riktig katalog.
+[ -e "$HOME/.claude/hooks.disabled" ] && exit 0
+
 set -uo pipefail
 
 live="$HOME/.claude/settings.json"
