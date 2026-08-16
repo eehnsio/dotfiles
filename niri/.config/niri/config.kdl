@@ -185,8 +185,14 @@ window-rule {
     match app-id=r#"^steam$"# title=r#"^notificationtoasts"#
     open-floating true
     open-focused false
+
+    // Placeras som en toast dar Steam sjalv hade lagt den. Utan det hamnar
+    // den mitt i bilden, eftersom niri centrerar flytande fonster som saknar
+    // uttalad position.
+    default-floating-position x=24 y=24 relative-to="top-right"
+
     default-column-width { fixed 380; }
-    default-window-height { fixed 100; }
+    default-window-height { fixed 96; }
 }
 
 // Bitwardens upplasningsruta. Zen ger sina extension-popups titeln
