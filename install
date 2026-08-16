@@ -43,6 +43,16 @@ seed_local "$DOTFILES/niri/.config/niri/local.kdl" \
 seed_local "$DOTFILES/ghostty/.config/ghostty/config.local" \
            "$DOTFILES/ghostty/.config/ghostty/config.local.example"
 
+# Finder strör .DS_Store i paketen på macOS. De är gitignorerade, men stow bryr
+# sig inte om git — den ser en fil som ska länkas, hittar en riktig .DS_Store i
+# målet och avbryter HELA paketet. Eftersom loopen unstowar före den stowar
+# lämnar en sådan abort paketet olänkat: ~/.zshrc försvinner helt enkelt.
+#
+# Rensning här i stället för .stow-local-ignore med flit — en local-ignore-fil
+# *ersätter* stows inbyggda lista i stället för att utöka den, vilket är precis
+# hur ~/KEYBINDS.md en gång blev en symlänk in i repot. Se rot-READMEn.
+find "$DOTFILES" -name .DS_Store -not -path "*/.git/*" -delete 2>/dev/null
+
 # Install each package
 pushd $DOTFILES
 for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")

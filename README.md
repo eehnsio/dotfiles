@@ -63,6 +63,13 @@ Package READMEs are not symlinked into `$HOME`. Stow ignores top-level
 local ignore file *replaces* stow's built-in list rather than extending it,
 which is exactly how `~/KEYBINDS.md` once ended up as a symlink into this repo.
 
+`.DS_Store` is not on that built-in list either, and it is the more dangerous
+case. Finder scatters them through the packages on macOS; git ignores them but
+stow does not, and one stray file aborts the **entire** package. Since `install`
+unstows before it stows, that abort leaves the package unlinked — `~/.zshrc`
+simply disappears. `install` therefore deletes them before stowing, rather than
+reaching for a local ignore file. Linux never sees this.
+
 ## Two machines
 
 Nothing needs cherry-picking between them. `install` picks the Linux-only
