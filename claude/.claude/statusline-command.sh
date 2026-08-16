@@ -1,14 +1,27 @@
 #!/bin/bash
 
-# ANSI color codes
-CYAN='\033[36m'
-BLUE='\033[34m'
-GREEN='\033[32m'
-RED='\033[31m'
-YELLOW='\033[33m'
-MAGENTA='\033[35m'
-WHITE='\033[37m'
-GRAY='\033[90m'
+# Fargerna anges som ANSI-koder, inte hex, sa statuslinjen foljer terminalens
+# aktiva tema — samma princip som lsd och zsh-prompten.
+#
+# Tre nivaer i stallet for sju farger:
+#
+#   ACCENT  katalogen. Det enda man faktiskt letar efter i raden, och i
+#           noctalia-paletten ar cyan #7dcfff, allts samma bla som niris
+#           fokusring.
+#   FG      grenen. Viktig men inte det man scannar efter forst, sa den far
+#           normal ljusstyrka utan egen kulor.
+#   DIM     allt ovrigt. Modell, radraknare, pilar och avskiljare ar sammanhang,
+#           inte information man agerar pa.
+#
+# Gult och rott ar reserverat for kontextfonstret, och bara nar det borjar ta
+# slut. Semantisk farg och accentfarg ar tva olika saker: radantal fargas inte
+# gront och rott, for tillagda rader ar inte "bra" och borttagna inte "daliga".
+
+ACCENT='\033[36m'
+FG='\033[39m'
+DIM='\033[90m'
+WARN='\033[33m'
+CRIT='\033[31m'
 RESET='\033[0m'
 
 input=$(cat)
@@ -42,8 +55,8 @@ fi
 model_short=$(echo "$model_name" | sed -E 's/^Claude[[:space:]]+//' | sed -E 's/([0-9]+\.[0-9]+)[[:space:]]+([A-Z][a-z]+)/\2 \1/')
 
 line=""
-line+=$(printf "${YELLOW}%s${RESET}" "$model_short")
-line+=$(printf " in ${BLUE}%s${RESET}" "$dir_display")
+line+=$(printf "${DIM}%s in${RESET}" "$model_short")
+line+=$(printf " ${ACCENT}%s${RESET}" "$dir_display")
 
 if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
     if git rev-parse --git-dir >/dev/null 2>&1; then
@@ -57,8 +70,8 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
                     behind=$(echo "$counts" | awk '{print $1}')
                     ahead=$(echo "$counts" | awk '{print $2}')
 
-                    [ "$ahead" != "0" ] && ahead_behind+=$(printf "${GREEN}↑%s${RESET}" "$ahead")
-                    [ "$behind" != "0" ] && ahead_behind+=$(printf "${CYAN}↓%s${RESET}" "$behind")
+                    [ "$ahead" != "0" ] && ahead_behind+=$(printf " ${DIM}↑%s${RESET}" "$ahead")
+                    [ "$behind" != "0" ] && ahead_behind+=$(printf " ${DIM}↓%s${RESET}" "$behind")
                 fi
             fi
 
@@ -68,20 +81,14 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
 
             git_diff_str=""
             if [ -n "$lines_added" ] && [ "$lines_added" != "0" ]; then
-                git_diff_str+=$(printf "${GREEN}+%s${RESET}" "$lines_added")
-                [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ] && git_diff_str+=$(printf "/${RED}-%s${RESET}" "$lines_removed")
+                git_diff_str+=$(printf " ${DIM}+%s${RESET}" "$lines_added")
+                [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ] && git_diff_str+=$(printf "${DIM}/-%s${RESET}" "$lines_removed")
             elif [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ]; then
-                git_diff_str+=$(printf "${RED}-%s${RESET}" "$lines_removed")
+                git_diff_str+=$(printf " ${DIM}-%s${RESET}" "$lines_removed")
             fi
 
-            branch_display="$branch"
-            [ -n "$ahead_behind" ] && branch_display="$branch $ahead_behind"
-
-            if [ -n "$git_diff_str" ]; then
-                line+=$(printf " ${MAGENTA}(%s %s)${RESET}" "$branch_display" "$git_diff_str")
-            else
-                line+=$(printf " ${MAGENTA}(%s)${RESET}" "$branch_display")
-            fi
+            line+=$(printf " ${DIM}(${RESET}${FG}%s${RESET}%s%s${DIM})${RESET}" \
+                "$branch" "$ahead_behind" "$git_diff_str")
         fi
     fi
 fi
@@ -98,15 +105,16 @@ if [ "$usage" != "null" ] && [ "$context_size" -gt 0 ]; then
     pct=$((total_sent * 100 / context_size))
     remaining=$((100 - pct))
 
+    # Grtt sa lange det inte ar ett problem. Farg bara nar det borjar bli det.
     if [ $remaining -gt 50 ]; then
-        context_color="$GREEN"
+        context_color="$DIM"
     elif [ $remaining -gt 20 ]; then
-        context_color="$YELLOW"
+        context_color="$WARN"
     else
-        context_color="$RED"
+        context_color="$CRIT"
     fi
 
-    line+=$(printf " ${WHITE}|${RESET} ${context_color}%d%% free${RESET}" "$remaining")
+    line+=$(printf " ${DIM}|${RESET} ${context_color}%d%% free${RESET}" "$remaining")
 fi
 
 printf "%s" "$line"
