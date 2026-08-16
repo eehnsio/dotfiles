@@ -47,6 +47,22 @@ Package READMEs are not symlinked into `$HOME`. Stow ignores top-level
 local ignore file *replaces* stow's built-in list rather than extending it,
 which is exactly how `~/KEYBINDS.md` once ended up as a symlink into this repo.
 
+## Two machines
+
+Nothing needs cherry-picking between them. `install` picks the Linux-only
+packages by `uname`, so a niri commit landing on the Mac is just inert files in
+a directory nothing reads. Pull everything, run `./install`, done.
+
+The one thing that does fight you is lockfiles. `lazy-lock.json` and
+`plugins.lock.json` are rewritten by their own tools at different times on each
+machine, so they conflict without anyone having made a decision. `.gitattributes`
+marks them `merge=ours` and `install` registers the driver, so each machine keeps
+its own copy and the pull goes through.
+
+Note that `enabledPlugins` in `claude/.claude/settings.json` also churns, but
+that one is left alone on purpose — the other ten keys in that file are genuine
+shared preferences that should propagate.
+
 ## Machine-specific config
 
 Anything that differs per machine — monitors, resolutions, scaling, font size —

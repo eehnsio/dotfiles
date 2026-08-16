@@ -1,0 +1,9 @@
+# Lockfiler skrivs om av verktygen sjalva, vid olika tillfallen pa varje
+# maskin. De ger darfor konflikter som ingen manniska har orsakat och som
+# ingen manniska kan losa meningsfullt.
+#
+# merge=ours later varje maskin behalla sin egen version i stallet for att
+# stanna pullen. Drivrutinen registreras av ./install — utan den ignorerar
+# git raderna nedan tyst.
+nvim/.config/nvim/lazy-lock.json                 merge=ours
+dms/.config/DankMaterialShell/plugins.lock.json  merge=ours

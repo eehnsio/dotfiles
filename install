@@ -17,6 +17,13 @@ if [[ -z $DOTFILES ]]; then
     DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 fi
 
+# Merge-drivrutinen som .gitattributes hänvisar till. Utan den ignorerar git
+# raderna där tyst, och lockfilerna börjar konflikta mellan maskinerna igen.
+# "true" betyder bara: lyckas alltid, behåll vår version.
+if git -C "$DOTFILES" rev-parse --git-dir >/dev/null 2>&1; then
+    git -C "$DOTFILES" config merge.ours.driver true
+fi
+
 # Maskinspecifika filer skapas från sina .example innan stow körs.
 #
 # De är gitignorerade men ligger inuti paketen, så stow symlänkar dem som
