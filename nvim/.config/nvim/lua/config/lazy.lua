@@ -10,9 +10,11 @@ require("lazy").setup({
 	spec = {
 		{ "LazyVim/LazyVim", import = "lazyvim.plugins" },
 		{ import = "lazyvim.plugins.extras.lang.typescript" },
+		-- Lag tidigare under extras.formatting. LazyVim flyttade in den under
+		-- typescript, eftersom biome bara formaterar JS/TS-familjen.
+		{ import = "lazyvim.plugins.extras.lang.typescript.biome" },
 		{ import = "lazyvim.plugins.extras.lang.tailwind" },
 		{ import = "lazyvim.plugins.extras.lang.json" },
-		{ import = "lazyvim.plugins.extras.formatting.biome" },
 		{ import = "lazyvim.plugins.extras.util.mini-hipatterns" },
 		--		{ import = "lazyvim.plugins.extras.lsp.none-ls" },
 		{ import = "plugins" },

@@ -3,28 +3,40 @@
 # Fargerna anges som ANSI-koder, inte hex, sa statuslinjen foljer terminalens
 # aktiva tema — samma princip som lsd och zsh-prompten.
 #
-# Fyra nivaer, och bara den lagsta ar riktigt dampad:
+# Tre nivaer, och ingen av dem ar dampad pa riktigt:
 #
-#   ACCENT  katalogen. Det man faktiskt letar efter i raden, och i
-#           noctalia-paletten ar cyan #7dcfff, alltsa samma bla som niris
-#           fokusring.
-#   FG      modell och gren — radens innehall, i normal ljusstyrka.
-#   SOFT    siffror: radantal, pilar, procent. Lasbara men underordnade.
-#   DIM     BARA bindeord och skiljetecken: "in", parenteser, stapeln.
+# De tre vardena man laser far var sin farg, men ur samma kalla familj sa
+# raden hanger ihop i stallet for att bli en regnbage:
 #
-# DIM ar \033[90m, vilket i den har paletten ar #414868 — nastan bakgrunds-
-# farg. Den duger for tecken man aldrig behover lasa, men allt som bar
-# information maste ligga hogre. Ett forsta forsok satte hela raden pa DIM
-# och blev oläsbart.
+#   PATH    katalogen, cyan. Ankaret — #7dcfff ar samma bla som niris
+#           fokusring, sa raden knyts till resten av riset.
+#   BRANCH  grenen, bla. Granne med cyan i paletten: tydligt en egen sak,
+#           men uppenbart slakt. Bada svarar pa "var ar jag".
+#   MODEL   modellen, magenta. Ett annat SLAGS uppgift — vem, inte var —
+#           och far darfor en farg utanfor det blagrona paret.
+#
+#   FG      siffrorna omkring dem: radantal, pilar, procent.
+#   SOFT    BARA bindeord och skiljetecken: "in", parenteser, stapeln.
+#
+# Alla tre ar kalla toner. Det ar med flit: gult och rott anvands ingen
+# annanstans i raden, sa nar kontextfonstret borjar ta slut ar det den enda
+# varma farg som finns och gar inte att missa.
+#
+# Har fanns tidigare ett fjarde steg pa \033[90m. Det ar #414868 i den har
+# paletten, och statuslinjen ritas dessutom redan nedtonad av Claude Code —
+# tillsammans blev det osynligt. Aven \033[37m visade sig for svagt for
+# siffror. Slutsatsen: i en rad som redan ar nedtonad av varden finns det
+# bara plats for EN nivas skillnad, och den far ligga pa skiljetecknen.
 #
 # Gult och rott ar reserverat for kontextfonstret, och bara nar det borjar ta
 # slut. Semantisk farg och accentfarg ar tva olika saker: radantal fargas inte
 # gront och rott, for tillagda rader ar inte "bra" och borttagna inte "daliga".
 
-ACCENT='\033[36m'
+PATH_C='\033[36m'
+BRANCH_C='\033[34m'
+MODEL_C='\033[35m'
 FG='\033[39m'
 SOFT='\033[37m'
-DIM='\033[90m'
 WARN='\033[33m'
 CRIT='\033[31m'
 RESET='\033[0m'
@@ -60,8 +72,8 @@ fi
 model_short=$(echo "$model_name" | sed -E 's/^Claude[[:space:]]+//' | sed -E 's/([0-9]+\.[0-9]+)[[:space:]]+([A-Z][a-z]+)/\2 \1/')
 
 line=""
-line+=$(printf "${FG}%s${RESET}${DIM} in${RESET}" "$model_short")
-line+=$(printf " ${ACCENT}%s${RESET}" "$dir_display")
+line+=$(printf "${MODEL_C}%s${RESET}${SOFT} in${RESET}" "$model_short")
+line+=$(printf " ${PATH_C}%s${RESET}" "$dir_display")
 
 if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
     if git rev-parse --git-dir >/dev/null 2>&1; then
@@ -75,8 +87,8 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
                     behind=$(echo "$counts" | awk '{print $1}')
                     ahead=$(echo "$counts" | awk '{print $2}')
 
-                    [ "$ahead" != "0" ] && ahead_behind+=$(printf " ${SOFT}↑%s${RESET}" "$ahead")
-                    [ "$behind" != "0" ] && ahead_behind+=$(printf " ${SOFT}↓%s${RESET}" "$behind")
+                    [ "$ahead" != "0" ] && ahead_behind+=$(printf " ${FG}↑%s${RESET}" "$ahead")
+                    [ "$behind" != "0" ] && ahead_behind+=$(printf " ${FG}↓%s${RESET}" "$behind")
                 fi
             fi
 
@@ -86,13 +98,13 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
 
             git_diff_str=""
             if [ -n "$lines_added" ] && [ "$lines_added" != "0" ]; then
-                git_diff_str+=$(printf " ${SOFT}+%s${RESET}" "$lines_added")
-                [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ] && git_diff_str+=$(printf "${SOFT}/-%s${RESET}" "$lines_removed")
+                git_diff_str+=$(printf " ${FG}+%s${RESET}" "$lines_added")
+                [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ] && git_diff_str+=$(printf "${FG}/-%s${RESET}" "$lines_removed")
             elif [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ]; then
-                git_diff_str+=$(printf " ${SOFT}-%s${RESET}" "$lines_removed")
+                git_diff_str+=$(printf " ${FG}-%s${RESET}" "$lines_removed")
             fi
 
-            line+=$(printf " ${DIM}(${RESET}${FG}%s${RESET}%s%s${DIM})${RESET}" \
+            line+=$(printf " ${SOFT}(${RESET}${BRANCH_C}%s${RESET}%s%s${SOFT})${RESET}" \
                 "$branch" "$ahead_behind" "$git_diff_str")
         fi
     fi
@@ -110,16 +122,16 @@ if [ "$usage" != "null" ] && [ "$context_size" -gt 0 ]; then
     pct=$((total_sent * 100 / context_size))
     remaining=$((100 - pct))
 
-    # Grtt sa lange det inte ar ett problem. Farg bara nar det borjar bli det.
+    # Normal ljusstyrka sa lange det inte ar ett problem. Farg forst nar det ar det.
     if [ $remaining -gt 50 ]; then
-        context_color="$SOFT"
+        context_color="$FG"
     elif [ $remaining -gt 20 ]; then
         context_color="$WARN"
     else
         context_color="$CRIT"
     fi
 
-    line+=$(printf " ${DIM}|${RESET} ${context_color}%d%% free${RESET}" "$remaining")
+    line+=$(printf " ${SOFT}|${RESET} ${context_color}%d%% free${RESET}" "$remaining")
 fi
 
 printf "%s" "$line"
