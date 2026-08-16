@@ -15,10 +15,18 @@
 #   MODEL   modellen, magenta. Ett annat SLAGS uppgift — vem, inte var —
 #           och far darfor en farg utanfor det blagrona paret.
 #
-#   FG      siffrorna omkring dem: radantal, pilar, procent.
+#   COUNT   siffrorna, gront: commits att pusha eller hamta, andrade rader,
+#           och kontextfonstret sa lange det mar bra. En hue for hela
+#           "hur mycket"-familjen.
+#
 #   SOFT    BARA bindeord och skiljetecken: "in", parenteser, stapeln.
 #
-# Alla tre ar kalla toner. Det ar med flit: gult och rott anvands ingen
+# Regeln ar att ALLT som ar ett varde far en kulor. Ingenting ligger kvar pa
+# \033[39m: den fargen ar terminalens standardforgrund utan egen ton, och
+# eftersom Claude Code redan ritar hela raden nedtonad tappar just den mest.
+# "13 commits att pusha" forsvann pa exakt det sattet.
+#
+# De fyra hue:erna ar alla kalla. Det ar med flit: gult och rott anvands ingen
 # annanstans i raden, sa nar kontextfonstret borjar ta slut ar det den enda
 # varma farg som finns och gar inte att missa.
 #
@@ -35,7 +43,7 @@
 PATH_C='\033[36m'
 BRANCH_C='\033[34m'
 MODEL_C='\033[35m'
-FG='\033[39m'
+COUNT_C='\033[32m'
 SOFT='\033[37m'
 WARN='\033[33m'
 CRIT='\033[31m'
@@ -87,8 +95,8 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
                     behind=$(echo "$counts" | awk '{print $1}')
                     ahead=$(echo "$counts" | awk '{print $2}')
 
-                    [ "$ahead" != "0" ] && ahead_behind+=$(printf " ${FG}↑%s${RESET}" "$ahead")
-                    [ "$behind" != "0" ] && ahead_behind+=$(printf " ${FG}↓%s${RESET}" "$behind")
+                    [ "$ahead" != "0" ] && ahead_behind+=$(printf " ${COUNT_C}↑%s${RESET}" "$ahead")
+                    [ "$behind" != "0" ] && ahead_behind+=$(printf " ${COUNT_C}↓%s${RESET}" "$behind")
                 fi
             fi
 
@@ -98,10 +106,10 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
 
             git_diff_str=""
             if [ -n "$lines_added" ] && [ "$lines_added" != "0" ]; then
-                git_diff_str+=$(printf " ${FG}+%s${RESET}" "$lines_added")
-                [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ] && git_diff_str+=$(printf "${FG}/-%s${RESET}" "$lines_removed")
+                git_diff_str+=$(printf " ${COUNT_C}+%s${RESET}" "$lines_added")
+                [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ] && git_diff_str+=$(printf "${COUNT_C}/-%s${RESET}" "$lines_removed")
             elif [ -n "$lines_removed" ] && [ "$lines_removed" != "0" ]; then
-                git_diff_str+=$(printf " ${FG}-%s${RESET}" "$lines_removed")
+                git_diff_str+=$(printf " ${COUNT_C}-%s${RESET}" "$lines_removed")
             fi
 
             line+=$(printf " ${SOFT}(${RESET}${BRANCH_C}%s${RESET}%s%s${SOFT})${RESET}" \
@@ -124,7 +132,7 @@ if [ "$usage" != "null" ] && [ "$context_size" -gt 0 ]; then
 
     # Normal ljusstyrka sa lange det inte ar ett problem. Farg forst nar det ar det.
     if [ $remaining -gt 50 ]; then
-        context_color="$FG"
+        context_color="$COUNT_C"
     elif [ $remaining -gt 20 ]; then
         context_color="$WARN"
     else
