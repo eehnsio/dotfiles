@@ -1,0 +1,312 @@
+# damage-control — vad Claude Code inte får göra utan att fråga först.
+#
+# action = "ask"   -> permission-prompt, du kan godkänna
+# action = "block" -> hårt stopp, skälet matas tillbaka till Claude
+#
+# Utgångspunkten är "ask". "block" är reserverat för sånt som aldrig är rätt.
+# Lägg till egna rader fritt — filen läses om vid varje anrop.
+
+# ---------------------------------------------------------------------------
+# Aldrig, under några omständigheter
+# ---------------------------------------------------------------------------
+
+[[bash]]
+pattern = '\brm\s+(-[a-zA-Z]*\s+)*(-[a-zA-Z]*[rR][a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*[rR])[a-zA-Z]*\s+/\s*$'
+reason  = "rm -rf mot rotkatalogen"
+action  = "block"
+
+[[bash]]
+pattern = '(?:^|[\n;&|(]|&&|\|\|)\s*(?:sudo\s+)?mkfs(\.[a-z0-9]+)?\b'
+reason  = "formaterar ett filsystem"
+action  = "block"
+
+[[bash]]
+pattern = '(?:^|[\n;&|(]|&&|\|\|)\s*(?:sudo\s+)?dd\b[^|;&\n]*\bof=/dev/'
+reason  = "dd skriver direkt till en blockenhet"
+action  = "block"
+
+[[bash]]
+pattern = ':\s*\(\s*\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:'
+reason  = "fork bomb"
+action  = "block"
+
+# ---------------------------------------------------------------------------
+# Git — historik och ocommittat arbete
+# ---------------------------------------------------------------------------
+
+[[bash]]
+pattern = '\bgit\s+reset\s+(--\S+\s+)*--hard'
+reason  = "git reset --hard slänger allt ocommittat (använd --soft eller stash)"
+
+[[bash]]
+pattern = '\bgit\s+clean\s+(-\S*[fdx]|--force)'
+reason  = "git clean raderar filer som inte är spårade"
+
+[[bash]]
+pattern = '\bgit\s+(checkout|restore)\s+(--\S+\s+)*\.\s*$'
+reason  = "återställer alla ocommittade ändringar i arbetskatalogen"
+
+[[bash]]
+pattern = '\bgit\s+push\s+(?!.*--force-with-lease)(.*\s)?(--force\b|-f\b)'
+reason  = "git push --force skriver över fjärrhistorik (använd --force-with-lease)"
+
+[[bash]]
+pattern = '\bgit\s+branch\s+(-\S*D|--delete\s+--force)'
+reason  = "tvingar bort en gren även om den inte är mergad"
+
+[[bash]]
+pattern = '\bgit\s+push\s+\S+\s+(--delete\b|:\S)'
+reason  = "raderar en gren på fjärren"
+
+[[bash]]
+pattern = '\bgit\s+stash\s+(clear|drop)\b'
+reason  = "raderar stashar permanent"
+
+[[bash]]
+pattern = '\bgit\s+reflog\s+(expire|delete)\b'
+reason  = "reflog är sista räddningen efter ett tapp — rör den inte"
+
+[[bash]]
+pattern = '\bgit\s+gc\b[^|;&]*--prune=now'
+reason  = "kan slänga dangling commits innan du hunnit återställa dem"
+
+[[bash]]
+pattern = '\bgit\s+filter-branch\b'
+reason  = "skriver om hela historiken"
+
+[[bash]]
+pattern = '\bgit\s+update-ref\s+-d\b'
+reason  = "raderar en ref direkt"
+
+# ---------------------------------------------------------------------------
+# Systemet
+# ---------------------------------------------------------------------------
+
+[[bash]]
+pattern = '\bchmod\s+(-[a-zA-Z]+\s+)*777\b'
+reason  = "chmod 777 gör filen skrivbar för alla"
+
+[[bash]]
+pattern = '\bcho(wn|grp)\s+(-[a-zA-Z]+\s+)*root\b'
+reason  = "byter ägare till root"
+
+[[bash]]
+pattern = '\b(killall|pkill)\s+(-9|-KILL)\b'
+reason  = "dödar processer hårt utan att de får städa"
+
+[[bash]]
+pattern = '\bhistory\s+-c\b|>\s*~?/?\.?(bash|zsh)_history'
+reason  = "rensar shell-historiken"
+
+[[bash]]
+pattern = '\bshred\b'
+reason  = "shred skriver över filen så den inte går att återskapa"
+
+[[bash]]
+pattern = '\bdiskutil\s+(eraseDisk|eraseVolume|apfs\s+delete)'
+reason  = "raderar en disk eller volym"
+
+[[bash]]
+pattern = '\bbrew\s+(uninstall|remove)\s+(--force|-f)\b'
+reason  = "tvingar bort ett brew-paket"
+
+# ---------------------------------------------------------------------------
+# Docker
+# ---------------------------------------------------------------------------
+
+[[bash]]
+pattern = '\bdocker\s+system\s+prune\b[^|;&]*(-a|--all)'
+reason  = "docker system prune -a tar allt som inte används just nu"
+
+[[bash]]
+pattern = '\bdocker\s+volume\s+(rm|prune)\b'
+reason  = "docker-volymer är persistent data"
+
+[[bash]]
+pattern = '\bdocker\s+rmi\s+(-\S*f|--force)'
+reason  = "tvingar bort images"
+
+[[bash]]
+pattern = '\bdocker\s+(rm|stop|kill)\s+[^|;&]*\$\(\s*docker\s+ps'
+reason  = "träffar alla containrar på en gång"
+
+[[bash]]
+pattern = '\bdocker\s+compose\s+down\b[^|;&]*(-v|--volumes)'
+reason  = "compose down -v raderar volymerna"
+
+# ---------------------------------------------------------------------------
+# Kubernetes
+# ---------------------------------------------------------------------------
+
+[[bash]]
+pattern = '\bkubectl\s+delete\s+(namespace|ns)\b'
+reason  = "raderar ett helt namespace"
+
+[[bash]]
+pattern = '\bkubectl\s+delete\b[^|;&]*--all\b'
+reason  = "kubectl delete --all"
+
+[[bash]]
+pattern = '\bkubectl\s+delete\b[^|;&]*(-A\b|--all-namespaces)'
+reason  = "raderar över alla namespaces"
+
+[[bash]]
+pattern = '\bhelm\s+(uninstall|delete)\b'
+reason  = "tar bort en helm-release"
+
+# ---------------------------------------------------------------------------
+# Databaser
+# ---------------------------------------------------------------------------
+
+[[bash]]
+pattern = '(?i)\bdrop\s+(database|schema)\b'
+reason  = "DROP DATABASE"
+
+[[bash]]
+pattern = '(?i)\bdrop\s+table\b'
+reason  = "DROP TABLE"
+
+[[bash]]
+pattern = '(?i)\btruncate\s+(table\s+)?\w'
+reason  = "TRUNCATE tömmer tabellen"
+
+[[bash]]
+pattern = '(?i)\bdelete\s+from\s+\w+\s*(;|$|")'
+reason  = "DELETE FROM utan WHERE raderar alla rader"
+
+[[bash]]
+pattern = '\bdropdb\b|\bdropuser\b'
+reason  = "raderar databas eller databasanvändare"
+
+[[bash]]
+pattern = '(?i)\b(flushall|flushdb)\b'
+reason  = "tömmer hela Redis"
+
+# ---------------------------------------------------------------------------
+# Deploy och moln
+# ---------------------------------------------------------------------------
+
+[[bash]]
+pattern = '\bvercel\s+(remove|rm)\b|\bvercel\s+projects?\s+(rm|remove)\b'
+reason  = "tar bort en Vercel-deployment eller ett projekt"
+
+[[bash]]
+pattern = '\bvercel\s+env\s+rm\b'
+reason  = "raderar en miljövariabel i Vercel"
+
+[[bash]]
+pattern = '\bgh\s+repo\s+delete\b'
+reason  = "raderar ett GitHub-repo"
+
+[[bash]]
+pattern = '\bgh\s+release\s+delete\b'
+reason  = "raderar en release"
+
+[[bash]]
+pattern = '\bnpm\s+unpublish\b'
+reason  = "avpublicerar ett paket från registryt"
+
+[[bash]]
+pattern = '\b(npm|pnpm|bun)\s+publish\b'
+reason  = "publicerar utåt — inte återkallningsbart"
+
+[[bash]]
+pattern = '\bwrangler\s+(delete|d1\s+delete|r2\s+bucket\s+delete|kv:namespace\s+delete|queues\s+delete)'
+reason  = "raderar Cloudflare-resurs"
+
+[[bash]]
+pattern = '\bsupabase\s+db\s+reset\b'
+reason  = "nollställer databasen"
+
+[[bash]]
+pattern = '\b(terraform|tofu)\s+(destroy|apply\b[^|;&]*-destroy)'
+reason  = "river infrastrukturen"
+
+[[bash]]
+pattern = '\bpulumi\s+destroy\b'
+reason  = "river alla resurser i stacken"
+
+[[bash]]
+pattern = '\baws\s+s3\s+(rm\b[^|;&]*--recursive|rb\b[^|;&]*--force)'
+reason  = "raderar S3-objekt eller bucket"
+
+[[bash]]
+pattern = '\baws\s+(ec2\s+terminate-instances|rds\s+delete-db-instance|cloudformation\s+delete-stack|dynamodb\s+delete-table|eks\s+delete-cluster|iam\s+delete-)'
+reason  = "raderar AWS-resurs"
+
+[[bash]]
+pattern = '\bgcloud\s+(projects\s+delete|compute\s+instances\s+delete|sql\s+instances\s+delete|container\s+clusters\s+delete)'
+reason  = "raderar GCP-resurs"
+
+# ---------------------------------------------------------------------------
+# Sökvägar
+#
+# secret    — Claude får varken läsa eller skriva utan att fråga
+# protected — läsning fri, all ändring frågar
+# no_delete — allt utom radering och flytt är fritt
+#
+# Glob: * matchar tecken inom ett sökvägssegment. ~ expanderas.
+# ---------------------------------------------------------------------------
+
+[paths]
+
+secret = [
+  ".env",
+  "*.pem",
+  "*.key",
+  "*.p12",
+  "*.pfx",
+  "id_rsa",
+  "id_ed25519",
+  "*serviceAccount*.json",
+  "*-credentials.json",
+  "*.tfstate",
+  "vault.yml",
+  "*vault*.yml",
+  "~/.ssh/",
+  "~/.gnupg/",
+  "~/.aws/",
+  "~/.config/gcloud/",
+  "~/.kube/config",
+  "~/.netrc",
+  "~/.npmrc",
+  "~/.pypirc",
+  "~/.git-credentials",
+  "~/.config/gh/hosts.yml",
+]
+
+protected = [
+  "/etc/",
+  "/usr/",
+  "/bin/",
+  "/sbin/",
+  "/System/",
+  "/Library/LaunchDaemons/",
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "yarn.lock",
+  "bun.lockb",
+  "bun.lock",
+  "go.sum",
+  "Cargo.lock",
+  "uv.lock",
+  "poetry.lock",
+  "flake.lock",
+  "*.min.js",
+  "*.min.css",
+]
+
+no_delete = [
+  ".git/",
+  ".github/",
+  ".gitignore",
+  ".gitattributes",
+  "~/.claude/",
+  "CLAUDE.md",
+  "LICENSE",
+  "LICENSE.*",
+  "README.md",
+  "lazy-lock.json",
+  "Dockerfile",
+  "docker-compose.yml",
+]
