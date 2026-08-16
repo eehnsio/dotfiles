@@ -20,6 +20,7 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [niri](niri/) | Scrolling tiling compositor | Linux |
 | [nvim](nvim/) | Neovim (LazyVim) + keybind cheatsheet | both |
 | [spotify](spotify/) | Forces the client onto native Wayland | Linux |
+| [tmux](tmux/) | Session persistence over SSH, not local splits | both |
 | [xremap](xremap/) | `super` → `ctrl` per app, below the compositor | Linux |
 | [zsh](zsh/) | Shell, prompt, aliases | both |
 
