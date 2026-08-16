@@ -9,7 +9,7 @@ if [[ -z $STOW_FOLDERS ]]; then
     # Listan är avsiktligt explicit och inte "allt som är en katalog":
     # reference/ och .github/ ligger också på toppnivån men ska aldrig stowas.
     if [[ "$(uname)" == "Linux" ]]; then
-        STOW_FOLDERS="$STOW_FOLDERS,niri,xremap,dms,spotify"
+        STOW_FOLDERS="$STOW_FOLDERS,niri,xremap,dms,spotify,wireplumber"
     fi
 fi
 
