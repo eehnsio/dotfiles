@@ -23,6 +23,21 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [xremap](xremap/) | `super` → `ctrl` per app, below the compositor | Linux |
 | [zsh](zsh/) | Shell, prompt, aliases | both |
 
+## New machine
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/eehnsio/dotfiles/main/bootstrap.sh | bash
+```
+
+`bootstrap.sh` deliberately offers no choices: it installs git and GNU Stow,
+clones the repo and hands over. Which packages get linked is up to you —
+`./install` or `STOW_FOLDERS="nvim,zsh" ./install`. Bootstrap links nothing on
+your behalf, which matters on a machine where half the packages are wrong.
+
+> **Secrets belong in no repo** — not this public one, not a private one.
+> Machine secrets live in Vaultwarden and are fetched with `vw-render`; public
+> keys are distributed by `baseline.yml` in the homelab repo.
+
 ## Installation
 
 ```bash
