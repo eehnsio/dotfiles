@@ -46,6 +46,16 @@ window-padding-color = extend
 # vinna, vilket är hur den gamla Tokyo Night-bakgrunden överlevde temabytet.
 theme = drivis
 
+# Varje fonster far en egen process. Med single-instance pa hanterar den
+# forsta ghostty-processen alla senare fonster, sa allt som startas efterat
+# arver den processens miljo — den kan vara timmar gammal. Nya miljovariabler
+# far da inget genomslag forran sista fonstret stangts, vilket ser ut som att
+# de inte fungerar alls. Det kostade en lang felsokning av GTK_IM_MODULE
+# nedan; se niri/config.kdl.
+#
+# Priset ar mer minne, eftersom fonstren inte langre delar process.
+gtk-single-instance = false
+
 copy-on-select = clipboard
 
 keybind = shift+enter=text:\x1b\r
@@ -56,3 +66,4 @@ keybind = cmd+shift+e=equalize_splits
 # Maskinspecifikt sist, sa det vinner over allt ovan. ?-prefixet gor filen
 # valfri — ghostty klagar inte om den saknas.
 config-file = ?config.local
+

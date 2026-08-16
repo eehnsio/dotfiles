@@ -90,6 +90,16 @@ environment {
     // varpa drivrutinen rensade den och allt byggdes om vid varje start.
     // Variabeln heter GL men galler aven Vulkan-pipelines.
     __GL_SHADER_DISK_CACHE_SIZE "10737418240"
+
+    // GTK:s Wayland-inmatningsmodul klarar inte doda tangenter, sa ~ ^ ` och
+    // ´ gar inte att skriva i ghostty — de fungerar overallt annars. Se
+    // ghostty#2981 och #8899. "simple" ar GTK:s egen inbyggda modul och
+    // hanterar dem korrekt.
+    //
+    // Sitter har och inte pa ghostty-spawnen, eftersom terminalen ocksa
+    // startas fran spotlight. Ingen forlust: variabeln stanger av IME for
+    // GTK-appar, och nagon sadan anvands inte har.
+    GTK_IM_MODULE "simple"
 }
 
 // ─── Uppstart ───────────────────────────────────────────────────────────
