@@ -2,7 +2,7 @@
 
 # Set defaults if not already set
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="bin,claude,ghostty,lsd,nvim,zsh"
+    STOW_FOLDERS="bin,claude,ghostty,lsd,nvim,tmux,zsh"
 
     # niri, xremap, dms och spotify finns bara på Linux.
     #
