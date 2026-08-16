@@ -1,45 +1,52 @@
 # Fargerna anges som ANSI-index (0-15), inte hex.
 #
 # Da foljer lsd terminalens aktiva tema av sig sjalvt, precis som zsh-prompten
-# gor. Byter du ghostty-tema flyttar lsd med utan att den har filen rors. En
-# hardkodad hex-palett skulle i stallet lasa lsd vid ett tema och sticka ut sa
-# fort resten av skalet bytte utseende.
+# gor. Byter du ghostty-tema flyttar lsd med utan att den har filen rors.
 #
 #   0 svart   1 rod     2 gron    3 gul
 #   4 bla     5 magenta 6 cyan    7 vit
 #   8 gra (dampad)      9-15 ljusa varianter
+#
+# PRINCIPEN: metadata ar bakgrundsbrus och gar till 8. Filnamnet ar det man
+# laser, och lsd fargar det redan efter filtyp. Accenten 6 sparas till de fa
+# fall dar metadata faktiskt sager nagot ovantat — att en fil ar exekverbar,
+# ovanligt stor, eller andrad for en stund sedan. I noctalia-paletten ar
+# index 6 = #7dcfff, alltsa i praktiken samma bla som niris fokusring.
+#
+# Rott behalls bara for det som ar illa pa riktigt: raderat och konflikt.
+# Det ar semantisk farg, inte accent, och de tva ska inte blandas ihop.
 
-user: 6
+user: 8
 group: 8
 
 permission:
-  read: 2
-  write: 1
-  exec: 3
-  exec-sticky: 5
+  read: 8
+  write: 8
+  exec: 6
+  exec-sticky: 6
   no-access: 8
-  octal: 4
-  acl: 5
-  context: 5
+  octal: 8
+  acl: 8
+  context: 8
 
 date:
-  hour-old: 2
-  day-old: 4
+  hour-old: 6
+  day-old: 8
   older: 8
 
 size:
   none: 8
-  small: 2
-  medium: 3
-  large: 1
+  small: 8
+  medium: 8
+  large: 6
 
 inode:
-  valid: 5
+  valid: 8
   invalid: 8
 
 links:
-  valid: 5
-  invalid: 1
+  valid: 8
+  invalid: 8
 
 tree-edge: 8
 
@@ -47,10 +54,10 @@ git-status:
   default: 8
   unmodified: 8
   ignored: 8
-  new-in-index: 2
-  new-in-workdir: 2
-  typechange: 3
+  new-in-index: 6
+  new-in-workdir: 6
+  typechange: 6
+  renamed: 6
+  modified: 6
   deleted: 1
-  renamed: 4
-  modified: 3
   conflicted: 1

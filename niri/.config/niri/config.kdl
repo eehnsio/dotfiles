@@ -393,3 +393,13 @@ include "local.kdl"
 include "dms/windowrules.kdl"   // DMS egna paneler ska flyta, inte kaklas
 include "dms/wpblur.kdl"        // wallpaper-blur bakom lagren
 include "dms/alttab.kdl"        // hornradie pa alt-tab-markeringen
+// dms/layout.kdl och dms/colors.kdl inkluderas MED FLIT INTE.
+//
+// layout.kdl satter gaps 4 och slar pa ramen igen, vilket skulle skriva over
+// gaps 20 och "border off" i layout-blocket ovan. colors.kdl skapas av dms men
+// fylls aldrig — dms skriver bara ram- och fokusringsBREDD till niri, aldrig
+// farg. Fokusringens farg ovan far darfor sattas for hand sa att den matchar
+// skalets tema.
+//
+// Kontrollera vad niri faktiskt laser med:
+//     dms config resolve-include niri <fil>.kdl

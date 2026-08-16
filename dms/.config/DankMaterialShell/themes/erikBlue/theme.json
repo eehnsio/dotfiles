@@ -1,0 +1,42 @@
+{
+  "dark": {
+    "name": "Erik Blue",
+    "primary": "#7fc8ff",
+    "primaryText": "#0b1016",
+    "primaryContainer": "#2b6d95",
+    "secondary": "#7fb4ca",
+    "surface": "#16181d",
+    "surfaceText": "#c8cdd6",
+    "surfaceVariant": "#23262e",
+    "surfaceVariantText": "#aeb4c0",
+    "surfaceTint": "#7fc8ff",
+    "background": "#101216",
+    "backgroundText": "#d2d7df",
+    "outline": "#4a505c",
+    "surfaceContainer": "#1c1f26",
+    "surfaceContainerHigh": "#272b34",
+    "error": "#e06c75",
+    "warning": "#d8a657",
+    "info": "#7fc8ff"
+  },
+  "light": {
+    "name": "Erik Blue Day",
+    "primary": "#1d7fb8",
+    "primaryText": "#f4f9fd",
+    "primaryContainer": "#bfe4fb",
+    "secondary": "#3f7f96",
+    "surface": "#f1f3f6",
+    "surfaceText": "#2a2f38",
+    "surfaceVariant": "#dfe3e9",
+    "surfaceVariantText": "#41474f",
+    "surfaceTint": "#1d7fb8",
+    "background": "#e7eaee",
+    "backgroundText": "#20242b",
+    "outline": "#78808c",
+    "surfaceContainer": "#e9ecf0",
+    "surfaceContainerHigh": "#d7dbe1",
+    "error": "#c0392f",
+    "warning": "#9a6b12",
+    "info": "#1d7fb8"
+  }
+}
