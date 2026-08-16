@@ -27,8 +27,14 @@ section can start mid-tree. Tree shapes are therefore unachievable, not merely
 unchosen.
 
 **`key.width` aligns the colons**, and it does so by emitting a cursor-column
-escape. That is why a raw `[56G` shows up if you pipe the output through a filter
+escape. That is why a raw `[61G` shows up if you pipe the output through a filter
 that only strips colour codes — it is doing its job.
+
+Set it **wider than the longest key**, with room to spare. A cursor-column escape
+cannot move backwards, so a key that reaches the width swallows the separator
+entirely: `Packages8 (flatpak)` instead of `Packages : 8 (flatpak)`. The longest
+labels here are `Packages` and `Terminal`; 21 leaves headroom for the gutter, the
+icon and a longer label later.
 
 `host` is left out entirely — it produced no row on this machine, so `board`
 carries the machine identity instead.
