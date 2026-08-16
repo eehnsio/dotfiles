@@ -173,6 +173,22 @@ window-rule {
     default-window-height { proportion 0.6; }
 }
 
+// Steams notiser ar egna FONSTER, inte lager-ytor som DMS notiser. Utan regel
+// kaklas de in i layouten mitt pa skarmen och stjal dessutom fokus mitt i det
+// man haller pa med.
+//
+// open-focused false ar den viktiga halvan — en notis ska aldrig ta tangent-
+// bordet. Titelmonstret ar Steams sedan lange etablerade; stammer det inte,
+// fanga det ratta med:
+//     niri msg event-stream | grep -i steam
+window-rule {
+    match app-id=r#"^steam$"# title=r#"^notificationtoasts"#
+    open-floating true
+    open-focused false
+    default-column-width { fixed 380; }
+    default-window-height { fixed 100; }
+}
+
 // Bitwardens upplasningsruta. Zen ger sina extension-popups titeln
 // "Extension: (<namn>) - ..." medan sjalva valvet heter "Bitwarden Web vault",
 // sa den har matchningen tar popupen utan att rora en vanlig flik. Vill du att
