@@ -476,3 +476,4 @@ include "dms/alttab.kdl"        // hornradie pa alt-tab-markeringen
 //
 // Kontrollera vad niri faktiskt laser med:
 //     dms config resolve-include niri <fil>.kdl
+include "dms/cursor.kdl"
