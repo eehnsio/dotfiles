@@ -18,6 +18,7 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [fastfetch](fastfetch/) | Two views: environment, and `ffhw` for hardware | both |
 | [ghostty](ghostty/) | Terminal emulator, incl. cursor shader | both |
 | [lsd](lsd/) | `ls` replacement, follows the terminal palette | both |
+| [mpv](mpv/) | Video player: floating window, sized by the clip | both |
 | [niri](niri/) | Scrolling tiling compositor | Linux |
 | [nvim](nvim/) | Neovim (LazyVim) + keybind cheatsheet | both |
 | [spotify](spotify/) | Forces the client onto native Wayland | Linux |

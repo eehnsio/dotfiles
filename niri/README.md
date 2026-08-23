@@ -14,6 +14,10 @@ macOS muscle memory where possible: `Mod+W` closes, `Mod+Space` launches,
 `Mod+B`/`Mod+E` open browser and files, `Mod+Shift+3/4/5` screenshot, and
 `Mod+§` cycles windows within an app (see the `bin` package).
 
+`Mod+Shift+M` fills the screen while keeping the window floating. `Mod+M` also
+fills the screen but tiles the window on the way, which puts it *below* every
+floating window — see the `mpv` package, where that distinction matters most.
+
 `Mod+Ctrl+R` resets a window's height back to automatic — niri keeps an
 explicitly set height until told otherwise, so a window does not grow back on
 its own when its neighbour closes.

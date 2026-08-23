@@ -154,6 +154,22 @@ window-rule {
     clip-to-geometry true
 }
 
+// Videospelaren ska sväva. Ett klipp ar nastan alltid nagot man tittar pa
+// bredvid det man haller pa med, inte en kolumn i layouten.
+//
+// Ingen default-column-width eller default-window-height har, med flit. Utan
+// dem far fonstret den storlek mpv sjalv ber om, och mpv ber om klippets egna
+// matt — klamda mellan autofit-smaller och autofit-larger i mpv-paketet. Satter
+// man en storlek har far ett 4K-klipp och ett telefonklipp exakt samma ruta.
+//
+// Flytande hindrar inte maximering, men ta Mod+Shift+M och inte Mod+M —
+// den senare kaklar in fonstret och lagger det darmed UNDER Nautilus och
+// allt annat flytande. Se bindningen langre ner.
+window-rule {
+    match app-id=r#"^mpv$"#
+    open-floating true
+}
+
 // Flytande terminal. Samma ghostty som vanligt, men startad med ett eget
 // app-id sa att regeln kan skilja den fran de kaklade fonstren — ghostty tar
 // alla sina config-nycklar som flaggor, darav --class. Se Mod+Ctrl+T.
@@ -387,6 +403,30 @@ binds {
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+M { maximize-window-to-edges; }
+
+    // Fyll skarmen UTAN att lamna det flytande lagret. Mod+M ovanfor kaklar in
+    // fonstret, och niri ritar alltid hela det flytande lagret ovanpa det
+    // kaklade — ett maximerat fonster hamnar darfor under varje flytande
+    // granne, till exempel Nautilus. Det ar layerordning, inte fokus, sa det
+    // hjalper inte att klicka pa det.
+    //
+    // Har stannar fonstret flytande och staplas som vanligt efter fokus. Vagen
+    // tillbaka ar Mod+Alt+2 for bredden och Mod+Ctrl+R for hojden.
+    //
+    // Vill man i stallet ha nagot ovanpa ALLT ar det Mod+Shift+F: fullskarm ar
+    // ett eget lager over bade kaklat och flytande.
+    //
+    // Tre anrop och inte en action: niri tillater bara en action per bind, och
+    // ingen enskild action gor det har. spawn-sh ar samma grepp som
+    // playerctl-bindningarna ovan.
+    //
+    // center-window ar inte kosmetik utan nodvandigt. Ett flytande fonster
+    // behaller sitt ovre vanstra horn nar det vaxer, sa enbart de tva forsta
+    // anropen skjuter ut hogerkanten utanfor skarmen — bredden blir ratt men
+    // halften av bilden hamnar utanfor.
+    Mod+Shift+M hotkey-overlay-title="Fill the Screen, Stay Floating" {
+        spawn-sh "niri msg action set-column-width 100%; niri msg action set-window-height 100%; niri msg action center-window";
+    }
     Mod+Ctrl+F { expand-column-to-available-width; }
     Mod+C { center-column; }
     Mod+Ctrl+C { center-visible-columns; }
