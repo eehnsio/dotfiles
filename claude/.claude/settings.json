@@ -80,5 +80,10 @@
   "skillOverrides": {
     "ehnsio-write": "off",
     "web-design-guidelines": "off"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
   }
 }
