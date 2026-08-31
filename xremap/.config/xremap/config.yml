@@ -4,10 +4,11 @@
 # skickar ut ett nytt. Niri ser alltså bara resultatet. Därför gäller att varje
 # tangent som mappas om här SLUTAR nå niris egna binds i just den appen.
 #
-# exact_match: true är viktigt. Utan den matchar xremap luddigt: Super-l fångar
-# även Super+Alt+L och Super+Shift+L, skickar vidare extramodifieraren och äter
-# alltså niris lasskarm och flytta-kolumn. Med exact_match gäller raden nedan
-# bara exakt den kombinationen; allt annat gar orort vidare till niri.
+# exact_match: true är viktigt. Utan den matchar xremap luddigt: en regel för
+# Super-q fångar även Super+Ctrl+Q och Super+Shift+Q, skickar vidare
+# extramodifieraren och äter alltså niris lasskarm och stang-fonster. Med
+# exact_match gäller raden bara exakt den kombinationen; allt annat gar orort
+# vidare till niri.
 #
 # App-klasserna kommer från `xremap --list-windows`.
 
@@ -19,7 +20,7 @@ keymap:
   - name: Skyddade systemgenvagar
     exact_match: true
     remap:
-      Super-Alt-l: Super-Alt-l  # las skarmen (niri: Super+Alt+L)
+      Super-C-q: Super-C-q  # las skarmen (niri: Super+Ctrl+Q)
 
   # Zen (Firefox-baserad) — cmd-genvägarna från macOS.
   # Mod+W stänger fliken. Mod+Shift+W stänger fönstret, men den bindningen

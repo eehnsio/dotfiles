@@ -9,8 +9,8 @@ for `/dev/uinput`.
 ## exact_match is not optional
 
 Every app block sets `exact_match: true`. Without it xremap matches **loosely**:
-a rule for `Super-l` also swallows `Super+Alt+L` and passes the extra modifier
-through, which ate the lock screen bind whenever that app had focus.
+a rule for `Super-q` also swallows `Super+Ctrl+Q` and passes the extra modifier
+through, which would eat the lock screen bind whenever that app had focus.
 
 The first keymap has no `application` filter and identity-maps the lock screen,
 so no later block can reach it at all.

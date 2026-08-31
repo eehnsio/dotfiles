@@ -248,7 +248,9 @@ binds {
     // Visa/dolj DankBar. Selektorn ar typen av uppslag ("id"), inte varde —
     // darav "id" "default", dar default ar barens id i settings.json.
     Mod+Shift+B hotkey-overlay-title="Toggle the Bar" { spawn "dms" "ipc" "call" "bar" "toggle" "id" "default"; }
-    Super+Alt+L hotkey-overlay-title="Lock the Screen: DankShell" { spawn "dms" "ipc" "call" "lock" "lock"; }
+    // Ctrl+Cmd+Q, samma som macOS. Mod+Q ensamt ar close-window langre ner —
+    // niri kraver exakt modifierarsatt, sa de tva krockar inte.
+    Super+Ctrl+Q hotkey-overlay-title="Lock the Screen: DankShell" { spawn "dms" "ipc" "call" "lock" "lock"; }
     Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
 
     // Media och skarm
@@ -317,8 +319,8 @@ binds {
     Mod+Ctrl+Home  { move-column-to-first; }
     Mod+Ctrl+End   { move-column-to-last; }
 
-    // Byt skarm. Lag tidigare pa Mod+Shift; inga vim-tangenter har, eftersom
-    // Mod+Alt+L krockar med lasskarmen (Super+Alt+L) och den binden vinner.
+    // Byt skarm. Lag tidigare pa Mod+Shift. Mod+Alt+H/J/K/L ar ledigt sedan
+    // lasskarmen flyttade till Super+Ctrl+Q — lagg till dem om du vill.
     Mod+Alt+Left  { focus-monitor-left; }
     Mod+Alt+Down  { focus-monitor-down; }
     Mod+Alt+Up    { focus-monitor-up; }
