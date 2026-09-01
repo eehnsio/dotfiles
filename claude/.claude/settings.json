@@ -73,6 +73,7 @@
   "effortLevel": "xhigh",
   "skipWorkflowUsageWarning": true,
   "theme": "dark-daltonized",
+  "outputStyle": "Concise",
   "tui": "fullscreen",
   "autoCompactEnabled": false,
   "agentPushNotifEnabled": true,
