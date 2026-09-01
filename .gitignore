@@ -18,3 +18,4 @@ node_modules/
 # Maskinspecifikt (skarmar, fontstorlek) — skapas av install fran .example
 niri/.config/niri/local.kdl
 ghostty/.config/ghostty/config.local
+__pycache__/

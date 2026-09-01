@@ -1,0 +1,19 @@
+[Unit]
+Description=Wave XLR mic silence watchdog
+After=pipewire.service wireplumber.service openwave.service
+
+# Medvetet varken PartOf= eller BindsTo=. Steg 3 i trappan startar om
+# pipewire och wireplumber sjalv, och en bindning dit skulle lata systemd
+# doda vakthunden mitt i dess egen atgard.
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/wave-xlr-watchdog
+Restart=on-failure
+RestartSec=5
+
+# Satt till 2 for att stanna fore den fulla omstarten av ljudgrafen.
+# Environment=WAVE_XLR_MAX_LEVEL=2
+
+[Install]
+WantedBy=default.target

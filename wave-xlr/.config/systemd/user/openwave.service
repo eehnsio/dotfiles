@@ -1,0 +1,12 @@
+[Unit]
+Description=OpenWave Audio Manager
+After=pipewire.service wireplumber.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -c "from wavexlr.daemon import main; main()"
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

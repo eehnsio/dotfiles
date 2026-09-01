@@ -1,0 +1,384 @@
+#!/usr/bin/env python3
+"""Vakta Wave XLR:s mikrofon och laga den när den tystnar.
+
+Enheten är UAC1: capture och playback delar en isokron klocka. Öppnas
+uppspelningen före inspelningen slutar mikrofonen skicka ljud — men den
+fortsätter skicka *data*, i full takt, bara nollor. Allt på OS-sidan ser
+friskt ut: strömmen är RUNNING, byteflödet är perfekt, inget loggas.
+
+openwaves egen vakthund letar efter uteblivet byteflöde och är därför blind
+för just det här: flödet stannar aldrig. Den här tjänsten mäter i stället
+amplitud. En analog ingång ger aldrig exakta nollor — även ett tyst rum har
+ett brusgolv på varje sampel — så en obruten rad nollor betyder att enheten
+har slutat konvertera, inte att det är tyst.
+
+Undantaget är mute-plattan. Den ger också exakta nollor, och den syns INTE i
+ALSA:s numid=5 (mätt: switchen står kvar på "on" medan plattan är intryckt).
+Mute-läget läses därför ur firmware över samma libusb-väg som openwave
+använder; 99-openwave.rules ger åtkomsten.
+
+Vid haveri gås en trappa igenom, med mätning efter varje steg:
+
+  1. starta om openwave — dess keepalive återvinner strömmen
+  2. bounca kortets profil, med inspelningen öppnad före uppspelningen
+  3. starta om hela PipeWire-grafen, i samma ordning
+
+Steg 3 tystar alla appar i några sekunder. Det är samtidigt det enda som
+bevisat löser läget där ett läckt PipeWire-device håller båda PCM:erna öppna
+— då biter varken profilbyten eller en omstart av wireplumber. Sätt
+WAVE_XLR_MAX_LEVEL=2 i tjänsten för att stanna före det.
+
+Anrop:  wave-xlr-watchdog [--dry-run] [--verbose]
+"""
+
+import logging
+import os
+import re
+import struct
+import subprocess
+import sys
+import threading
+import time
+
+log = logging.getLogger("wave-xlr-watchdog")
+
+NODE_MATCH = "alsa_input.usb-Elgato_Systems_Elgato_Wave_XLR"
+CARD_MATCH = "alsa_card.usb-Elgato_Systems_Elgato_Wave_XLR"
+
+# Sekunder av exakta nollor innan enheten döms som havererad. Rejält tilltaget:
+# en kort digital tystnad kan uppstå medan grafen byggs om, och vi vill hellre
+# vara sena än laga något som inte är trasigt.
+SILENCE_TIMEOUT = 15.0
+
+# Efter varje åtgärd: så länge väntar vi på att ljudet ska komma tillbaka
+# innan vi går upp ett steg i trappan.
+RECHECK_WINDOW = 8.0
+
+# Efter en genomgången trappa — oavsett utfall — hålls vakthunden tyst så
+# länge. Utan det skulle ett fel som ingen åtgärd rår på starta om ljudet i
+# en loop.
+LADDER_COOLDOWN = 600.0
+
+PROFILE_CAPTURE_ONLY = "input:mono-fallback"
+PROFILE_DUPLEX = "output:analog-stereo+input:mono-fallback"
+
+CHUNK = 4096
+
+
+def run(*args, timeout=10):
+    """Kör ett kommando och returnera stdout, tom sträng vid fel."""
+    try:
+        r = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+        return r.stdout
+    except Exception as e:
+        log.debug(f"{args[0]} misslyckades: {e}")
+        return ""
+
+
+class Actions:
+    """Allt som ändrar systemets tillstånd, samlat så --dry-run kan tystas."""
+
+    def __init__(self, dry_run=False):
+        self.dry_run = dry_run
+
+    def _do(self, *args, timeout=30):
+        if self.dry_run:
+            log.info(f"[dry-run] {' '.join(args)}")
+            return
+        subprocess.run(args, capture_output=True, timeout=timeout)
+
+    def systemctl(self, verb, *units):
+        self._do("systemctl", "--user", verb, *units)
+
+    def set_profile(self, card, profile):
+        self._do("pactl", "set-card-profile", card, profile)
+
+
+def source_node():
+    """Nod-id för Wave-källan, eller None om enheten inte finns.
+
+    Id och inte namn med flit: efter profilbyten och USB-resettar kan flera
+    noder bära samma namn, och en inspelning riktad mot namnet kan då binda
+    till en föräldrad nod som spottar ur sig nollor fortare än realtid — en
+    perfekt förklädnad för precis det fel vi letar efter.
+    """
+    for line in run("pactl", "list", "sources", "short").splitlines():
+        parts = line.split()
+        if len(parts) > 1 and parts[1].startswith(NODE_MATCH):
+            return parts[0]
+    return None
+
+
+def card_id():
+    for line in run("pactl", "list", "cards", "short").splitlines():
+        parts = line.split()
+        if len(parts) > 1 and parts[1].startswith(CARD_MATCH):
+            return parts[0]
+    return None
+
+
+def active_profile():
+    out = run("pactl", "list", "cards")
+    seen = False
+    for line in out.splitlines():
+        if CARD_MATCH in line:
+            seen = True
+        elif seen and "Active Profile:" in line:
+            return line.split(":", 1)[1].strip()
+    return None
+
+
+def alsa_card_index():
+    """ALSA-kortets nummer, för att kunna läsa PCM-status ur /proc."""
+    for line in open("/proc/asound/cards"):
+        if "Wave XLR" in line or "Elgato" in line:
+            m = re.match(r"\s*(\d+)\s", line)
+            if m:
+                return m.group(1)
+    return None
+
+
+def pcms_closed():
+    """True när både uppspelning och inspelning är stängda på hårdvaran."""
+    idx = alsa_card_index()
+    if idx is None:
+        return True
+    for direction in ("pcm0p", "pcm0c"):
+        path = f"/proc/asound/card{idx}/{direction}/sub0/status"
+        try:
+            if open(path).readline().strip() != "closed":
+                return False
+        except OSError:
+            pass
+    return True
+
+
+def muted():
+    """Mute-läget ur firmware. None när det inte går att läsa.
+
+    Importeras lokalt: wavexlr.device initierar libusb redan vid import, och
+    det ska inte hända förrän vi faktiskt behöver svaret. Ett None här gör
+    vakthunden försiktig — den avstår hellre från att laga.
+    """
+    try:
+        from wavexlr.device import WaveXLR
+    except Exception as e:
+        log.debug(f"kan inte importera wavexlr.device: {e}")
+        return None
+    dev = WaveXLR()
+    try:
+        dev.connect()          # utan connect() segfaultar getterna
+        return dev.get_mute()
+    except Exception as e:
+        log.debug(f"kan inte läsa mute ur firmware: {e}")
+        return None
+    finally:
+        try:
+            dev.disconnect()
+        except Exception:
+            pass
+
+
+class Tap:
+    """En stående inspelning som bara mäter om det kommer ljud eller nollor."""
+
+    def __init__(self):
+        self.proc = None
+        self.thread = None
+        self.last_signal = 0.0
+        self.last_data = 0.0
+
+    def start(self):
+        node = source_node()
+        if not node:
+            return False
+        self.stop()
+        self.proc = subprocess.Popen(
+            ["pw-record", "--target", node, "--rate", "48000",
+             "--channels", "1", "--format", "s16", "-"],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+        now = time.monotonic()
+        self.last_signal = self.last_data = now
+        self.thread = threading.Thread(target=self._read, args=(self.proc,), daemon=True)
+        self.thread.start()
+        log.debug(f"tap startad mot nod {node} (pid {self.proc.pid})")
+        return True
+
+    def _read(self, proc):
+        try:
+            while True:
+                chunk = proc.stdout.read(CHUNK)
+                if not chunk:
+                    return
+                now = time.monotonic()
+                self.last_data = now
+                # strip() är billigare än att packa upp samplen: allt som inte
+                # är idel nollbytes innehåller ett sampel skilt från noll.
+                if chunk.strip(b"\x00"):
+                    self.last_signal = now
+        except Exception:
+            return
+
+    def stop(self):
+        proc, self.proc = self.proc, None
+        if proc and proc.poll() is None:
+            proc.kill()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                pass
+        self.thread = None
+
+    @property
+    def alive(self):
+        return self.proc is not None and self.proc.poll() is None
+
+    def silent_for(self):
+        return time.monotonic() - self.last_signal
+
+    def wait_for_signal(self, window):
+        """Starta om tappen och se om ljudet kommer tillbaka inom window."""
+        if not self.start():
+            return False
+        deadline = time.monotonic() + window
+        while time.monotonic() < deadline:
+            time.sleep(0.5)
+            if self.silent_for() < 2.0:
+                return True
+        return False
+
+
+class Watchdog:
+    def __init__(self, dry_run=False, max_level=3):
+        self.tap = Tap()
+        self.act = Actions(dry_run)
+        self.max_level = max_level
+        self.cooldown_until = 0.0
+
+    # --- trappans steg ---
+
+    def level1(self):
+        """openwaves keepalive återvinner strömmen. Ohörbart."""
+        log.warning("steg 1: startar om openwave")
+        self.tap.stop()
+        self.act.systemctl("restart", "openwave.service")
+        time.sleep(3)
+
+    def level2(self):
+        """Bouncar kortet och öppnar inspelningen före uppspelningen."""
+        card = card_id()
+        if not card:
+            return
+        profile = active_profile() or PROFILE_DUPLEX
+        log.warning(f"steg 2: bouncar profilen (tillbaka till {profile} efteråt)")
+        self.tap.stop()
+        self.act.systemctl("stop", "openwave.service")
+        self.act.set_profile(card, "off")
+        time.sleep(2)
+        self.act.set_profile(card, PROFILE_CAPTURE_ONLY)
+        time.sleep(2)
+        self.tap.start()                      # inspelningen först
+        time.sleep(2)
+        self.act.set_profile(card, profile)   # sedan uppspelningen
+        self.act.systemctl("start", "openwave.service")
+        time.sleep(3)
+
+    def level3(self):
+        """Hela grafen ner och upp igen, med inspelningen först."""
+        log.warning("steg 3: startar om PipeWire-grafen — ljudet tystnar en stund")
+        self.tap.stop()
+        self.act.systemctl("stop", "openwave.service")
+        self.act.systemctl(
+            "stop", "pipewire.socket", "pipewire-pulse.socket",
+            "wireplumber.service", "pipewire-pulse.service", "pipewire.service",
+        )
+        deadline = time.monotonic() + 10
+        while not pcms_closed() and time.monotonic() < deadline:
+            time.sleep(0.5)
+        card_was = active_profile()
+        self.act.systemctl(
+            "start", "pipewire.socket", "pipewire-pulse.socket",
+            "pipewire.service", "pipewire-pulse.service", "wireplumber.service",
+        )
+        deadline = time.monotonic() + 15
+        while source_node() is None and time.monotonic() < deadline:
+            time.sleep(0.5)
+        card = card_id()
+        if card:
+            self.act.set_profile(card, PROFILE_CAPTURE_ONLY)
+            time.sleep(1)
+        self.tap.start()                      # inspelningen först
+        time.sleep(2)
+        if card:
+            self.act.set_profile(card, card_was or PROFILE_DUPLEX)
+        self.act.systemctl("start", "openwave.service")
+        time.sleep(3)
+
+    # --- huvudslinga ---
+
+    def recover(self):
+        for level, step in enumerate((self.level1, self.level2, self.level3), start=1):
+            if level > self.max_level:
+                log.error(
+                    f"mikrofonen är fortfarande tyst och steg {level} är avstängt "
+                    "(WAVE_XLR_MAX_LEVEL)"
+                )
+                return False
+            step()
+            if self.tap.wait_for_signal(RECHECK_WINDOW):
+                log.warning(f"mikrofonen är tillbaka efter steg {level}")
+                return True
+        log.error("mikrofonen är fortfarande tyst efter hela trappan")
+        return False
+
+    def run(self):
+        log.info("vaktar Wave XLR:s mikrofon")
+        while True:
+            if not self.tap.alive and not self.tap.start():
+                time.sleep(5)                 # enheten är inte inkopplad
+                continue
+
+            time.sleep(1)
+            silent = self.tap.silent_for()
+            if silent < SILENCE_TIMEOUT:
+                continue
+
+            if time.monotonic() < self.cooldown_until:
+                continue
+
+            is_muted = muted()
+            if is_muted is None:
+                log.debug("tyst, men mute-läget går inte att läsa — avstår")
+                continue
+            if is_muted:
+                log.debug("tyst för att mikrofonen är mutad")
+                continue
+
+            log.warning(
+                f"mikrofonen har skickat idel nollor i {silent:.0f} s och är inte "
+                "mutad — enheten har lagt av"
+            )
+            self.recover()
+            self.cooldown_until = time.monotonic() + LADDER_COOLDOWN
+
+
+def main():
+    dry_run = "--dry-run" in sys.argv[1:]
+    verbose = "--verbose" in sys.argv[1:]
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.INFO,
+        format="%(name)s: %(message)s",
+    )
+    try:
+        max_level = int(os.environ.get("WAVE_XLR_MAX_LEVEL", "3"))
+    except ValueError:
+        max_level = 3
+    if dry_run:
+        log.info("dry-run: åtgärder loggas men körs inte")
+    Watchdog(dry_run=dry_run, max_level=max_level).run()
+
+
+if __name__ == "__main__":
+    main()

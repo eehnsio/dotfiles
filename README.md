@@ -23,6 +23,7 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [nvim](nvim/) | Neovim (LazyVim) + keybind cheatsheet | both |
 | [spotify](spotify/) | Forces the client onto native Wayland | Linux |
 | [tmux](tmux/) | Session persistence over SSH, not local splits | both |
+| [wave-xlr](wave-xlr/) | Elgato Wave XLR: daemon unit + mic silence watchdog | Linux |
 | [xremap](xremap/) | `super` → `ctrl` per app, below the compositor | Linux |
 | [zsh](zsh/) | Shell, prompt, aliases | both |
 
