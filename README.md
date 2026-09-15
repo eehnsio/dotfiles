@@ -21,6 +21,7 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [mpv](mpv/) | Video player: floating window, sized by the clip | both |
 | [niri](niri/) | Scrolling tiling compositor | Linux |
 | [nvim](nvim/) | Neovim (LazyVim) + keybind cheatsheet | both |
+| [rbw](rbw/) | Bitwarden on `Mod+P`: copy a password without the clipboard history | Linux |
 | [spotify](spotify/) | Forces the client onto native Wayland | Linux |
 | [tmux](tmux/) | Session persistence over SSH, not local splits | both |
 | [wave-xlr](wave-xlr/) | Elgato Wave XLR: daemon unit + mic silence watchdog | Linux |

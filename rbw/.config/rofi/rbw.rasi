@@ -1,0 +1,99 @@
+/*
+ * rofi-tema for rofi-rbw, ritat efter DMS spotlight-launcher med Drivis-farger.
+ * Matt pa skarmdump: kortet ar ca 680 px brett, radie 12 (DMS cornerRadius),
+ * sokcirkeln ar primaryContainer med primary-ikon, vald rad ar primary ~15 %
+ * over surfaceContainer. Farger fran dms/themes/drivis/theme.json — andras
+ * temat maste de andras har ocksa.
+ */
+
+* {
+    surface:        #1c1f26;   /* surfaceContainer */
+    selected:       #2b3a49;   /* primary ~15 % over surface */
+    text:           #c8cdd6;   /* surfaceText */
+    text-dim:       #878c97;
+    text-faint:     #4a505c;   /* outline */
+    accent:         #7fc8ff;   /* primary */
+    accent-bg:      #2b6d95;   /* primaryContainer */
+
+    background-color: transparent;
+    text-color:       @text;
+    font:             "Noto Sans 11";
+}
+
+/*
+ * Helskarm i halvgenomskinligt svart, som spotlight som dimmar resten av
+ * skarmen till ungefar halften (matt i skarmdumpar). Kortet ar mainbox:
+ * 680 px brett, centrerat, 31 % ner.
+ */
+window {
+    fullscreen:       true;
+    background-color: #00000080;
+}
+
+mainbox {
+    children: [ card ];
+    padding:  31% calc( 50% - 340px ) 0 calc( 50% - 340px );
+}
+
+card {
+    expand:           false;
+    orientation:      vertical;
+    children:         [ inputbar, listview, message ];
+    spacing:          8px;
+    padding:          8px;
+    border-radius:    12px;
+    background-color: @surface;
+}
+
+inputbar {
+    children: [ textbox-search, entry ];
+    spacing:  12px;
+    padding:  0 4px 0 0;
+}
+
+textbox-search {
+    expand:           false;
+    str:              "󰌾";   /* nf-md-lock: ett las, inte launcherns forstoringsglas */
+    font:             "JetBrainsMono Nerd Font 14";
+    padding:          6px 12px 6px 11px;
+    border-radius:    18px;
+    background-color: @accent-bg;
+    text-color:       @accent;
+    vertical-align:   0.5;
+}
+
+entry {
+    placeholder:       "Bitwarden";
+    placeholder-color: @text-faint;
+    cursor:            text;
+    vertical-align:    0.5;
+}
+
+listview {
+    lines:        8;
+    dynamic:      true;
+    fixed-height: true;
+    scrollbar:    false;
+    spacing:      2px;
+}
+
+element {
+    padding:       11px 12px;
+    border-radius: 8px;
+    children:      [ element-text ];
+}
+element selected.normal,
+element selected.active { background-color: @selected; }
+
+/*
+ * Mono i listan med flit: rofi-rbw fyller ut namn och anvandarnamn med
+ * mellanslag till kolumner, som bara linjerar i ett fast teckensnitt.
+ */
+element-text {
+    font:       "JetBrainsMono Nerd Font 10";
+    text-color: inherit;
+    highlight:  bold #7fc8ff;
+}
+
+message   { padding: 0 4px; }
+textbox   { font: "Noto Sans 9"; text-color: @text-dim; }

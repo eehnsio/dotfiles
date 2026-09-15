@@ -209,6 +209,16 @@ window-rule {
     default-window-height { fixed 96; }
 }
 
+// pinentry (rbw:s losenordsruta, gpg) ska flyta ovanpa det man holl pa med i
+// stallet for att kaklas in som en ny kolumn. ^pinentry tar alla varianter:
+// gtk, gnome3 och qt har var sitt app-id med samma prefix. block-out-from:
+// se Bitwarden-regeln nedan.
+window-rule {
+    match app-id=r#"^pinentry"#
+    open-floating true
+    block-out-from "screencast"
+}
+
 // Bitwardens upplasningsruta. Zen ger sina extension-popups titeln
 // "Extension: (<namn>) - ..." medan sjalva valvet heter "Bitwarden Web vault",
 // sa den har matchningen tar popupen utan att rora en vanlig flik. Vill du att
@@ -236,6 +246,8 @@ binds {
     Mod+Space hotkey-overlay-title="Run an Application: DankShell" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+B hotkey-overlay-title="Open the Browser: Zen" { spawn "zen-browser"; }
     Mod+E hotkey-overlay-title="Open Files: Nautilus" { spawn "nautilus"; }
+    // Kopiera ett losenord ur Bitwarden (rbw). Se rbw-paketet.
+    Mod+P hotkey-overlay-title="Copy a Password: rbw" { spawn "rofi-rbw"; }
 
     // Flytande terminal ovanpa det man haller pa med. Egna app-id:t plockas
     // upp av window-rule ovan; det ar hela mekanismen.

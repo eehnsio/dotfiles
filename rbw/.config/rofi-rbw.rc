@@ -1,0 +1,17 @@
+# rofi-rbw: kopiera, skriv aldrig in. Webblasartillagget fyller formularen;
+# det har ar for appar och terminaler. wtype maste finnas (rofi-rbw kraschar
+# vid start utan typer) men anvands aldrig: bindningarna nedan kopierar bara.
+#
+# Kopieringen gar via "wl-copy --sensitive", som DMS inte sparar i
+# urklippshistoriken. clear-after tommer sjalva urklippet efter 30 s.
+action = copy
+target = [password]
+# rofi och inte fuzzel: rofi-rbw 1.7 skickar --override till fuzzel, som finns
+# forst i fuzzel 1.15 (Arch har 1.14.1). fuzzel avbryter da med "invalid option"
+# och rofi-rbw tolkar det som Esc — Mod+P ser ut att inte gora nagot.
+selector = rofi
+clipboarder = wl-copy
+clear-after = 30
+# Utseendet: DMS spotlight-launcher i Drivis-farger, se rofi/rbw.rasi.
+selector-args = -theme ~/.config/rofi/rbw.rasi
+keybindings = Alt+u:copy:username,Alt+p:copy:password,Alt+t:copy:totp
