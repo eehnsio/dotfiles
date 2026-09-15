@@ -3,6 +3,8 @@
 # Den har filen ar viktigare an den ser ut. Allt i riset som uttrycker farg
 # som ANSI-index arver den: lsd, zsh-prompten och Claude-statuslinjen har
 # ingen egen palett alls. Andrar man ett varde har flyttar tre verktyg med.
+# nvim ar undantaget: den kor truecolor och har en kopia av vardena i
+# nvim/.config/nvim/lua/plugins/colorschemes.lua, som far andras for hand.
 #
 # Darfor ar indexen tilldelade efter ROLL, inte efter vad de heter:
 #

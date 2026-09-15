@@ -4,6 +4,12 @@ LazyVim-based. Colourschemes live in `lua/plugins/colorschemes.lua`:
 **kanagawa-wave** is active, **oxocarbon** is installed alongside it — switch in
 place with `:colorscheme`.
 
+Kanagawa is recoloured with Ghostty's Drivis palette: white text, blue for
+structure, the `#7fc8ff` accent on functions, green for values. Red and yellow
+are kept for errors and warnings only. nvim runs truecolor, so it does not
+inherit the terminal palette — the hex values are copied, and a change to
+`ghostty/.config/ghostty/themes/drivis` has to be made there too.
+
 Both run transparent so Ghostty's `background-opacity` and blur show through.
 Oxocarbon has no transparency setting at all — it hardcodes `bg = #161616` on
 `Normal` and a couple of dozen other groups — so an autocmd clears exactly the

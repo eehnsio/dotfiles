@@ -2,6 +2,47 @@
 -- background-opacity 0.90 och blur slar igenom i editorn precis som i skalet.
 -- Byt i farten med :colorscheme oxocarbon respektive :colorscheme kanagawa-wave.
 -- Det som startar ar det som star i colorscheme.lua.
+
+-- Drivis, samma varden som ghostty/.config/ghostty/themes/drivis. nvim kor
+-- truecolor och arver alltsa INTE terminalens palett — andras en farg dar
+-- maste den andras har ocksa.
+local drivis = {
+	bg0 = "#101216",
+	bg = "#16181d",
+	fg = "#c8cdd6",
+	fg_bright = "#d2d7df",
+	white = "#aeb4c0",
+	gray = "#4a505c",
+	selection = "#2b3342",
+
+	red = "#e06c75",
+	green = "#8fb8a0",
+	yellow = "#d8a657",
+	blue = "#6f9ad4",
+	magenta = "#a893c9",
+	cyan = "#7fc8ff",
+
+	bright_red = "#ec8891",
+	bright_green = "#a6cbb5",
+	bright_yellow = "#e6bd7d",
+	bright_blue = "#8fb4e4",
+	bright_magenta = "#bfabdb",
+	bright_cyan = "#a6dbff",
+
+	-- De har finns inte i terminalen. Kommentarer behover ligga mellan
+	-- gratt (8) och vitt (7): gratt ger kontrast 2.2 mot botten, for lite
+	-- for text man faktiskt laser. 40 % mot vitt ger 4.0.
+	comment = "#727884",
+	-- Diff- och sokbakgrunder: rollfargen blandad in i botten.
+	diff_add = "#293232",
+	diff_delete = "#36252b",
+	diff_change = "#222a37",
+	diff_text = "#313f54",
+	search = "#2d3f4f",
+	cursorline = "#23262d",
+	pmenu = "#1d222c",
+}
+
 return {
 	{
 		"rebelot/kanagawa.nvim",
@@ -16,22 +57,134 @@ return {
 				dark = "wave",
 			},
 			colors = {
-				-- Enda avsteget fran kanagawas egen palett: springBlue dras till
-				-- exakt fokusringens #7fc8ff, sa nvim delar accent med resten av
-				-- riset. springBlue och inte crystalBlue med flit — crystalBlue
-				-- fargar funktionsnamn och hade lyft accenten till att dominera
-				-- hela bufferten, vilket ar mer an vi vill ata.
-				palette = {
-					springBlue = "#7fc8ff",
-				},
+				-- Kanagawa star kvar for sin plugintackning, men dess roller fylls
+				-- med Drivis efter samma logik som terminalen:
+				--
+				--   vit       text: variabler, parametrar, falt
+				--   bla       struktur: nyckelord, import (typer i ljusare bla)
+				--   cyan      accenten, fokusringens #7fc8ff: funktioner
+				--   gron      varden: strangar (tal och konstanter i ljusare gron)
+				--
+				-- Rod och gul anvands bara for fel och varningar, precis som i
+				-- terminalen. Kanagawa farger annars return, this och operatorer
+				-- varmt; de ar flyttade till bla och vitt.
 				theme = {
 					all = {
 						ui = {
+							fg = drivis.fg,
+							fg_dim = drivis.white,
+							fg_reverse = drivis.bg0,
+
+							bg_dim = drivis.bg0,
 							bg_gutter = "none",
+
+							bg_m3 = drivis.bg0,
+							bg_m2 = drivis.bg0,
+							bg_m1 = drivis.bg,
+							bg = drivis.bg,
+							bg_p1 = drivis.cursorline,
+							bg_p2 = drivis.cursorline,
+
+							special = drivis.blue,
+							nontext = drivis.gray,
+							whitespace = drivis.gray,
+
+							bg_search = drivis.search,
+							bg_visual = drivis.selection,
+
+							pmenu = {
+								fg = drivis.fg,
+								fg_sel = "none",
+								bg = drivis.pmenu,
+								bg_sel = drivis.selection,
+								bg_sbar = drivis.pmenu,
+								bg_thumb = drivis.gray,
+							},
+							float = {
+								fg = drivis.fg,
+								bg = drivis.bg0,
+								fg_border = drivis.gray,
+								bg_border = drivis.bg0,
+							},
+						},
+						syn = {
+							string = drivis.green,
+							variable = "none",
+							number = drivis.bright_green,
+							constant = drivis.bright_green,
+							identifier = drivis.fg,
+							parameter = drivis.fg,
+							fun = drivis.cyan,
+							statement = drivis.blue,
+							keyword = drivis.blue,
+							operator = drivis.white,
+							preproc = drivis.blue,
+							type = drivis.bright_blue,
+							regex = drivis.bright_green,
+							deprecated = drivis.gray,
+							comment = drivis.comment,
+							punct = drivis.white,
+							special1 = drivis.cyan,
+							special2 = drivis.blue,
+							special3 = drivis.blue,
+						},
+						vcs = {
+							added = drivis.green,
+							removed = drivis.red,
+							-- Blatt, inte kanagawas gula: en andrad rad ar ingen varning.
+							changed = drivis.blue,
+						},
+						diff = {
+							add = drivis.diff_add,
+							delete = drivis.diff_delete,
+							change = drivis.diff_change,
+							text = drivis.diff_text,
+						},
+						diag = {
+							ok = drivis.green,
+							error = drivis.red,
+							warning = drivis.yellow,
+							info = drivis.blue,
+							hint = drivis.bright_green,
+						},
+						-- :terminal och lazygit far exakt ghosttys palett.
+						term = {
+							drivis.bg0,
+							drivis.red,
+							drivis.green,
+							drivis.yellow,
+							drivis.blue,
+							drivis.magenta,
+							drivis.cyan,
+							drivis.white,
+							drivis.gray,
+							drivis.bright_red,
+							drivis.bright_green,
+							drivis.bright_yellow,
+							drivis.bright_blue,
+							drivis.bright_magenta,
+							drivis.bright_cyan,
+							drivis.fg_bright,
+							drivis.yellow,
+							drivis.bright_red,
 						},
 					},
 				},
 			},
+			-- Kanagawa lanar varningsgult till saker som inte ar varningar:
+			-- radnumret vid markoren, matchande parentes, soktraffen och
+			-- lagesmeddelandet. De tar accenten i stallet, sa gult pa skarmen
+			-- alltid betyder att nagot ar fel.
+			overrides = function()
+				return {
+					CursorLineNr = { fg = drivis.cyan, bold = true },
+					MatchParen = { fg = drivis.cyan, bold = true },
+					IncSearch = { fg = drivis.bg0, bg = drivis.cyan },
+					CurSearch = { link = "IncSearch" },
+					ModeMsg = { fg = drivis.cyan, bold = true },
+					LspSignatureActiveParameter = { fg = drivis.cyan },
+				}
+			end,
 		},
 	},
 
