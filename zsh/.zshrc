@@ -10,6 +10,11 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 export POSTHOG_MCP_URL="https://mcp-eu.posthog.com/mcp"
 
+# Utan EDITOR faller sudoedit, git m.fl. tillbaka på vi — som inte ens finns
+# installerat på Arch-maskinen.
+export EDITOR=nvim
+export VISUAL=nvim
+
 # ── Historik ────────────────────────────────────────────────────────────
 # Utan de här sparas ingen historik alls mellan sessioner (zsh:s default).
 HISTFILE=~/.zsh_history
