@@ -52,6 +52,12 @@ one to an exact commit, the same idea as `lazy-lock.json`:
 dms plugins restore
 ```
 
+## Greeter
+
+The login screen is dms-greeter under greetd, with no autologin so the password
+unlocks the keyring. Its files live in `/etc` — copies and the reasoning are in
+[reference/greetd](../reference/greetd/).
+
 ## niri includes
 
 DMS generates KDL fragments for niri. Check whether one is actually loaded:

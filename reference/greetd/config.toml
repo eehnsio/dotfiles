@@ -1,0 +1,8 @@
+[terminal]
+vt = 1
+
+# DMS-greeter vid boot och efter utloggning. Ingen autologin: utan losenord
+# kan pam_gnome_keyring inte lasa upp keyringen.
+[default_session]
+command = "/usr/bin/dms-greeter --command niri --cache-dir /var/cache/dms-greeter"
+user = "greeter"
