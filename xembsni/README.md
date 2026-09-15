@@ -22,20 +22,64 @@ Not packaged anywhere, so the binary is built from a **pinned commit**. That
 commit was read through before it was run (no process spawning, no network, no
 file writes, `unsafe` forbidden); move the pin deliberately, not by habit.
 
+It is built with one local patch,
+[`container-1x1.patch`](../reference/xembsni/container-1x1.patch) — see below
+for why. Check that it still applies whenever the pin moves.
+
 ```bash
-cargo install --git https://github.com/jmylchreest/xembsni --rev 7de94a2 \
-    --locked --root ~/.local xembsni
+src=$(mktemp -d)
+git clone https://github.com/jmylchreest/xembsni "$src"
+git -C "$src" checkout 7de94a2
+git -C "$src" apply ~/Developer/dotfiles/reference/xembsni/container-1x1.patch
+cargo install --locked --root ~/.local --path "$src/crates/xembsni"
 systemctl --user daemon-reload
 systemctl --user enable --now xembsni.service
 ```
 
-The unit is this package; the binary lands in `~/.local/bin` outside it.
+The unit is this package; the binary lands in `~/.local/bin` outside it. The
+patch lives under `reference/` because anything inside this package would be
+stowed into `$HOME`.
+
+## The icon stuck to another window
+
+Unpatched, a copy of the tray icon sits on the top-left corner of some other
+window — Steam, usually — on top of the one in the bar.
+
+xembsni parks each icon in a 20×20 override-redirect container at
+`-16000,-16000`, trusting that nothing draws that far off screen. xwayland-satellite
+does not work that way: it maps every override-redirect X window as an
+`xdg_popup` on the last hovered or focused toplevel, and the positioner slides
+it back into view. The container ends up pinned to whichever window that was
+when the icon docked.
+
+The patch makes the container 1×1. The icon itself keeps its size, and since a
+composite-redirected window is not clipped by its parent, the captured image is
+unchanged — measured byte-identical in the bar before and after. One pixel is
+left on screen, where the icon used to be.
+
+## Wine's own tray window
+
+While no tray owner exists — before the service is up, or for the second it
+restarts — Wine opens its fallback tray again: a white 160×20 window that stays
+behind even after the icon re-docks. Closing it hides it until the app exits.
+
+`ShowSystray=0` stops it from ever showing. Wine still docks into the bar, and
+re-docks when a tray owner appears; only the standalone window is gone. It is
+read when the prefix starts, and it is **per prefix**, so every Faugus prefix
+with a tray icon needs it:
+
+```bash
+WINEPREFIX=~/Faugus/battlenet PROTONPATH="Proton-CachyOS Latest" \
+    ~/.local/share/faugus-launcher/umu-run \
+    reg add 'HKCU\Software\Wine\Explorer' /v ShowSystray /t REG_DWORD /d 0 /f
+```
+
+The trade-off: with the service down, the icon is nowhere at all.
 
 ## Behaviour worth knowing
 
 - **No restart needed.** Wine re-docks its icons as soon as a tray owner
-  appears: Battle.net, already running with the fallback window, moved into the
-  bar the moment the service started.
+  appears, and the app keeps running through it.
 - **Start order with DMS does not matter.** The bridge watches for
   `org.kde.StatusNotifierWatcher` and re-registers every item when it appears,
   so the unit has no `After=` on the bar.

@@ -1,0 +1,32 @@
+Shrink xembsni's offscreen icon container to 1x1.
+
+xwayland-satellite maps every override-redirect X window as an xdg_popup on the
+last hovered or focused toplevel, and the positioner slides it into view. The
+20x20 container xembsni parks at -16000,-16000 therefore shows up as a copy of
+the tray icon stuck to the corner of some other window (Steam, typically).
+
+A composite-redirected window is not clipped by its parent, so the capture of
+the icon itself is unaffected: the tray image is byte-identical before and
+after. What is left on screen is a single pixel.
+
+Apply to jmylchreest/xembsni at 7de94a2 — see xembsni/README.md.
+
+diff --git a/crates/tray-host/src/host.rs b/crates/tray-host/src/host.rs
+index 68d6f8c..cd7778a 100644
+--- a/crates/tray-host/src/host.rs
++++ b/crates/tray-host/src/host.rs
+@@ -308,8 +308,12 @@ impl TrayHost {
+                 self.root,
+                 OFFSCREEN,
+                 OFFSCREEN,
+-                width,
+-                height,
++                // 1x1: xwayland-satellite shows override-redirect windows as
++                // popups on the focused window and slides them into view.
++                // Redirected children are not clipped by their parent, so the
++                // capture still gets the full icon.
++                1,
++                1,
+                 0,
+                 WindowClass::INPUT_OUTPUT,
+                 self.root_visual,
