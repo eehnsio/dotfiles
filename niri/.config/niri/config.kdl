@@ -106,14 +106,9 @@ environment {
 
 spawn-at-startup "dms" "run"
 
-// xremap: mac-liknande genvagar per app (super+t → ctrl+t i Zen osv).
-// Startas harifran for att arva niris NIRI_SOCKET, som den behover for att
-// veta vilket fonster som ar aktivt. Config: xremap-paketet i dotfiles.
-//
-// Absolut sokvag av samma skal som skriptet nedan: niris PATH ar
-// /usr/local/sbin:/usr/local/bin:/usr/bin:... och innehaller inte
-// ~/.local/bin, dar xremap-binaren ligger. Med bara "xremap" startar den inte.
-spawn-at-startup "/home/erik/.local/bin/xremap" "--watch=config,device" "/home/erik/.config/xremap/config.yml"
+// xremap startas INTE harifran langre utan som systemd-tjanst (xremap.service
+// i xremap-paketet). Det som startas med spawn-at-startup overlever
+// utloggningen om det inte ar en Wayland-klient — se xremap/README.md.
 
 hotkey-overlay {
     // Ingen "Important Hotkeys"-popup vid uppstart — visa med Mod+Shift+Escape.

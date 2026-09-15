@@ -1,0 +1,18 @@
+[Unit]
+Description=xremap: app-specific super -> ctrl
+Documentation=https://github.com/xremap/xremap
+# PartOf: stoppas nar niri-sessionen tar slut. Som spawn-at-startup overlevde
+# den utloggningen, och tva instanser fangade varandras virtuella tangentbord.
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+# NIRI_SOCKET kommer fran user-managerns miljo; niri importerar den innan
+# graphical-session.target nas.
+ExecStart=%h/.local/bin/xremap --watch=config,device %h/.config/xremap/config.yml
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target
