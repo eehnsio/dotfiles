@@ -65,6 +65,21 @@ the second screen would need a change in the greeter itself.
 
 `dms-greeter sync` leaves the overrides file alone.
 
+## What sync opens up
+
+`dms-greeter sync` gives the `greeter` group read access to all of
+`~/.cache/DankMaterialShell`, including a default ACL so new files inherit it.
+That covers the clipboard history, which holds every password copied from the
+Bitwarden app — Bitwarden does not set `x-kde-passwordManagerHint`, the one mime
+type DMS refuses to store. The greeter never needs the clipboard, so it is locked
+back down, and **every sync may undo this**:
+
+```bash
+d=~/.cache/DankMaterialShell/clipboard
+setfacl -R -b "$d" && chgrp -R "$USER" "$d" && chmod 700 "$d" && chmod 600 "$d"/db
+dms clipboard config set --auto-clear-days 1   # pinned entries are kept
+```
+
 ## The KDL quirk
 
 `dms-greeter sync` builds the greeter's niri config by parsing `~/.config/niri`
