@@ -14,6 +14,35 @@ apps at the wrong size below it. When the displays cannot be matched within that
 constraint, `font-size` here is the way out — and Ghostty also resizes per
 window on the fly with `ctrl++`, `ctrl+-` and `ctrl+0`.
 
+## Ctrl+C / Ctrl+V on Linux
+
+Linux terminals copy and paste with `ctrl+shift+c/v`, because `ctrl+c` is the
+interrupt and `ctrl+v` is literal-next. `Super+C/V` cannot fill in either: niri
+binds `Mod+C` and `Mod+V` itself, so the keys never reach Ghostty. That leaves
+the terminal as the one app where plain `ctrl` does not copy and paste.
+
+These go in `config.local` on Linux machines, **not** in the tracked config —
+the file is shared with macOS, where `cmd` already does the job and `ctrl+c`
+should stay an interrupt:
+
+```
+keybind = performable:ctrl+c=copy_to_clipboard
+keybind = performable:ctrl+v=paste_from_clipboard
+selection-clear-on-copy = true
+```
+
+`performable:` is what makes this safe, and it matters on both keys:
+
+- **`ctrl+c`** only copies when something is selected. With nothing selected it
+  passes through as the interrupt. `selection-clear-on-copy` drops the selection
+  after copying, so a second `ctrl+c` always interrupts — without it, text left
+  selected by `copy-on-select` would keep turning the interrupt into a copy.
+- **`ctrl+v`** only pastes when the clipboard holds *text*. An image-only
+  clipboard makes the bind not performable and the key passes through, which is
+  how Claude Code still receives `ctrl+v` to paste a screenshot. This is the GTK
+  runtime checking the clipboard formats before starting the paste; it was read
+  in the source (`src/apprt/gtk/class/surface.zig`, 1.3.1), not assumed.
+
 ## Dead keys
 
 `~ ^ \`` and `´` do not compose in Ghostty on Linux, while working everywhere
