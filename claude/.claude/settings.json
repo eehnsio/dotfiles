@@ -1,12 +1,22 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "permissions": {
-    "defaultMode": "auto",
     "ask": [
       "Bash(rm -rf:*)",
       "Bash(rm -fr:*)",
       "Bash(sudo rm -rf:*)",
       "Bash(sudo rm -fr:*)"
-    ]
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "opus[1m]",
+  "skillOverrides": {
+    "ehnsio-write": "off",
+    "web-design-guidelines": "off"
   },
   "hooks": {
     "PreToolUse": [
@@ -43,7 +53,6 @@
       }
     ]
   },
-  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
@@ -70,21 +79,12 @@
       }
     }
   },
+  "outputStyle": "Concise",
   "effortLevel": "xhigh",
+  "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
   "theme": "dark-daltonized",
-  "outputStyle": "Concise",
-  "tui": "fullscreen",
   "autoCompactEnabled": false,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "skillOverrides": {
-    "ehnsio-write": "off",
-    "web-design-guidelines": "off"
-  },
-  "attribution": {
-    "commit": "",
-    "pr": "",
-    "sessionUrl": false
-  }
+  "skipAutoPermissionPrompt": true
 }
