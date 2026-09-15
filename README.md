@@ -24,6 +24,7 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [spotify](spotify/) | Forces the client onto native Wayland | Linux |
 | [tmux](tmux/) | Session persistence over SSH, not local splits | both |
 | [wave-xlr](wave-xlr/) | Elgato Wave XLR: daemon unit + mic silence watchdog | Linux |
+| [xembsni](xembsni/) | Wine/Proton tray icons (Battle.net) into the DMS bar | Linux |
 | [xremap](xremap/) | `super` → `ctrl` per app, below the compositor | Linux |
 | [zsh](zsh/) | Shell, prompt, aliases | both |
 
