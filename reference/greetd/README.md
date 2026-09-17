@@ -115,8 +115,23 @@ So the choice is either *works with any monitors* or *form on exactly one
 screen*, not both. The requirement wins: `[]` puts the form on every screen that
 comes up, and nothing can point it at a monitor that is not there.
 
-If you ever want it on one screen anyway, the indices are measurable — but
-measure, never guess, and know it breaks the next time you swap a cable:
+This also answers "but I want it on the primary screen": there is no primary
+screen to target. `Gdk.Monitor.is_primary()` is `False` for every monitor on
+Wayland — the concept does not exist there. And cable position does not decide
+the index either: measured 2026-09-17, index 0 was the screen on **DP-2** and
+index 1 the one on **DP-1**, so the order is not connector order.
+
+With `[]` the question dissolves. The form is on every screen, therefore also on
+whichever one you are looking at, with one monitor or four.
+
+A script that computed the index at every start — largest area wins — was written
+and then deleted. It worked, but it bought only cosmetics: one form instead of
+several. A hundred lines running as the `greeter` user, with its own fallback
+path, is a bad trade against a greeter that must simply never fail. Every clever
+thing in this file has cost an evening.
+
+If you ever do want it on one screen, the indices are measurable — but measure,
+never guess, and know it breaks the next time you swap a cable:
 
 ```bash
 python3 -c '
