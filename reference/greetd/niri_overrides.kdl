@@ -1,5 +1,0 @@
-// Greetern ritar en yta per skarm och har ingen installning for att valja bort
-// en. Ett output-block med off gar inte: greeter-configen har redan ett block
-// for skarmen och niri anvander forsta traffen. Darfor slacks den i farten.
-// Galler bara greetern, sessionens niri startar med egen config.
-spawn-at-startup "/usr/bin/niri" "msg" "output" "ASUSTek COMPUTER INC VG259 L9LMQS055711" "off"

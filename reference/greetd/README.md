@@ -1,4 +1,4 @@
-# greetd + DMS greeter
+# greetd + nwg-hello
 
 Not a stow package: these files live in `/etc` and are owned by root. The copies
 here are what to put back on a new machine, and this file is why they look the
@@ -6,25 +6,59 @@ way they do.
 
 | File here | Goes to |
 |---|---|
-| `config.toml` | `/etc/greetd/config.toml` |
-| `niri_overrides.kdl` | `/etc/greetd/niri_overrides.kdl` |
+| `greetd.conf` | `/etc/greetd/greetd.conf` |
+| `niri.kdl` | `/etc/nwg-hello/niri.kdl` |
+| `nwg-hello.json` | `/etc/nwg-hello/nwg-hello.json` |
+| `nwg-hello.css` | `/etc/nwg-hello/nwg-hello.css` |
 | `pam.d-greetd` | `/etc/pam.d/greetd` |
 
-All three must end up `root:root 644`. Check with `stat` after editing: a greetd
-config owned by your own user would let you set `user = "root"` on the greeter.
+All of them must end up `root:root 644`. Check with `stat` after editing: a
+greetd config owned by your own user would let you set `user = "root"` on the
+greeter.
 
 ## Setup
 
 ```bash
-paru -S greetd-dms-greeter-bin gnome-keyring
-dms-greeter enable     # points greetd at dms-greeter, sets ACLs and the greeter group
-dms-greeter sync       # links theme, wallpaper and settings; writes /etc/greetd/niri/
+sudo pacman -S nwg-hello gnome-keyring
+sudo cp greetd.conf /etc/greetd/
+sudo cp niri.kdl nwg-hello.json nwg-hello.css /etc/nwg-hello/
 ```
 
-Then install the three files, and **reboot** rather than log out. greetd reads
-its config only when the service starts, and the systemd user manager survives a
-log out, so neither the new greeter nor the `greeter` group shows up until then.
-`dms-greeter status` should be all green afterwards.
+The wallpaper is not in this repo — it is derived, so regenerate it instead of
+committing 10 MB of PNG:
+
+```bash
+ffmpeg -i ~/Pictures/Wallpapers/Louise_Mac.png -vf scale=2560:-1 -q:v 3 /tmp/wallpaper.jpg
+sudo cp /tmp/wallpaper.jpg /etc/nwg-hello/
+```
+
+It has to live in `/etc` and not `~/Pictures`. The greeter runs as the user
+`greeter` and cannot read your home — see *What we left behind* below.
+
+Then **reboot** rather than log out. greetd reads its config only when the
+service starts, and the systemd user manager survives a log out, so a log out
+just brings the *old* greeter back. Verify which one actually ran:
+
+```bash
+journalctl -b -u greetd | grep -i nwg-hello    # no hits means greetd never reloaded
+systemctl show greetd -p ActiveEnterTimestamp  # compare against `uptime -s`
+```
+
+`nwg-hello.json` is different: nwg-hello reads it every time it starts, so
+changes there show up on a plain log out.
+
+## greetd.conf, not config.toml
+
+greetd looks for `/etc/greetd/greetd.conf` **before** `/etc/greetd/config.toml`
+— both strings are in the binary. This is not in greetd's own docs; it comes
+from nwg-hello's README.
+
+It matters because a `greetd` package upgrade overwrites `config.toml` and
+renames yours to `config.toml.pacsave`, which silently restores `agreety`.
+Keeping the real config in `greetd.conf` survives that.
+
+It also makes the rollback a deletion: `sudo rm /etc/greetd/greetd.conf` falls
+through to whatever `config.toml` says.
 
 ## No autologin
 
@@ -36,66 +70,115 @@ unlocks it for free. The disk is not encrypted either, so autologin meant anyone
 at the machine was straight in.
 
 The two `pam_gnome_keyring` lines are the only change to the stock PAM file.
-They are `optional`, so a broken keyring can never block a login.
+They are `optional`, so a broken keyring can never block a login. They are also
+**greeter-agnostic** — `/etc/pam.d/greetd` applies whichever greeter runs, which
+is why swapping greeters did not touch the keyring at all.
 
-## Which screen gets the login box
+`rbw` does not benefit from this. It has its own agent that dies with the
+session and asks for the master password on first use — the keyring is for the
+Bitwarden *desktop app*. See `rbw/README.md`.
 
-The greeter puts the input on `Quickshell.screens[0]` — the first output niri
-announces, which is **connector order** on the GPU. It ignores the lock screen
-monitor set in DMS. The portrait VG259 used to sit in DP-2 ahead of the landscape
-screen in DP-3, so the box landed on the portrait screen.
+## Wallpaper on both screens, login box on one
 
-The fix was a cable: the landscape screen is now in DP-1. Nothing else needed to
-change, because outputs are named by EDID everywhere (see `niri/README.md`), and
-DMS matches its screen preferences on model.
+This is the whole reason for nwg-hello. Two keys in `nwg-hello.json`:
 
-## Only one screen
+- `monitor_nums: []` — the greeter appears on every monitor.
+- `form_on_monitors: [1]` — only that one gets the input; the rest show just the
+  wallpaper.
 
-The greeter draws a full login surface on every screen, with no setting to leave
-one out. `niri_overrides.kdl` turns the portrait screen off for the greeter only:
-
-- An `output … { off }` block does **not** work. The generated greeter config
-  already has a block for that screen, and niri uses the first matching block.
-- `niri msg output … off` at startup does, and it matches the EDID name. The
-  session's niri starts afterwards with its own config, so the screen comes back
-  on at login.
-
-The trade-off is a black portrait screen instead of wallpaper. Wallpaper-only on
-the second screen would need a change in the greeter itself.
-
-`dms-greeter sync` leaves the overrides file alone.
-
-## What sync opens up
-
-`dms-greeter sync` gives the `greeter` group read access to all of
-`~/.cache/DankMaterialShell`, including a default ACL so new files inherit it.
-That covers the clipboard history, which holds every password copied from the
-Bitwarden app — Bitwarden does not set `x-kde-passwordManagerHint`, the one mime
-type DMS refuses to store. The greeter never needs the clipboard, so it is locked
-back down, and **every sync may undo this**:
+**The numbers are GDK monitor indices, not connector names and not niri's
+order.** Do not guess them — measure, in a running session, with the same
+toolkit nwg-hello uses:
 
 ```bash
-d=~/.cache/DankMaterialShell/clipboard
-setfacl -R -b "$d" && chgrp -R "$USER" "$d" && chmod 700 "$d" && chmod 600 "$d"/db
-dms clipboard config set --auto-clear-days 1   # pinned entries are kept
+python3 -c '
+import gi; gi.require_version("Gdk","3.0")
+from gi.repository import Gdk
+d = Gdk.Display.get_default()
+for i in range(d.get_n_monitors()):
+    m = d.get_monitor(i); g = m.get_geometry()
+    print(i, f"{g.width}x{g.height} @ {g.x},{g.y}", m.get_model())'
 ```
 
-## The KDL quirk
+Measured 2026-09-17: **0 is the portrait VG259**, **1 is the landscape
+VG27AQM1A**. Index 0 looks like the obvious default and is wrong here.
 
-`dms-greeter sync` builds the greeter's niri config by parsing `~/.config/niri`
-with its own KDL parser, which stops at a node name starting with `_`. When it
-fails it writes no greeter config at all — and the greeter falls back to niri's
-defaults, US layout included, which is how a password with `å ä ö` stops
-working. That is why `__GL_SHADER_DISK_CACHE_SIZE` is quoted in niri's
-`environment` block.
+`niri.kdl` still names outputs by EDID rather than `DP-1`, for the reason in
+`niri/README.md`: a connector is a socket on the GPU. The portrait screen needs
+its `transform "90"` repeated here or its wallpaper lies on its side, and the
+keyboard layout needs `se` spelled out — the password is typed on this screen,
+and a wrong layout is indistinguishable from a wrong password.
+
+## Why niri.kdl exists at all
+
+nwg-hello needs a compositor to run in and ships configs for sway, hyprland and
+labwc — **not** niri. `niri.kdl` is ours, following their pattern: set up the
+outputs, run the greeter, exit when it exits.
+
+```kdl
+spawn-at-startup "sh" "-c" "nwg-hello; niri msg action quit -s"
+```
+
+Without the `quit`, greetd sits waiting on a compositor with nothing left to
+show. `-s` skips niri's "Press Enter to confirm" prompt.
+
+## No Swedish
+
+nwg-hello ships 15 locales and `sv` is not among them, so the greeter is in
+English. The system locale is `en_US.UTF-8` anyway, so it matches the rest of the
+machine. `X11 Layout: se` is unaffected — that is the keymap, not the language.
+
+## What we left behind — 2026-09-17
+
+dms-greeter is gone. It worked, but it had two problems that nwg-hello does not:
+
+1. **It drew a full login surface on every screen with no way to opt out.** The
+   workaround was `/etc/greetd/niri_overrides.kdl`, which ran
+   `niri msg output … off` at greeter startup to blank the portrait screen — a
+   black screen instead of wallpaper. `form_on_monitors` replaces it.
+2. **`dms-greeter sync` handed the `greeter` group read access to `$HOME`.** It
+   set ACLs on `~/.config`, `~/.cache` and `~/.local/state`'s
+   `DankMaterialShell` directories, **with default ACLs so new files inherited
+   them**, and every `sync` could redo it. That covered the clipboard history,
+   which holds every password copied from the Bitwarden desktop app — Bitwarden
+   does not set `x-kde-passwordManagerHint`, the one mime type DMS refuses to
+   store.
+
+   Cleared with:
+
+   ```bash
+   for d in ~/.config/DankMaterialShell ~/.cache/DankMaterialShell \
+            ~/.local/state/DankMaterialShell; do
+       setfacl -R -b "$d" && chgrp -R "$USER" "$d"
+   done
+   chmod 700 ~/.cache/DankMaterialShell/clipboard
+   chmod 600 ~/.cache/DankMaterialShell/clipboard/db
+   ```
+
+   Nothing re-creates them now, because nothing runs as `greeter` inside
+   `$HOME` any more. That is why the wallpaper is copied into `/etc`.
+
+DMS itself stays — it is still the shell, the notification server, the polkit
+agent and the lock screen. Only the greeter changed.
+
+The KDL quirk that used to matter here is gone with dms-greeter: it parsed
+`~/.config/niri` with its own parser that choked on node names starting with
+`_`, which is why `__GL_SHADER_DISK_CACHE_SIZE` is quoted in niri's
+`environment` block. The quotes are harmless, so they stay.
 
 ## When it breaks
 
-`Ctrl+Alt+F2` gives a text login even if the greeter never starts. From there:
+`Ctrl+Alt+F2` gives a text login even if the greeter never starts. From there,
+in order of bluntness:
 
 ```bash
-sudo cp /etc/greetd/config.toml.bak /etc/greetd/config.toml   # or a backup-* file
+sudo rm /etc/greetd/greetd.conf                # fall through to config.toml
+sudo systemctl restart greetd                  # no reboot needed
 ```
+
+`greetd-agreety` is installed as a text fallback. The machine also answers on
+`ssh erik@192.168.1.232`, which is the better route — you can fix greetd from
+the Mac without touching the console.
 
 A greeter that starts but with a dead keyboard is a different problem — see
 `xremap/README.md`.

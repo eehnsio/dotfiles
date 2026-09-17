@@ -1,0 +1,85 @@
+/* Drivis. Accenten #7fc8ff ar samma bla som niris fokusring, ytorna ar
+ * nara-neutrala gra sa att blat ar det enda som pekar.
+ *
+ * Bakgrunden ligger i /etc och inte i ~/Pictures: greetern kor som `greeter`
+ * och kommer inte at hans hem. Att ge den atkomst dit var dms-greeterns
+ * losning och just det vi flyttade ifran. */
+
+window {
+	background-image: url("/etc/nwg-hello/wallpaper.jpg");
+	background-size: cover;
+	background-position: center;
+}
+
+#form-wrapper {
+	background-color: rgba(22, 24, 29, 0.82);
+	border: 1px solid #4a505c;
+	border-radius: 12px;
+	padding: 28px;
+}
+
+entry {
+	background-color: #1c1f26;
+	color: #c8cdd6;
+	border: 1px solid #4a505c;
+	border-radius: 12px;
+	padding: 12px;
+}
+
+entry:focus {
+	border-color: #7fc8ff;
+}
+
+button {
+	background: #1c1f26 none;
+	color: #c8cdd6;
+	border: 1px solid #4a505c;
+	border-radius: 12px;
+	padding: 12px;
+}
+
+button:hover {
+	background-color: #272b34;
+	border-color: #7fc8ff;
+}
+
+#login-button {
+	background-color: #2b6d95;
+	color: #0b1016;
+	border-color: #7fc8ff;
+	font-weight: 600;
+}
+
+#login-button:hover {
+	background-color: #7fc8ff;
+}
+
+#power-button {
+	background: none;
+	border: none;
+	border-radius: 12px;
+}
+
+#power-button:hover {
+	background-color: rgba(127, 200, 255, 0.12);
+}
+
+#power-button:active {
+	background-color: rgba(127, 200, 255, 0.22);
+}
+
+#welcome-label {
+	color: #d2d7df;
+	font-size: 40px;
+}
+
+#clock-label {
+	color: #d2d7df;
+	font-family: monospace;
+	font-size: 30px;
+}
+
+#date-label {
+	color: #aeb4c0;
+	font-size: 18px;
+}

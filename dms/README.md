@@ -54,8 +54,12 @@ dms plugins restore
 
 ## Greeter
 
-The login screen is dms-greeter under greetd, with no autologin so the password
-unlocks the keyring. Its files live in `/etc` — copies and the reasoning are in
+**Not DMS any more.** The login screen is nwg-hello under greetd as of
+2026-09-17: dms-greeter drew a login box on every screen with no way to opt out,
+and its `sync` gave the `greeter` group read access to this package's directories
+in `$HOME`. DMS remains the shell, notification server, polkit agent and lock
+screen — only the greeter changed. Still no autologin, so the password unlocks
+the keyring. Files live in `/etc`; copies and the reasoning are in
 [reference/greetd](../reference/greetd/).
 
 ## niri includes

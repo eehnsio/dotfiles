@@ -1,0 +1,47 @@
+// niri som varddator for nwg-hello. Upstream levererar bara sway och hyprland,
+// sa den har ar egenskriven. Mönstret ar deras: satt upp skarmarna, kor
+// greetern, avsluta nar den stanger.
+//
+// Filen laser INTE ~/.config/niri. Greetern kor som anvandaren `greeter` och
+// kommer inte at hans hem - det var hela skalet till att lamna dms-greeter.
+
+input {
+    keyboard {
+        xkb {
+            // Samma som sessionen. Lösenordet skrivs har, sa fel layout later
+            // som ett fel lösenord.
+            layout "se"
+        }
+        numlock
+    }
+}
+
+// Skarmarna namns efter EDID och inte DP-1, av samma skal som i
+// niri/.config/niri/local.kdl: kontakten ar ett uttag pa grafikkortet.
+// VG27AQM1A ar den liggande huvudskarmen och blir monitor 0 i nwg-hellos
+// rakning - det ar den som ska ha inloggningsrutan.
+output "ASUSTek COMPUTER INC VG27AQM1A S2LMQS095480" {
+    mode "2560x1440@240.001"
+    position x=0 y=0
+}
+
+// Staende panel. Utan transform ligger bakgrundsbilden pa sidan.
+// Ingen position med flit - niri lagger den till hoger och raknar om sjalv.
+output "ASUSTek COMPUTER INC VG259 L9LMQS055711" {
+    mode "1920x1080@143.614"
+    transform "90"
+}
+
+// Inloggningsskarmen ska inte animera in sig.
+animations {
+    off
+}
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+// Greetern ar hela sessionen. Nar nwg-hello avslutar ska niri gora det ocksa,
+// annars star greetd och vantar pa en kompositor som inte har nagot kvar att
+// visa. -s hoppar over "Press Enter to confirm".
+spawn-at-startup "sh" "-c" "nwg-hello; niri msg action quit -s"
