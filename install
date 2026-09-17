@@ -4,12 +4,12 @@
 if [[ -z $STOW_FOLDERS ]]; then
     STOW_FOLDERS="bin,claude,fastfetch,ghostty,lsd,mpv,nvim,tmux,zsh"
 
-    # niri, xremap, dms, spotify, wave-xlr, xembsni och rbw finns bara på Linux.
+    # niri, xremap, dms, spotify, wave-xlr och rbw finns bara på Linux.
     #
     # Listan är avsiktligt explicit och inte "allt som är en katalog":
     # reference/ och .github/ ligger också på toppnivån men ska aldrig stowas.
     if [[ "$(uname)" == "Linux" ]]; then
-        STOW_FOLDERS="$STOW_FOLDERS,niri,xremap,dms,spotify,wave-xlr,xembsni,rbw"
+        STOW_FOLDERS="$STOW_FOLDERS,niri,xremap,dms,spotify,wave-xlr,rbw"
     fi
 fi
 
