@@ -42,10 +42,24 @@ output "ASUSTek COMPUTER INC VG27AQM1A S2LMQS095480" {
     position x=0 y=0
 }
 
-// Staende panel. Utan transform ligger bakgrundsbilden pa sidan.
-// Ingen position med flit - niri lagger den till hoger och raknar om sjalv.
+// Staende panel: SLACKT i greetern, med flit.
+//
+// nwg-hello kan bara valja skarm for inloggningsrutan med ett GDK-index, och
+// ett index ar inte stabilt (se README). Men niri kan valja skarm pa EDID. Sa
+// i stallet for att peka ut var rutan ska vara stryker vi den andra utgangen
+// helt: da finns bara en skarm, och `form_on_monitors: []` traffar den. Samma
+// beteende som DMS-lasskarmen hade - ruta pa en skarm, den andra svart.
+//
+// Degraderingen ar medvetet vald: blocket matchar pa EDID, sa med andra
+// skarmar matchar det ingenting, niri ignorerar det tyst och rutan hamnar pa
+// alla anslutna skarmar. Man kommer alltid in.
+//
+// KANTFALLET: ar VG259 den ENDA anslutna skarmen slacks den, och greetern blir
+// helt svart. Det ar inte utelasning - Ctrl+Alt+F2 ger textinloggning, for
+// greeterns niri ager bara vt1 - men kommentera bort `off` harifran om den
+// skarmen nagon gang ska kora solo.
 output "ASUSTek COMPUTER INC VG259 L9LMQS055711" {
-    transform "90"
+    off
 }
 
 // Inloggningsskarmen ska inte animera in sig.

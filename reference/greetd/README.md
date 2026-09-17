@@ -115,23 +115,45 @@ So the choice is either *works with any monitors* or *form on exactly one
 screen*, not both. The requirement wins: `[]` puts the form on every screen that
 comes up, and nothing can point it at a monitor that is not there.
 
-This also answers "but I want it on the primary screen": there is no primary
-screen to target. `Gdk.Monitor.is_primary()` is `False` for every monitor on
-Wayland — the concept does not exist there. And cable position does not decide
-the index either: measured 2026-09-17, index 0 was the screen on **DP-2** and
-index 1 the one on **DP-1**, so the order is not connector order.
-
-With `[]` the question dissolves. The form is on every screen, therefore also on
-whichever one you are looking at, with one monitor or four.
+There is also no primary screen to target. `Gdk.Monitor.is_primary()` is `False`
+for every monitor on Wayland — the concept does not exist there. And cable
+position does not decide the index either: measured 2026-09-17, index 0 was the
+screen on **DP-2** and index 1 the one on **DP-1**, so the order is not connector
+order.
 
 A script that computed the index at every start — largest area wins — was written
-and then deleted. It worked, but it bought only cosmetics: one form instead of
-several. A hundred lines running as the `greeter` user, with its own fallback
-path, is a bad trade against a greeter that must simply never fail. Every clever
-thing in this file has cost an evening.
+and then deleted. It worked, but a hundred lines running as the `greeter` user,
+with its own fallback path, is a bad trade against a greeter that must simply
+never fail. Every clever thing in this file has cost an evening.
 
-If you ever do want it on one screen, the indices are measurable — but measure,
-never guess, and know it breaks the next time you swap a cable:
+### One form, not several: let niri drop the output
+
+`[]` on its own puts the form on every screen, which works but is not what we
+want to look at. The fix is not to pick a screen in nwg-hello — it is to give
+nwg-hello only one screen to find. **niri can select by EDID even though
+nwg-hello cannot**, so `niri.kdl` switches the secondary output off:
+
+```kdl
+output "ASUSTek COMPUTER INC VG259 L9LMQS055711" {
+    off
+}
+```
+
+One screen is then active, `form_on_monitors: []` lands on it, and the other is
+black — the same behaviour the DMS lock screen had.
+
+The degradation is the point. The block matches on EDID, so with different
+monitors it matches nothing, niri ignores it silently, and the form appears on
+every connected screen. You always get in.
+
+**The edge case:** if that portrait screen is ever the *only* one connected, it
+gets switched off and the greeter is entirely black. That is not a lockout —
+`Ctrl+Alt+F2` gives a text login, because the greeter's niri only owns vt1 — but
+comment the `off` out before running that panel solo.
+
+If you ever want to name the screen in nwg-hello instead, the indices are
+measurable — but measure, never guess, and know it breaks the next time you swap
+a cable:
 
 ```bash
 python3 -c '
