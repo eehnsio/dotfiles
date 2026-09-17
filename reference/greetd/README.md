@@ -47,9 +47,29 @@ systemctl show greetd -p ActiveEnterTimestamp  # compare against `uptime -s`
 `nwg-hello.json` is different: nwg-hello reads it every time it starts, so
 changes there show up on a plain log out.
 
-While iterating you do not need a reboot at all — `sudo systemctl restart greetd`
-re-reads `greetd.conf` and relaunches the greeter, and `sudo chvt 1` switches to
-it. greetd only owns vt1, so a shell on another VT survives both.
+While iterating you rarely need a reboot. What you need depends on the file:
+
+| Changed | To apply it |
+|---|---|
+| `/etc/nwg-hello/niri.kdl` | **log out** — greetd launches a fresh `niri -c …` for every greeter |
+| `/etc/nwg-hello/nwg-hello.json`, `.css` | **log out** — nwg-hello re-reads them at each start |
+| `/etc/greetd/greetd.conf` | `systemctl restart greetd`, or reboot |
+
+**`systemctl restart greetd` logs you out.** Your graphical session runs on vt1
+and was started *by* greetd, so stopping greetd takes the session with it. A
+shell on another VT survives; your desktop does not.
+
+Worse, it is not a clean logout. Measured 2026-09-17: the old `niri` kept running
+for several seconds after losing DRM master, spraying
+
+```
+Page flip commit failed on device `/dev/dri/card1` (Permission denied (os error 13))
+```
+
+and the next two login attempts bounced straight back to the greeter because
+their new niri could not take the card. The third stuck. If you must restart
+greetd, expect to log in more than once — or just log out instead, which is
+enough for everything except `greetd.conf`.
 
 ## greetd.conf, not config.toml
 
