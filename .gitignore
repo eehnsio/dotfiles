@@ -6,12 +6,10 @@ claude/.claude/skills/*-private/
 claude/.claude/skills/ehnsio-review/
 claude/.claude/skills/ehnsio-write/
 
-# Anthropics egna skills, autosyncade fran claude.ai-kontot. Landar HAR och inte
-# i $HOME eftersom stow foldar hela skills-katalogen till en enda symlank —
-# allt Claude Code skriver i ~/.claude/skills hamnar alltsa i repot. Samma
-# sak galler commands/ och hooks/, som ocksa ar foldade.
-# Katalognamnet ar konto-uuid, sa det ar varken portabelt eller vart att spara;
-# filerna hamtas per maskin.
+# Anthropics autosyncade skills. Ska INTE kunna hamna har langre — install
+# skapar ~/.claude/skills som riktig katalog sa stow lankar per skill i stallet
+# for att folda hela katalogen. Raden ar kvar som skyddsnat for en maskin som
+# inte kort ./install sedan dess. Bakgrunden star i install och claude/README.md.
 claude/.claude/skills/synced/
 
 # Privat zsh-config

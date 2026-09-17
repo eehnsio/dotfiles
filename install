@@ -53,6 +53,22 @@ seed_local "$DOTFILES/ghostty/.config/ghostty/config.local" \
 # hur ~/KEYBINDS.md en gång blev en symlänk in i repot. Se rot-READMEn.
 find "$DOTFILES" -name .DS_Store -not -path "*/.git/*" -delete 2>/dev/null
 
+# Skapa ~/.claude/skills som RIKTIG katalog innan stow kor.
+#
+# Stow "foldar": saknas malkatalogen gor den en enda symlank av hela
+# skills-katalogen i stallet for en lank per skill. Da delar repot katalog med
+# Claude Code — och allt Claude skriver dit hamnar i arbetstradet. Sa kom
+# Anthropics 216 autosyncade skill-filer in i repot 2026-09-17.
+#
+# Finns katalogen redan gar stow in i den och lankar innehallet var for sig.
+# ~/.claude/skills/synced/ hamnar da i $HOME, dar den hor.
+#
+# settings.json ska DAREMOT vara en symlank och ar det fortfarande: Claude Code
+# skriver om den, och da vill vi att andringen hamnar i repot.
+#
+# Priset: en nyskapad skill i repot syns forst efter nasta ./install.
+mkdir -p "$HOME/.claude/skills"
+
 # Install each package
 pushd $DOTFILES
 for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")

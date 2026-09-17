@@ -8,6 +8,29 @@ Claude Code itself, so there are no local copies here.
 Private or company-internal skills use a `-private` suffix and are excluded by a
 wildcard in the root `.gitignore`.
 
+## skills is deliberately not a folded symlink
+
+`install` runs `mkdir -p ~/.claude/skills` before stowing. Without it, stow folds
+the whole directory into a single symlink, the repo and Claude Code end up
+sharing one directory, and **anything Claude writes there lands in the working
+tree** — which is how 216 of Anthropic's auto-synced skill files (4.1 MB, in a
+directory named after the account UUID) appeared in the repo on 2026-09-17.
+
+With the directory pre-created, stow descends into it and links each skill
+separately, so `~/.claude/skills/synced/` stays in `$HOME`. Measured both ways
+before choosing:
+
+| `~/.claude/skills` | `settings.json` | Claude's writes reach the repo |
+|---|---|---|
+| folded symlink | symlink | yes |
+| real directory | symlink | no |
+
+`settings.json` stays a symlink on purpose — Claude Code rewrites it, and that
+change should reach the repo. `commands/` and `hooks/` are still folded; the
+same thing could happen there if Claude ever writes into them.
+
+The price is that a newly added skill only appears after the next `./install`.
+
 ## hooks
 
 Three guards, wired up in `settings.json`:
