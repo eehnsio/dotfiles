@@ -1,34 +1,50 @@
-// niri som varddator for nwg-hello. Upstream levererar bara sway och hyprland,
-// sa den har ar egenskriven. Mönstret ar deras: satt upp skarmarna, kor
+// niri som varddator for nwg-hello. Upstream levererar bara sway, hyprland och
+// labwc, sa den har ar egenskriven. Monstret ar deras: satt upp skarmarna, kor
 // greetern, avsluta nar den stanger.
 //
 // Filen laser INTE ~/.config/niri. Greetern kor som anvandaren `greeter` och
 // kommer inte at hans hem - det var hela skalet till att lamna dms-greeter.
+//
+// KRAVET som styr filen: greetern maste fungera med VILKA skarmar som helst,
+// i vilket antal och med vilken maxupplosning. Darav inga `mode`-rader, se
+// nedan. Det ar inte en forenkling utan ett hardt krav - maskinen far byta
+// skarmar och du maste anda kunna logga in.
 
 input {
     keyboard {
         xkb {
-            // Samma som sessionen. Lösenordet skrivs har, sa fel layout later
-            // som ett fel lösenord.
+            // Samma som sessionen. Losenordet skrivs har, sa fel layout later
+            // som ett fel losenord.
             layout "se"
         }
         numlock
     }
 }
 
-// Skarmarna namns efter EDID och inte DP-1, av samma skal som i
-// niri/.config/niri/local.kdl: kontakten ar ett uttag pa grafikkortet.
-// VG27AQM1A ar den liggande huvudskarmen och blir monitor 0 i nwg-hellos
-// rakning - det ar den som ska ha inloggningsrutan.
+// INGA `mode`-rader har, med flit.
+//
+// Ett mode som skarmen inte erbjuder far niri att lamna utgangen SLACKT i
+// stallet for att falla tillbaka. 2026-09-17 kostade det en hel kvall:
+// `mode "2560x1440@240.001"` stod har, den liggande skarmen blev svart, och
+// eftersom bara en utgang kom upp pekade `form_on_monitors: [1]` pa ett index
+// som inte fanns - alltsa bakgrundsbild men ingen inloggningsruta nagonstans.
+//
+// Utan raden tar niri varje skarms preferred, vilket alltid finns. Greetern
+// behover ingen hog uppdateringsfrekvens; sessionens `local.kdl` ar dar 240 Hz
+// hor hemma.
+//
+// Blocken far daremot stanna. De matchar pa EDID, sa ett block som inte
+// motsvarar en ansluten skarm ignoreras tyst av niri - de stanger alltsa av
+// sig sjalva pa annan hardvara och bryter inte kravet ovan.
+
+// Liggande huvudskarm.
 output "ASUSTek COMPUTER INC VG27AQM1A S2LMQS095480" {
-    mode "2560x1440@240.001"
     position x=0 y=0
 }
 
 // Staende panel. Utan transform ligger bakgrundsbilden pa sidan.
 // Ingen position med flit - niri lagger den till hoger och raknar om sjalv.
 output "ASUSTek COMPUTER INC VG259 L9LMQS055711" {
-    mode "1920x1080@143.614"
     transform "90"
 }
 

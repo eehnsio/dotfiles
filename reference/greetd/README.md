@@ -47,6 +47,10 @@ systemctl show greetd -p ActiveEnterTimestamp  # compare against `uptime -s`
 `nwg-hello.json` is different: nwg-hello reads it every time it starts, so
 changes there show up on a plain log out.
 
+While iterating you do not need a reboot at all — `sudo systemctl restart greetd`
+re-reads `greetd.conf` and relaunches the greeter, and `sudo chvt 1` switches to
+it. greetd only owns vt1, so a shell on another VT survives both.
+
 ## greetd.conf, not config.toml
 
 greetd looks for `/etc/greetd/greetd.conf` **before** `/etc/greetd/config.toml`
@@ -78,17 +82,41 @@ is why swapping greeters did not touch the keyring at all.
 session and asks for the master password on first use — the keyring is for the
 Bitwarden *desktop app*. See `rbw/README.md`.
 
-## Wallpaper on both screens, login box on one
+## The hard requirement: any monitors, any number
 
-This is the whole reason for nwg-hello. Two keys in `nwg-hello.json`:
+This machine changes monitors — count and maximum resolution both. **The greeter
+must let you log in regardless.** Two rules follow, and both were learned the
+expensive way on 2026-09-17.
 
-- `monitor_nums: []` — the greeter appears on every monitor.
-- `form_on_monitors: [1]` — only that one gets the input; the rest show just the
-  wallpaper.
+### No `mode` lines in niri.kdl
 
-**The numbers are GDK monitor indices, not connector names and not niri's
-order.** Do not guess them — measure, in a running session, with the same
-toolkit nwg-hello uses:
+A mode the screen does not offer makes niri leave the output **dark** rather than
+fall back. With `mode "2560x1440@240.001"` in this file the landscape screen went
+black, and because only one output came up, the login form pointed at a monitor
+index that no longer existed — wallpaper on one screen, no form anywhere, and no
+way in except a text console.
+
+Without the line niri takes each screen's preferred mode, which always exists.
+The greeter does not need a high refresh rate; the session's `local.kdl` is where
+240 Hz belongs.
+
+The `output` blocks themselves can stay. They match on EDID, so a block with no
+matching screen is ignored silently — they disable themselves on other hardware.
+That is also why the portrait screen can keep its `transform "90"` here: without
+it that wallpaper lies on its side, and with it nothing breaks elsewhere.
+
+### `form_on_monitors: []` — the form on every screen
+
+`monitor_nums` and `form_on_monitors` take **GDK monitor indices**. There is no
+matching on name, model or EDID, and an index is not stable when the number or
+order of screens changes — which is exactly the requirement above.
+
+So the choice is either *works with any monitors* or *form on exactly one
+screen*, not both. The requirement wins: `[]` puts the form on every screen that
+comes up, and nothing can point it at a monitor that is not there.
+
+If you ever want it on one screen anyway, the indices are measurable — but
+measure, never guess, and know it breaks the next time you swap a cable:
 
 ```bash
 python3 -c '
@@ -100,14 +128,40 @@ for i in range(d.get_n_monitors()):
     print(i, f"{g.width}x{g.height} @ {g.x},{g.y}", m.get_model())'
 ```
 
-Measured 2026-09-17: **0 is the portrait VG259**, **1 is the landscape
-VG27AQM1A**. Index 0 looks like the obvious default and is wrong here.
+Measured 2026-09-17 with both screens up: 0 was the portrait VG259, 1 the
+landscape VG27AQM1A. Index 0 looks like the obvious default and was wrong.
 
-`niri.kdl` still names outputs by EDID rather than `DP-1`, for the reason in
-`niri/README.md`: a connector is a socket on the GPU. The portrait screen needs
-its `transform "90"` repeated here or its wallpaper lies on its side, and the
-keyboard layout needs `se` spelled out — the password is typed on this screen,
-and a wrong layout is indistinguishable from a wrong password.
+The keyboard layout needs `se` spelled out in `niri.kdl` — the password is typed
+here, and a wrong layout is indistinguishable from a wrong password.
+
+## What a wedged GPU looks like
+
+Worth recognising, because it sent me down the wrong path for an hour. After the
+NVIDIA 610 → 615 upgrade, `2560x1440` vanished from
+`/sys/class/drm/card1-DP-1/modes` entirely — the screen's own native mode. It
+looked exactly like a driver regression dropping DSC.
+
+It was not. Starting a second niri instance on another VT while the greeter held
+the first one deadlocked the driver:
+
+```
+nvidia-modeset/:282   blocked 368s on a semaphore held by kworker/2:1
+systemd-logind:605    blocked on a mutex held by the same kworker
+Tainted: G  OE
+```
+
+A `D`-state kernel thread cannot be killed, and with logind wedged **nothing can
+log in** — SSH authenticates and then hangs in `[postauth]`, because
+`pam_systemd` never returns. A clean reboot brought both the native mode and
+logind back; no rollback was needed.
+
+The tell is one command:
+
+```bash
+ps -eo pid,stat,comm | awk '$2 ~ /D/'     # anything here means reboot, not config
+```
+
+Do not run a second compositor on another VT while the greeter is up.
 
 ## Why niri.kdl exists at all
 

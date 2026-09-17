@@ -5,7 +5,7 @@
   ],
   "custom_sessions": [],
   "monitor_nums": [],
-  "form_on_monitors": [1],
+  "form_on_monitors": [],
   "delay_secs": 1,
   "cmd-sleep": "systemctl suspend",
   "cmd-reboot": "systemctl reboot",
