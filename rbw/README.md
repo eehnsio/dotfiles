@@ -1,14 +1,15 @@
 # rbw
 
-Bitwarden from the keyboard: `Mod+P` opens a rofi list, `Enter` copies the
+Bitwarden from the keyboard: `Mod+P` opens noctalia's launcher, `Enter` copies the
 password. Linux only. For apps and terminals — the browser extension still fills
 web forms.
 
-Only `rofi-rbw.rc` is stowed. rbw's own `~/.config/rbw/config.json` holds the
-account email and stays out of this public repo, so it is set by hand:
+This package is the README. The picker is `noctalia-rbw` in the [bin](../bin/)
+package, and rbw's own `~/.config/rbw/config.json` holds the account email, so it
+stays out of this public repo and is set by hand:
 
 ```bash
-sudo pacman -S rbw rofi-rbw rofi wtype
+sudo pacman -S rbw wl-clipboard
 rbw config set email <bitwarden-email>
 rbw config set pinentry pinentry-gtk
 rbw register    # personal API key: web vault → Account settings → Security → Keys
@@ -39,48 +40,41 @@ bitwarden.com refuses logins from devices it has not seen. `rbw register` uses
 the personal API key (client id + secret) to register this machine once; both
 are asked for in pinentry, never on the command line.
 
-## rofi, not fuzzel
+## the shell's launcher, not rofi-rbw
 
-rofi-rbw 1.7 passes its key bindings to fuzzel as `--override=key-bindings.…`,
-an option that only exists from fuzzel 1.15. Arch ships 1.14.1, which rejects it
-with `invalid option` and exit code 1 — and rofi-rbw reads exit code 1 as the
-user pressing Escape, so it quits silently. rofi 2.0 in `extra` is native
-Wayland and takes `-kb-custom-N` bindings. Worth revisiting once fuzzel 1.15
-lands.
+rofi-rbw drew its own window in the middle of a themed shell, so `rofi/rbw.rasi`
+existed only to imitate the launcher next to it — 680 px card, radius 12, colours
+copied out of the theme by hand and re-copied whenever it changed. `noctalia
+dmenu` *is* that launcher, so the imitation and its upkeep are gone.
 
-## Looks
+What went with it: rofi-rbw's `Alt+U` and `Alt+T` for username and TOTP. Only the
+password is one keypress now; the rest is `rbw get` in a terminal.
 
-`rofi/rbw.rasi` draws rofi as the DMS spotlight launcher: the 680 px card,
-radius 12, the blue icon circle and the selected-row tint were measured from a
-screenshot of the launcher. The colours come from the Drivis theme — copied, not
-linked, so a change to `dms/themes/drivis/theme.json` has to be made here too.
-The icon is a padlock and the placeholder says Bitwarden, so it is not mistaken
-for the launcher itself.
+## the list is two columns, not one
 
-Like spotlight it dims the screen: rofi runs fullscreen in 50 % black and the
-card is an inner box, centred by the padding on `mainbox`. `listview` has
-`fixed-height: true`: in a card that sizes to its content the list otherwise
-collapsed to nothing and only the search row showed.
+`noctalia dmenu` splits each line on the first tab and draws what precedes it as
+a bold title, what follows as a smaller dimmed subtitle. A line with no tab is
+bold the whole way, which turned the vault into a wall of bold text. So the
+script emits `name<TAB>folder - username`. Search covers both halves, so a folder
+name still finds its entries.
 
-The list is monospace on purpose: rofi-rbw pads name and username with spaces
-into columns, which only line up in a fixed-width font.
+`rbw ls --fields folder,name,user` returns the whole folder path as one field, so
+nested folders need no extra work. The chosen line is matched back against that
+same list instead of looked up by name, because one name can exist in several
+folders.
 
-## Copy, never type
+## copy, never type
 
-`Enter` copies the password, `Alt+U` the username, `Alt+T` the TOTP code.
-rofi-rbw's default bindings *type* text instead; they are replaced because the
-browser already covers autofill.
+The password reaches `wl-copy` on **stdin**. `noctalia msg clipboard-copy <text>`
+would put it in argv, where `ps` shows it to every process on the machine.
 
-`wtype` is installed anyway: rofi-rbw asks the typer for the active window when
-it starts, before it knows the action, and exits with `NoTyperFoundException`
-when there is none. From the niri bind that looks like `Mod+P` doing nothing.
-It never types anything with this config.
+`wl-copy --sensitive` adds the `x-kde-passwordManagerHint` mime type, and
+noctalia's clipboard history skips anything carrying it — the same contract DMS
+had. Measured 2026-09-24: a plain `wl-copy` added an entry under
+`~/.local/state/noctalia/clipboard/entries`, the same copy with `--sensitive`
+added none. Without the flag every password copied would sit among the last 100
+entries, and entries survive until they age out of the history.
 
-Copying goes through `wl-copy --sensitive`, which offers the
-`x-kde-passwordManagerHint` mime type. DMS will not store anything carrying that
-hint, so these passwords never reach the clipboard history — unlike copies from
-the Bitwarden desktop app, which does not set it. `clear-after = 30` empties the
-live clipboard as well.
-
-rbw locks itself after `lock_timeout` (default one hour); the next `Mod+P` asks
-for the master password again.
+The script then clears the live clipboard after 45 seconds. rbw itself locks
+after `lock_timeout` (default one hour); the next `Mod+P` asks for the master
+password again.
