@@ -28,6 +28,11 @@ it dies on a missing library and rbw reports only
 `error reading pinentry output: unexpected EOF`. `pinentry-gtk` needs nothing
 beyond gtk3, which is already installed.
 
+The prompt floats instead of taking a column: the window rule lives in niri's
+config and matches `(?i)^pinentry`. The case-insensitive flag is load-bearing —
+pinentry-gtk calls itself `Pinentry-gtk` with a capital P, and niri's regexes
+are case-sensitive.
+
 ## register before login
 
 bitwarden.com refuses logins from devices it has not seen. `rbw register` uses

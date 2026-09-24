@@ -211,12 +211,22 @@ window-rule {
 
 // pinentry (rbw:s losenordsruta, gpg) ska flyta ovanpa det man holl pa med i
 // stallet for att kaklas in som en ny kolumn. ^pinentry tar alla varianter:
-// gtk, gnome3 och qt har var sitt app-id med samma prefix. block-out-from:
-// se Bitwarden-regeln nedan.
+// gtk, gnome3 och qt har var sitt app-id med samma prefix.
+//
+// (?i) ar inte kosmetik: pinentry-gtk satter app-id till "Pinentry-gtk" med
+// stort P, och niris regexar ar skiftlagekansliga — utan flaggan matchade
+// regeln ingenting alls och rutan kaklades in som en egen kolumn.
+// block-out-from: se Bitwarden-regeln nedan.
 window-rule {
-    match app-id=r#"^pinentry"#
+    match app-id=r#"(?i)^pinentry"#
     open-floating true
     block-out-from "screencast"
+
+    // Utan fast storlek tar rutan den bredd den rakar tilldelas och blir
+    // halv- eller helskarm nar den ar ensam pa arbetsytan. pinentry ar en
+    // etikett plus ett losenordsfalt - den behover inte mer an det har.
+    default-column-width { fixed 480; }
+    default-window-height { fixed 220; }
 }
 
 // Bitwardens upplasningsruta. Zen ger sina extension-popups titeln
