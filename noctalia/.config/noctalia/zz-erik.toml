@@ -1,0 +1,47 @@
+# Egna basvarden for noctalia.
+#
+# Configstacken, enligt "noctalia config export --help":
+#   1. alla *.toml i ~/.config/noctalia/      <- den har filen
+#   2. ~/.local/state/noctalia/settings.toml  <- OVERSKRIVER steg 1
+#
+# Alltsa: settings-GUI:t skriver settings.toml och VINNER over den har filen
+# for varje nyckel man ror dar. Det har ar en baslayer, inte en override.
+# Vitsen ar anda att GUI:t aldrig skriver hit, sa filen gar att versionera i
+# dotfiles och overlever att man klickar runt i installningarna.
+#
+# Hela nyckellistan finns med "noctalia config export full" - gissa inte.
+
+[accessibility]
+# ENDA spaken for storlek i skalet. Det finns ingen font_size-nyckel, och
+# font_scale/font_weight galler bara baren ([bar.default]). ui_scale skalar
+# allt: text, ikoner och radhojder - alltsa ocksa luften mellan raderna.
+ui_scale = 1.15
+
+[shell]
+# Mono - aven Propo-varianten - blev for tung och teknisk i listorna.
+# Adwaita Sans ar GNOME:s gren av Inter: lattare vikt, gjord for UI.
+font_family = "Adwaita Sans"
+
+# DMS agde polkit-agenten. Efter skalbytet kor polkitd utan nagon
+# registrerad autentiseringsagent, sa GUI-program som behover root
+# misslyckas TYST - daemonen kan inte rita losenordsdialogen sjalv.
+polkit_agent = true
+
+[shell.launcher]
+# Ikoner AV gjorde listan svarlast - utan dem ar raderna bara text och allt
+# flyter ihop. Ikonerna sarskiljer apptyp aven nar namnen liknar varandra.
+show_icons = true
+
+# compact = true pressade ihop ~20 traffar ovanpa varandra. Av ger luftigare
+# rader. Detta och ui_scale ar de enda tva spakarna for radtathet som finns.
+compact = false
+
+[osd.kinds]
+# CapsLock/NumLock/ScrollLock kastade upp en OSD-ruta hogst upp pa skarmen
+# ([osd] position = "top_center") vid varje tryck. Lasknapparna sager redan
+# vad de gor via tangentbordets lysdioder - rutan var bara i vagen.
+#
+# Endast lock_keys av: de andra kinds-flaggorna (volume, brightness, media
+# ...) ar kvitto pa tangenter som INTE har nagon egen indikator. Vill man
+# doda hela OSD:n finns [osd] enabled = false.
+lock_keys = false

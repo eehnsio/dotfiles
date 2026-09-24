@@ -19,6 +19,7 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [lsd](lsd/) | `ls` replacement, follows the terminal palette | both |
 | [mpv](mpv/) | Video player: floating window, sized by the clip | both |
 | [niri](niri/) | Scrolling tiling compositor | Linux |
+| [noctalia](noctalia/) | Desktop shell for niri: bar, launcher, OSD, palette | Linux |
 | [nvim](nvim/) | Neovim (LazyVim) + keybind cheatsheet | both |
 | [rbw](rbw/) | Bitwarden on `Mod+P`: copy a password without the clipboard history | Linux |
 | [spotify](spotify/) | Forces the client onto native Wayland | Linux |
