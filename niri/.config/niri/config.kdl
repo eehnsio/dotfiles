@@ -107,7 +107,7 @@ environment {
 
 // ─── Uppstart ───────────────────────────────────────────────────────────
 
-spawn-at-startup "dms" "run"
+spawn-at-startup "noctalia"
 
 // xremap startas INTE harifran langre utan som systemd-tjanst (xremap.service
 // i xremap-paketet). Det som startas med spawn-at-startup overlever
@@ -243,11 +243,14 @@ binds {
     // Program
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
     Mod+Return hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-    Mod+Space hotkey-overlay-title="Run an Application: DankShell" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+Space hotkey-overlay-title="Run an Application: Noctalia" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     Mod+B hotkey-overlay-title="Open the Browser: Zen" { spawn "zen-browser"; }
     Mod+E hotkey-overlay-title="Open Files: Nautilus" { spawn "nautilus"; }
     // Kopiera ett losenord ur Bitwarden (rbw). Se rbw-paketet.
-    Mod+P hotkey-overlay-title="Copy a Password: rbw" { spawn "rofi-rbw"; }
+    // Noctalias launcher i stallet for rofi-rbw: samma rbw-agent under,
+    // men Drivis-paletten i stallet for rofis eget utseende. Absolut
+    // sokvag - niri spawnar utan zsh, sa ~/.local/bin saknas i PATH.
+    Mod+P hotkey-overlay-title="Copy a Password: rbw" { spawn "/home/erik/.local/bin/noctalia-rbw"; }
 
     // Flytande terminal ovanpa det man haller pa med. Egna app-id:t plockas
     // upp av window-rule ovan; det ar hela mekanismen.
@@ -255,12 +258,12 @@ binds {
         spawn "ghostty" "--class=com.mitchellh.ghostty.floating";
     }
 
-    // Visa/dolj DankBar. Selektorn ar typen av uppslag ("id"), inte varde —
-    // darav "id" "default", dar default ar barens id i settings.json.
-    Mod+Shift+B hotkey-overlay-title="Toggle the Bar" { spawn "dms" "ipc" "call" "bar" "toggle" "id" "default"; }
+    // Visa/dolj baren. Utan argument tar bar-toggle ALLA barer; ett bar-namn
+    // och en monitor-selektor kan anges om det nagonsin blir fler an en.
+    Mod+Shift+B hotkey-overlay-title="Toggle the Bar" { spawn "noctalia" "msg" "bar-toggle"; }
     // Ctrl+Cmd+Q, samma som macOS. Mod+Q ensamt ar close-window langre ner —
     // niri kraver exakt modifierarsatt, sa de tva krockar inte.
-    Super+Ctrl+Q hotkey-overlay-title="Lock the Screen: DankShell" { spawn "dms" "ipc" "call" "lock" "lock"; }
+    Super+Ctrl+Q hotkey-overlay-title="Lock the Screen: Noctalia" { spawn "noctalia" "msg" "session" "lock"; }
     Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
 
     // Media och skarm
