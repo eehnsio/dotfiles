@@ -40,6 +40,21 @@ input {
     focus-follows-mouse max-scroll-amount="0%"
 }
 
+// Bada blocken nedan kom ur autogenererade dms/-fragment som config.kdl
+// inkluderade. De ar ren niri-konfiguration utan skalberoende, sa de foljer
+// inte med skalbytet ut — men ingen skriver dem langre, darfor star de nu har.
+cursor {
+    xcursor-theme "Bibata-Modern-Ice"
+    xcursor-size 24
+}
+
+// Hornradie pa alt-tab-markeringen (Mod+Tab), sa den matchar fonstrens egna.
+recent-windows {
+    highlight {
+        corner-radius 12
+    }
+}
+
 // ─── Layout ─────────────────────────────────────────────────────────────
 
 layout {
@@ -89,9 +104,9 @@ environment {
     // Dotas fardigbyggda cache ar 1.05 GB och sprangde alltsa gransen direkt,
     // varpa drivrutinen rensade den och allt byggdes om vid varje start.
     // Variabeln heter GL men galler aven Vulkan-pipelines.
-    // Citattecknen behovs: niri klarar namnet utan, men dms-greeter sync laser
-    // configen med en egen KDL-parser som stannar pa ett inledande _ — och
-    // skapar da ingen greeter-config alls (fel tangentbordslayout vid login).
+    // Citattecknen ar ett arv fran dms-greeter sync, vars egna KDL-parser
+    // stannade pa ett inledande _. Greetern ar nwg-hello nu; niri sjalvt klarar
+    // namnet bade med och utan.
     "__GL_SHADER_DISK_CACHE_SIZE" "10737418240"
 
     // GTK:s Wayland-inmatningsmodul klarar inte doda tangenter, sa ~ ^ ` och
@@ -187,9 +202,9 @@ window-rule {
     default-window-height { proportion 0.6; }
 }
 
-// Steams notiser ar egna FONSTER, inte lager-ytor som DMS notiser. Utan regel
-// kaklas de in i layouten mitt pa skarmen och stjal dessutom fokus mitt i det
-// man haller pa med.
+// Steams notiser ar egna FONSTER, inte lager-ytor som skalets notiser. Utan
+// regel kaklas de in i layouten mitt pa skarmen och stjal dessutom fokus mitt
+// i det man haller pa med.
 //
 // open-focused false ar den viktiga halvan — en notis ska aldrig ta tangent-
 // bordet. Titelmonstret ar Steams sedan lange etablerade; stammer det inte,
@@ -484,20 +499,3 @@ binds {
 // Skarmar, upplosningar och skalning. Gitignorerad; skapas av install.
 include "local.kdl"
 
-// ─── DankMaterialShell ──────────────────────────────────────────────────
-
-// Autogenererade av dms. Finns inte pa en ny maskin forran dms kort en gang.
-include "dms/windowrules.kdl"   // DMS egna paneler ska flyta, inte kaklas
-include "dms/wpblur.kdl"        // wallpaper-blur bakom lagren
-include "dms/alttab.kdl"        // hornradie pa alt-tab-markeringen
-// dms/layout.kdl och dms/colors.kdl inkluderas MED FLIT INTE.
-//
-// layout.kdl satter gaps 4 och slar pa ramen igen, vilket skulle skriva over
-// gaps 20 och "border off" i layout-blocket ovan. colors.kdl skapas av dms men
-// fylls aldrig — dms skriver bara ram- och fokusringsBREDD till niri, aldrig
-// farg. Fokusringens farg ovan far darfor sattas for hand sa att den matchar
-// skalets tema.
-//
-// Kontrollera vad niri faktiskt laser med:
-//     dms config resolve-include niri <fil>.kdl
-include "dms/cursor.kdl"
