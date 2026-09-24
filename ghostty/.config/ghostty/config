@@ -41,7 +41,7 @@ window-padding-y = 10
 window-padding-balance = true
 window-padding-color = extend 
 
-# Temat sätter bakgrunden själv (#16181d, samma yta som DMS-panelerna).
+# Temat sätter bakgrunden själv (#16181d, samma yta som skalets paneler).
 # Ingen explicit background-rad här: den skulle ligga EFTER theme och därmed
 # vinna, vilket är hur den gamla Tokyo Night-bakgrunden överlevde temabytet.
 theme = drivis
