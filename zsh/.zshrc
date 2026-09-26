@@ -98,5 +98,27 @@ elif command -v fzf >/dev/null; then
   source <(fzf --zsh)
 fi
 
+# deja: prediktiv ghost text från historiken (→ tar hela förslaget, ctrl+→ ett
+# ord). Tangenterna måste sättas innan integrationen laddas. Deja tar annars Tab
+# till sin alternativväljare, vilket knuffar undan compinits menu select.
+if command -v deja >/dev/null; then
+  export DEJA_CYCLE_KEY='^N'
+  if [[ -r ~/.local/share/deja/init.zsh ]]; then
+    source ~/.local/share/deja/init.zsh   # sparar en binärstart per skal
+  else
+    eval "$(deja init zsh)"
+  fi
+fi
+
 # Privata alias och config (ej versionshanterad)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# ── Syntax highlighting ─────────────────────────────────────────────────
+# Måste laddas sist: den wrappar alla zle-widgets som finns när den sourcas.
+for _zsh_hl in \
+  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+do
+  [[ -r $_zsh_hl ]] && { source $_zsh_hl; break }
+done
+unset _zsh_hl
