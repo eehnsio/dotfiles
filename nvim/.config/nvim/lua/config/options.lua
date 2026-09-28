@@ -42,5 +42,8 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.breakindent = true -- preserve indentation in wrapped lines
     vim.opt_local.spell = true -- enable spell checking
     vim.opt_local.spelllang = "sv,en" -- use Swedish and English dictionaries
+    -- lang.markdown formaterar med prettier och markdownlint; på prosa ska
+    -- det ske med <leader>cf när man vill, inte vid varje spara
+    vim.b.autoformat = false
   end,
 })
