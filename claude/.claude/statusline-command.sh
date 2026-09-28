@@ -13,7 +13,8 @@
 #   BRANCH  grenen, bla. Granne med cyan i paletten: tydligt en egen sak,
 #           men uppenbart slakt. Bada svarar pa "var ar jag".
 #   MODEL   modellen, magenta. Ett annat SLAGS uppgift — vem, inte var —
-#           och far darfor en farg utanfor det blagrona paret.
+#           och far darfor en farg utanfor det blagrona paret. Effort-nivan
+#           hor till samma fraga och delar fargen.
 #
 #   COUNT   siffrorna, gront: commits att pusha eller hamta, andrade rader,
 #           och kontextfonstret sa lange det mar bra. En hue for hela
@@ -27,8 +28,8 @@
 # "13 commits att pusha" forsvann pa exakt det sattet.
 #
 # De fyra hue:erna ar alla kalla. Det ar med flit: gult och rott anvands ingen
-# annanstans i raden, sa nar kontextfonstret borjar ta slut ar det den enda
-# varma farg som finns och gar inte att missa.
+# annanstans i raden, sa nar kontextfonstret borjar ta slut eller cachen gatt
+# kall ar det den enda varma farg som finns och gar inte att missa.
 #
 # Har fanns tidigare ett fjarde steg pa \033[90m. Det ar #414868 i den har
 # paletten, och statuslinjen ritas dessutom redan nedtonad av Claude Code —
@@ -36,9 +37,10 @@
 # siffror. Slutsatsen: i en rad som redan ar nedtonad av varden finns det
 # bara plats for EN nivas skillnad, och den far ligga pa skiljetecknen.
 #
-# Gult och rott ar reserverat for kontextfonstret, och bara nar det borjar ta
-# slut. Semantisk farg och accentfarg ar tva olika saker: radantal fargas inte
-# gront och rott, for tillagda rader ar inte "bra" och borttagna inte "daliga".
+# Gult och rott ar reserverat for varningar: kontextfonstret nar det borjar ta
+# slut, och gult aven for en kall promptcache. Semantisk farg och accentfarg
+# ar tva olika saker: radantal fargas inte gront och rott, for tillagda rader
+# ar inte "bra" och borttagna inte "daliga".
 
 PATH_C='\033[36m'
 BRANCH_C='\033[34m'
@@ -52,6 +54,8 @@ RESET='\033[0m'
 input=$(cat)
 
 model_name=$(echo "$input" | jq -r '.model.display_name // "Claude"')
+# Saknas nar modellen inte stoder effort-parametern.
+effort=$(echo "$input" | jq -r '.effort.level // empty')
 current_dir=$(echo "$input" | jq -r '.workspace.current_dir // ""')
 project_dir=$(echo "$input" | jq -r '.workspace.project_dir // ""')
 
@@ -80,7 +84,9 @@ fi
 model_short=$(echo "$model_name" | sed -E 's/^Claude[[:space:]]+//' | sed -E 's/([0-9]+\.[0-9]+)[[:space:]]+([A-Z][a-z]+)/\2 \1/')
 
 line=""
-line+=$(printf "${MODEL_C}%s${RESET}${SOFT} in${RESET}" "$model_short")
+line+=$(printf "${MODEL_C}%s${RESET}" "$model_short")
+[ -n "$effort" ] && line+=$(printf " ${MODEL_C}%s${RESET}" "$effort")
+line+=$(printf "${SOFT} in${RESET}")
 line+=$(printf " ${PATH_C}%s${RESET}" "$dir_display")
 
 if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
@@ -118,18 +124,11 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
     fi
 fi
 
-usage=$(echo "$input" | jq '.context_window.current_usage')
-context_size=$(echo "$input" | jq '.context_window.context_window_size // 0')
+# Null fore forsta API-svaret och efter /compact. Doljs hellre an att visa
+# 100%: efter en compact ar fonstret inte tomt, bara okant tills nasta svar.
+remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty | floor')
 
-if [ "$usage" != "null" ] && [ "$context_size" -gt 0 ]; then
-    input_tokens=$(echo "$usage" | jq '.input_tokens // 0')
-    cache_creation=$(echo "$usage" | jq '.cache_creation_input_tokens // 0')
-    cache_read=$(echo "$usage" | jq '.cache_read_input_tokens // 0')
-
-    total_sent=$((input_tokens + cache_creation + cache_read))
-    pct=$((total_sent * 100 / context_size))
-    remaining=$((100 - pct))
-
+if [ -n "$remaining" ]; then
     # Normal ljusstyrka sa lange det inte ar ett problem. Farg forst nar det ar det.
     if [ $remaining -gt 50 ]; then
         context_color="$COUNT_C"
@@ -140,6 +139,19 @@ if [ "$usage" != "null" ] && [ "$context_size" -gt 0 ]; then
     fi
 
     line+=$(printf " ${SOFT}|${RESET} ${context_color}%d%% free${RESET}" "$remaining")
+fi
+
+# Promptcachen: traffgrad sa lange den ar varm, varnfarg nar den gatt kall
+# eftersom nasta prompt da far skriva om hela prefixet. Saknas fore forsta
+# API-svaret, och doljs om ingen caching alls har observerats.
+cache=$(echo "$input" | jq -r '.prompt_cache // empty
+    | select(.caching_observed)
+    | if .warm then (.hit_ratio // empty | . * 100 | floor | tostring) else "cold" end')
+
+if [ "$cache" = "cold" ]; then
+    line+=$(printf " ${SOFT}| cache${RESET} ${WARN}cold${RESET}")
+elif [ -n "$cache" ]; then
+    line+=$(printf " ${SOFT}| cache${RESET} ${COUNT_C}%d%%${RESET}" "$cache")
 fi
 
 printf "%s" "$line"
