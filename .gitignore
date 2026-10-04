@@ -25,3 +25,7 @@ node_modules/
 niri/.config/niri/local.kdl
 ghostty/.config/ghostty/config.local
 __pycache__/
+
+# Typerna Claude Code lagger i varje mod nar den laddas — genereras om vid
+# varje laddning och hor till den version som skrev dem.
+claude/.claude/mods/*/.claude-plugin/types/

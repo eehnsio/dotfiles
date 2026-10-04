@@ -1,0 +1,20 @@
+{
+  "name": "sessions",
+  "version": "0.1.0",
+  "description": "Ett band ovanför prompten: varning innan promptcachen går kall, och (pausad) en översikt över alla Claude-sessioner på maskinen",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "showSessions": {
+      "type": "boolean",
+      "title": "Visa sessionsöversikten",
+      "description": "Alla Claude-sessioner på maskinen i bandet, grupperade på jobbar och väntar, med notiser när en behöver dig. Pausad tills den känns rätt; cachevarningen syns oavsett.",
+      "default": false
+    },
+    "notifyIdle": {
+      "type": "boolean",
+      "title": "Notis när en session behöver dig",
+      "description": "En rad överst i bandet när en annan session ställer en fråga eller jobbar klart. Står kvar tills sessionen byter läge (en klar-notis högst tio minuter).",
+      "default": true
+    }
+  }
+}
