@@ -83,7 +83,23 @@ fi
 
 model_short=$(echo "$model_name" | sed -E 's/^Claude[[:space:]]+//' | sed -E 's/([0-9]+\.[0-9]+)[[:space:]]+([A-Z][a-z]+)/\2 \1/')
 
+# Sessionens namn forst, i fet stil: det ar vad man letar efter nar man hoppar
+# mellan terminalfonster. Namnet tas ur ~/.claude/sessions/<pid>.json, inte ur
+# session_name (som ar titeln), sa det ar samma namn som sessions-modden och
+# SendMessage anvander for att peka ut den.
+#
+# Ett namn man satt sjalv med /rename (nameSource "user") ritar Claude Code
+# redan i promptens ram, sa da hoppas det over har i stallet for att sta
+# tva ganger. Det ar de genererade namnen (dotfiles-46) som annars inte syns.
+session_id=$(echo "$input" | jq -r '.session_id // empty')
+session_label=""
+if [ -n "$session_id" ]; then
+    session_file=$(grep -l "\"sessionId\":\"$session_id\"" "$HOME"/.claude/sessions/*.json 2>/dev/null | head -1)
+    [ -n "$session_file" ] && session_label=$(jq -r 'select(.nameSource != "user") | .name // empty' "$session_file" 2>/dev/null)
+fi
+
 line=""
+[ -n "$session_label" ] && line+=$(printf "\033[1m${PATH_C}%s${RESET}${SOFT} ·${RESET} " "$session_label")
 line+=$(printf "${MODEL_C}%s${RESET}" "$model_short")
 [ -n "$effort" ] && line+=$(printf " ${MODEL_C}%s${RESET}" "$effort")
 line+=$(printf "${SOFT} in${RESET}")
@@ -141,17 +157,28 @@ if [ -n "$remaining" ]; then
     line+=$(printf " ${SOFT}|${RESET} ${context_color}%d%% free${RESET}" "$remaining")
 fi
 
-# Promptcachen: traffgrad sa lange den ar varm, varnfarg nar den gatt kall
-# eftersom nasta prompt da far skriva om hela prefixet. Saknas fore forsta
-# API-svaret, och doljs om ingen caching alls har observerats.
+# Promptcachen: tid kvar tills den gar kall, eftersom nasta prompt da far
+# skriva om hela prefixet. expires_at ar epoch-sekunder; raden ritas om var
+# 30:e sekund (refreshInterval i settings.json) sa nedrakningen tickar aven
+# nar man star still. Varnfarg de sista fem minuterna och nar den ar kall.
+# Saknas fore forsta API-svaret, och doljs om ingen caching har observerats.
 cache=$(echo "$input" | jq -r '.prompt_cache // empty
     | select(.caching_observed)
-    | if .warm then (.hit_ratio // empty | . * 100 | floor | tostring) else "cold" end')
+    | if .warm and .expires_at then (.expires_at | floor | tostring) else "cold" end')
 
-if [ "$cache" = "cold" ]; then
-    line+=$(printf " ${SOFT}| cache${RESET} ${WARN}cold${RESET}")
-elif [ -n "$cache" ]; then
-    line+=$(printf " ${SOFT}| cache${RESET} ${COUNT_C}%d%%${RESET}" "$cache")
+if [ -n "$cache" ] && [ "$cache" != "cold" ]; then
+    left=$(( cache - $(date +%s) ))
+    if [ $left -le 0 ]; then
+        cache="cold"
+    elif [ $left -lt 60 ]; then
+        line+=$(printf " ${SOFT}| cache${RESET} ${WARN}%ds${RESET}" "$left")
+    else
+        # Avrundat uppat: "1m" ska betyda att det finns minst en minut kvar.
+        [ $left -le 300 ] && cache_color="$WARN" || cache_color="$COUNT_C"
+        line+=$(printf " ${SOFT}| cache${RESET} ${cache_color}%dm${RESET}" $(( (left + 59) / 60 )))
+    fi
 fi
+
+[ "$cache" = "cold" ] && line+=$(printf " ${SOFT}| cache${RESET} ${WARN}cold${RESET}")
 
 printf "%s" "$line"
