@@ -28,6 +28,11 @@ export type SessionNotice = {
 // när det inte finns något att säga, som medan en tur kör.
 export type CacheNotice = { kind: 'warn' | 'cold'; minutesLeft: number }
 
+// ~/.claude/settings.json har slutat vara en länk in i dotfiles: den saknas,
+// är en vanlig fil med samma innehåll, eller har glidit isär. `fix` är
+// kommandot som återställer eller visar skillnaden. Null när länken håller.
+export type SettingsDrift = { kind: 'missing' | 'unlinked' | 'diverged'; fix: string }
+
 declare module 'claude-code' {
   interface PluginState {
     sessions: {
@@ -37,6 +42,7 @@ declare module 'claude-code' {
       // När huvudloopens senaste tur tog slut, så en omladdning kan ställa om
       // cachens timrar.
       lastTurnAt: number | null
+      drift: SettingsDrift | null
     }
   }
 }

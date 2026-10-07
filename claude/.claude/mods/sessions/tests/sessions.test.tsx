@@ -1,5 +1,5 @@
 import { expect, mock, test } from 'claude-code/testing'
-import type { On } from 'claude-code'
+import type { FsStat, On } from 'claude-code'
 import type { Engine } from 'claude-code/testing'
 
 const BAND = { plugin: 'sessions', surface: 'terminal', component: 'AbovePrompt', props: { bodyColumns: 120 } as never } as const
@@ -26,7 +26,13 @@ type File = { pid: number; sessionId: string; cwd: string; name: string; status:
 let sounds: string[] = []
 
 // En maskin med tre sessionsfiler, varav en vars process är död.
-function machine(on: On, files: Map<string, File>, alive: number[]) {
+// `stats` och `texts` är andra sökvägar än sessionsfilerna, hela.
+function machine(
+  on: On,
+  files: Map<string, File>,
+  alive: number[],
+  { stats = new Map(), texts = new Map() }: { stats?: Map<string, Partial<FsStat>>; texts?: Map<string, string> } = {},
+) {
   mock.env(on, { HOME: '/h' })
   // Det motorn själv ritar när modden lämnar bandet.
   on('ui.render', ($, e) => {
@@ -39,7 +45,12 @@ function machine(on: On, files: Map<string, File>, alive: number[]) {
   on('fs.list', () => ({
     value: [...files.keys()].map(name => ({ name, kind: 'file' as const, size: 1, mtimeMs: 0, isLink: false })),
   }))
-  on('fs.read', (_$, e) => ({ value: JSON.stringify(files.get(e.path.split('/').pop() ?? '')) }))
+  on('fs.read', (_$, e) => ({ value: texts.get(e.path) ?? JSON.stringify(files.get(e.path.split('/').pop() ?? '')) }))
+  on('fs.stat', (_$, e) => {
+    const stat = stats.get(e.path)
+    if (stat === undefined) throw new Error(`ENOENT: ${e.path}`)
+    return { value: { kind: 'file' as const, size: 1, mtimeMs: 0, isLink: false, ...stat } }
+  })
   on('process.run', (_$, e) => {
     if (e.argv[0] === 'afplay') sounds.push(e.argv[1] ?? '')
     return { value: { exitCode: 0, stdout: alive.map(p => ` ${p}\n`).join(''), stderr: '' } }
@@ -219,4 +230,52 @@ test('pausad översikt: bandet visar bara cachen, inga sessioner', async ($, on)
   const text = await bandText($)
   expect(text).toContain('promptcachen går kall om 3 min')
   expect(text).not.toContain('api-4f')
+})
+
+test('säger till i bandet när settings.json slutat vara en länk, och slutar när den är tillbaka', async ($, on) => {
+  mock.clock(on, { now: 1_000_000 })
+  const repo = '/h/Developer/dotfiles/claude/.claude/settings.json'
+  const live = '/h/.claude/settings.json'
+  const stats = new Map<string, Partial<FsStat>>([
+    ['/h/.claude/mods', { kind: 'dir', isLink: true, realPath: '/h/Developer/dotfiles/claude/.claude/mods' }],
+    [repo, {}],
+    [live, { isLink: true }],
+  ])
+  const texts = new Map([[repo, '{"model":"opus"}']])
+  machine(on, new Map(), [], { stats, texts })
+  on('config.set', (_$, e) => ({ value: e.value }))
+  // Som när du byter tema i /config.
+  const setTheme = (value: string) =>
+    $.config.set({ key: 'theme', value, previous: '', provider: { plugin: 'engine', tier: 'core' }, origin: { kind: 'composer' } })
+
+  await $.session.start({ cwd: '/h', surface: 'terminal', isInteractive: true })
+  expect(await bandText($)).toBe('motorns')
+
+  // /config ersätter länken med en kopia: notisen syns direkt efter.
+  stats.set(live, {})
+  texts.set(live, '{"model":"opus"}')
+  await setTheme('dark')
+  expect(await bandText($)).toContain('inte längre en länk till dotfiles')
+  expect(await bandText($)).toContain('ln -sfn ~/Developer/dotfiles/claude/.claude/settings.json ~/.claude/settings.json')
+
+  texts.set(live, '{"model":"sonnet"}')
+  await setTheme('light')
+  expect(await bandText($)).toContain('glidit isär')
+  expect(await bandText($)).toContain('diff ~/.claude/settings.json ~/Developer/dotfiles/claude/.claude/settings.json')
+
+  stats.set(live, { isLink: true })
+  await setTheme('dark')
+  expect(await bandText($)).toBe('motorns')
+})
+
+test('utan stow finns inget att jämföra med, och bandet säger ingenting', async ($, on) => {
+  mock.clock(on, { now: 1_000_000 })
+  const stats = new Map<string, Partial<FsStat>>([
+    ['/h/.claude/mods', { kind: 'dir', realPath: '/h/.claude/mods' }],
+    ['/h/.claude/settings.json', {}],
+  ])
+  machine(on, new Map(), [], { stats })
+
+  await $.session.start({ cwd: '/h', surface: 'terminal', isInteractive: true })
+  expect(await bandText($)).toBe('motorns')
 })

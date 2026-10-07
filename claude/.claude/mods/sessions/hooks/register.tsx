@@ -1,6 +1,6 @@
 import type { ElementConstructor, EngineInterface, Register, TextProps, Timer } from 'claude-code'
 
-import type { CacheNotice, SessionNotice, SessionRow } from '../types'
+import type { CacheNotice, SessionNotice, SessionRow, SettingsDrift } from '../types'
 
 // Ghostty har ingen överblick över flikar och splits, så den här modden ger en
 // åtminstone för Claude-sessionerna, som herdrs: ett band ovanför prompten med
@@ -28,6 +28,9 @@ import type { CacheNotice, SessionNotice, SessionRow } from '../types'
 // Promptcachen varnar i samma notisrad: tre minuter innan den går kall, med
 // ljud, och sedan att den är kall tills nästa prompt. Det var en egen mod
 // (cache-alarm), men bara en mod kan rita bandet, så de bor ihop här.
+//
+// Av samma skäl bor kollen av settings.json här: att den fortfarande är en
+// stow-länk in i dotfiles. Den var en SessionStart-hook.
 const POLL_MS = 5_000
 // Klar längre än så räknas som vilande och får en egen rad.
 const DORMANT_MS = 12 * 3600_000
@@ -47,6 +50,7 @@ const rowsRef = { plugin: 'sessions', key: 'rows' } as const
 const noticesRef = { plugin: 'sessions', key: 'notices' } as const
 const cacheRef = { plugin: 'sessions', key: 'cache' } as const
 const lastTurnAtRef = { plugin: 'sessions', key: 'lastTurnAt' } as const
+const driftRef = { plugin: 'sessions', key: 'drift' } as const
 
 let selfId: string | null = null
 // Null tills första pollningen: den sår bara läget, annars får varje
@@ -194,6 +198,45 @@ function listText(rows: SessionRow[], now: number) {
   return parts.length > 0 ? parts.join('\n\n') : 'Inga sessioner.'
 }
 
+// Claude Code skriver om settings.json när man ändrar något i /config, och
+// har minst en gång ersatt stow-länken med en vanlig fil. Då glider
+// live-konfigurationen och flottans baslinje isär utan att någon märker det.
+// Som SessionStart-hook sa kollen till först i nästa session; här körs den
+// vid start, efter varje /config-ändring och vid varje prompt, och notisen
+// står kvar tills länken är tillbaka.
+async function checkSettings($: EngineInterface) {
+  const home = (await $.env.get('HOME')) ?? ''
+  const tilde = (path: string) => (home && path.startsWith(home) ? `~${path.slice(home.length)}` : path)
+  const live = `${home}/.claude/settings.json`
+  // Repot hittas genom mods-länken, där modden själv bor. Utan stow pekar den
+  // ingenstans annars och det finns inget att jämföra med.
+  const mods = await $.fs.stat(`${home}/.claude/mods`, { resolve: true }).catch(() => undefined)
+  const repoDir = mods?.realPath?.replace(/\/mods$/, '')
+  const repo = `${repoDir}/settings.json`
+  const hasRepo =
+    repoDir !== undefined &&
+    repoDir !== `${home}/.claude` &&
+    (await $.fs.stat(repo).then(stat => stat.kind === 'file', () => false))
+
+  let drift: SettingsDrift | null = null
+  if (hasRepo) {
+    const link = `ln -sfn ${tilde(repo)} ~/.claude/settings.json`
+    const stat = await $.fs.stat(live).catch(() => undefined)
+    if (stat === undefined) {
+      drift = { kind: 'missing', fix: link }
+    } else if (!stat.isLink) {
+      const [ours, theirs] = await Promise.all([$.fs.read(live).catch(() => null), $.fs.read(repo).catch(() => null)])
+      drift =
+        ours !== null && ours === theirs
+          ? { kind: 'unlinked', fix: link }
+          : { kind: 'diverged', fix: `diff ~/.claude/settings.json ${tilde(repo)}` }
+    }
+  }
+
+  const { value: before = null } = await $.state.get(driftRef)
+  if (JSON.stringify(before) !== JSON.stringify(drift)) await $.state.set(driftRef, drift)
+}
+
 function disarmCache() {
   for (const timer of cacheTimers) timer.cancel()
   cacheTimers = []
@@ -241,6 +284,7 @@ export const register: Register = (on, options) => {
 
   on('session.start', async ($, e, next) => {
     const started = await next(e)
+    await checkSettings($).catch(() => {})
     if (showSessions) {
       selfId = await $.session.id()
       await $.command.register({
@@ -263,8 +307,17 @@ export const register: Register = (on, options) => {
   on('prompt.submit', async ($, e, next) => {
     disarmCache()
     await $.state.set(cacheRef, null)
+    void checkSettings($).catch(() => {})
 
     return next(e)
+  })
+
+  // /config är det som brukar ersätta länken: kolla direkt efter skrivningen.
+  on('config.set', async ($, e, next) => {
+    const done = await next(e)
+    await checkSettings($).catch(() => {})
+
+    return done
   })
 
   // Subagenternas turer har egna prefix, och ett avbrott före första svaret
@@ -299,7 +352,8 @@ export const register: Register = (on, options) => {
     const rows = showSessions ? storedRows : []
     const notices = showSessions ? storedNotices : []
     const { value: cache = null } = await $.state.get(cacheRef)
-    const hasNotices = notices.length > 0 || cache !== null
+    const { value: drift = null } = await $.state.get(driftRef)
+    const hasNotices = notices.length > 0 || cache !== null || drift !== null
     if (e.props.hasSurvey || (rows.length === 0 && !hasNotices)) return next(e)
 
     const { Box, Text } = $.ui.resolve(e)
@@ -328,6 +382,7 @@ export const register: Register = (on, options) => {
       <Box flexDirection="column">
         {hasNotices && (
           <Box key="notices" flexDirection="row" flexWrap="wrap" columnGap={3}>
+            {drift !== null && driftChip(Text, drift)}
             {cache !== null && cacheChip(Text, cache)}
             {notices.map(notice => noticeChip(Text, notice, now))}
           </Box>
@@ -363,6 +418,25 @@ function cacheChip(Text: ElementConstructor<TextProps>, cache: CacheNotice) {
   ) : (
     <Text key="cache" dimColor>
       ◷ promptcachen är kall
+    </Text>
+  )
+}
+
+// Gul som cachen: en varning, inget som blockerar. Kommandot står nedtonat
+// efter, så det går att kopiera rakt av.
+function driftChip(Text: ElementConstructor<TextProps>, drift: SettingsDrift) {
+  const title = {
+    missing: 'settings.json saknas',
+    unlinked: 'settings.json är inte längre en länk till dotfiles',
+    diverged: 'settings.json har glidit isär från dotfiles',
+  }[drift.kind]
+
+  return (
+    <Text key="drift">
+      <Text color="yellow" inverse bold>
+        {` ⚠ ${title} `}
+      </Text>
+      <Text dimColor> {drift.fix}</Text>
     </Text>
   )
 }

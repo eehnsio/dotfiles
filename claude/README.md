@@ -33,13 +33,12 @@ The price is that a newly added skill only appears after the next `./install`.
 
 ## hooks
 
-Three guards, wired up in `settings.json`:
+Two guards, wired up in `settings.json`:
 
 | Hook | Event | Job |
 |---|---|---|
 | `block-rm-rf.sh` | PreToolUse, Bash | recursive force deletes always need approval |
 | `damage-control/guard.py` | PreToolUse, Bash + Edit + Write | reads `patterns.toml`: allow, ask, or block |
-| `settings-drift.sh` | SessionStart | warns when `~/.claude/settings.json` has drifted from the repo |
 
 The two Bash guards overlap on purpose. `permissions.ask` in `settings.json`
 covers `rm -rf` a third time. Layers are cheap; a gap is not.
@@ -56,6 +55,11 @@ a `git reset --hard` to a commit predating it, a checkout of an older branch —
 kills Bash, Edit and Write in one stroke, including every tool needed to put the
 file back. Recovering means running the copy by hand outside Claude Code. Move
 between commits that straddle these hooks with that in mind.
+
+The check that `~/.claude/settings.json` is still a symlink into the repo used to
+be a SessionStart hook here. It now lives in the `sessions` mod (`mods/`), which
+shows it in the band above the prompt right after `/config` rewrites the file,
+instead of at the next session start.
 
 ## statusline-command.sh
 

@@ -1,7 +1,7 @@
 {
   "name": "sessions",
   "version": "0.1.0",
-  "description": "Ett band ovanför prompten: varning innan promptcachen går kall, och (pausad) en översikt över alla Claude-sessioner på maskinen",
+  "description": "Ett band ovanför prompten: varning innan promptcachen går kall, när settings.json slutat vara en länk till dotfiles, och (pausad) en översikt över alla Claude-sessioner på maskinen",
   "types": "./types/index.d.ts",
   "userConfig": {
     "showSessions": {
