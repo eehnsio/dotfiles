@@ -16,7 +16,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "opus",
   "skillOverrides": {
     "ehnsio-write": "off",
     "web-design-guidelines": "off"
@@ -62,13 +62,20 @@
     "security-guidance@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": false,
     "vercel@claude-plugins-official": false,
-    "atlassian@claude-plugins-official": false
+    "atlassian@claude-plugins-official": false,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true
   },
   "extraKnownMarketplaces": {
     "cloudflare": {
       "source": {
         "source": "github",
         "repo": "cloudflare/skills"
+      }
+    },
+    "ui-ux-pro-max-skill": {
+      "source": {
+        "source": "github",
+        "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
       }
     }
   },
@@ -77,6 +84,9 @@
   "modelSettings": {
     "claude-opus-5-5": {
       "effortLevel": "high"
+    },
+    "claude-fable-5-1": {
+      "effortLevel": "xhigh"
     }
   },
   "tui": "fullscreen",
