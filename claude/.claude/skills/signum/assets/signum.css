@@ -1,0 +1,121 @@
+/* Signum: Eriks avsändarikoner (mejl, GitHub, Buy me a coffee). Samma form och
+   rörelse på alla sajter; färgerna tas från sajten via variablerna nedan.
+   Rörelsen är densamma som kontaktlänkarna på ehnsio.se (.contact-link).
+
+   Sätt variablerna på valfri förälder (t.ex. :root) för att anpassa färgerna:
+     --signum-fg        ikonfärg i vila           (standard: ärvd textfärg)
+     --signum-fg-hover  ikonfärg vid hover        (standard: ärvd textfärg)
+     --signum-hover-bg  bakgrund vid hover        (standard: textfärgen på 9 %)
+     --signum-tip-bg    tooltipens bakgrund       (standard: #1f2328)
+     --signum-tip-fg    tooltipens text           (standard: #fff)
+     --signum-ok        bocken efter kopiering    (standard: #1f8a4c)
+     --signum-coffee    kaffekoppen vid hover     (standard: #b8860b) */
+.signum {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.signum-link {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--signum-fg, currentColor);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    transform 160ms ease-out;
+}
+
+.signum-link svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.signum-link:active { transform: scale(0.95); }
+.signum-link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* Tooltip och dess pil */
+.signum-link::after,
+.signum-link::before {
+  position: absolute;
+  left: 50%;
+  pointer-events: none;
+  opacity: 0;
+  translate: -50% 4px;
+  transition: opacity 150ms ease, translate 150ms ease;
+}
+.signum-link::after {
+  content: attr(data-tip);
+  bottom: calc(100% + 8px);
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--signum-tip-bg, #1f2328);
+  color: var(--signum-tip-fg, #fff);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.signum-link::before {
+  content: "";
+  bottom: calc(100% + 3px);
+  border: 5px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--signum-tip-bg, #1f2328);
+}
+
+.signum-link:focus-visible::after,
+.signum-link:focus-visible::before,
+.signum-link[data-copied]::after,
+.signum-link[data-copied]::before {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .signum-link:hover {
+    background: var(--signum-hover-bg, color-mix(in srgb, currentColor 9%, transparent));
+    color: var(--signum-fg-hover, currentColor);
+  }
+  .signum-link[data-signum="coffee"]:hover { color: var(--signum-coffee, #b8860b); }
+  .signum-link:hover svg { transform: rotate(8deg) scale(1.1); }
+  .signum-link:hover::after,
+  .signum-link:hover::before {
+    opacity: 1;
+    translate: -50% 0;
+  }
+}
+
+/* Mejlknappen: kuvert i vila, bock en stund efter kopiering */
+.signum-check { display: none; }
+.signum-link[data-copied] .signum-mail { display: none; }
+.signum-link[data-copied] .signum-check { display: block; color: var(--signum-ok, #1f8a4c); }
+
+.signum-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signum-link,
+  .signum-link svg,
+  .signum-link::after,
+  .signum-link::before { transition: none; }
+  .signum-link:hover svg { transform: none; }
+}
