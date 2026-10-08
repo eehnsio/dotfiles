@@ -44,7 +44,8 @@ CONFIG = Path(__file__).with_name("patterns.toml")
 # Vad som räknas som en ändring respektive en radering i ett shell-kommando.
 # {p} ersätts med sökvägens regex.
 MODIFY_OPS = [
-    (r">>?\s*{p}", "skriver till"),
+    # Sökvägen kan ha ett prefix före specen (`> ~/.claude/mods/x`).
+    (r">>?\s*[^\s|;&]*{p}", "skriver till"),
     (r"\btee\s+[^|;&]*{p}", "skriver till"),
     (r"\bsed\s+-i[^|;&]*{p}", "redigerar"),
     (r"\bperl\s+-\S*i[^|;&]*{p}", "redigerar"),

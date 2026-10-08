@@ -294,6 +294,14 @@ protected = [
   "flake.lock",
   "*.min.js",
   "*.min.css",
+  # Claudes egna skydd och det som körs utanför dem. En mod kör som du utan
+  # behörighetsprompt och laddas om när turen tar slut, så att skriva en är
+  # att köra kod förbi vakterna. Utan ~ så att både ~/.claude och stow-målet
+  # i dotfiles träffas.
+  ".claude/hooks/",
+  ".claude/mods/",
+  "*/.claude/settings.json",
+  "*/.claude/settings.local.json",
 ]
 
 no_delete = [
