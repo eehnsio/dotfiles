@@ -1,5 +1,8 @@
 # greetd + nwg-hello
 
+> Replaced by [SDDM + SilentSDDM](../sddm/) on 2026-10-08. greetd stays
+> installed as the fallback; see the rollback there.
+
 Not a stow package: these files live in `/etc` and are owned by root. The copies
 here are what to put back on a new machine, and this file is why they look the
 way they do.
