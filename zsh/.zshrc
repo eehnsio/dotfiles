@@ -121,6 +121,30 @@ if command -v deja >/dev/null; then
   fi
 fi
 
+# bwc: Bitwarden-CLI:t mot cloud-Bitwarden, bredvid vw-run/vw-render som kör
+# bw mot Vaultwarden. Egen datakatalog, så de två aldrig delar server eller
+# inloggning. Upplåsningen gäller bara det här skalet — sessionen ligger i en
+# oexporterad variabel och försvinner med skalet. Cloud-valvet har allt,
+# break-glass inräknat, och ska inte stå upplåst på disk.
+#   bwc login --apikey   en gång per maskin (client_id/secret ur webbvalvet)
+#   bwc unlock           masterlösenordet; sedan gäller sessionen i skalet
+#   bwc lock             glöm sessionen
+bwc() {
+  local dir="${XDG_CONFIG_HOME:-$HOME/.config}/bw-cloud"
+  case $1 in
+    unlock)
+      local s
+      s=$(BITWARDENCLI_APPDATA_DIR=$dir command bw unlock --raw) || return
+      typeset -g _BWC_SESSION=$s
+      echo "bwc: upplåst i det här skalet" ;;
+    lock)
+      unset _BWC_SESSION
+      BITWARDENCLI_APPDATA_DIR=$dir command bw lock ;;
+    *)
+      BITWARDENCLI_APPDATA_DIR=$dir BW_SESSION=$_BWC_SESSION command bw "$@" ;;
+  esac
+}
+
 # Privata alias och config (ej versionshanterad)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
