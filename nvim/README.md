@@ -25,6 +25,11 @@ both: popups sit on top of code and need something to read against.
 ## File Navigation
 
 ### Finding Files (fzf-lua)
+Needs [fzf](https://github.com/junegunn/fzf) and
+[ripgrep](https://github.com/BurntSushi/ripgrep) (`pacman -S fzf ripgrep` /
+`brew install fzf ripgrep`). Without `rg`, grep falls back to plain `grep`,
+which is slower and doesn't respect `.gitignore`.
+
 - `<leader>ff` or `<space>ff` - Find files
 - `<leader>sg` or `<space>sg` - Search text in files (grep)
 - `<leader><space>` - Find recent files
