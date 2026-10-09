@@ -84,6 +84,26 @@ ports() {
   fi | awk -v q="$1" 'NR == 1 || q == "" || index($0, q)'
 }
 
+# base64 på strängar: `base64 hej` kodar, `base64 decode aGVq` avkodar.
+# Utan sträng läses stdin, och flaggor (`base64 -d`, `base64 -i fil`) går
+# rakt till riktiga base64. printf istället för echo, annars kodas en
+# radbrytning med. Avkodat får en avslutande radbrytning bara i terminalen,
+# så att det som pipas vidare är byte för byte det som kodades.
+base64() {
+  local mode=encode
+  case $1 in
+    decode|d) mode=decode; shift ;;
+    encode|e) shift ;;
+    -*) command base64 "$@"; return ;;
+  esac
+  if [[ $mode == decode ]]; then
+    if (( $# )); then printf '%s' "$*"; else cat; fi | command base64 -d || return
+    [[ -t 1 ]] && print
+  else
+    if (( $# )); then printf '%s' "$*"; else cat; fi | command base64
+  fi
+}
+
 alias jan='cal -m 01'
 alias feb='cal -m 02'
 alias mar='cal -m 03'
