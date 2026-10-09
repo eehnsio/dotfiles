@@ -1,4 +1,5 @@
-# Drivis — terminalpalett som matchar DMS-temat med samma namn.
+# Drivis — terminalpalett som matchar Noctalia-paletten med samma namn
+# (noctalia/palettes/Drivis.json).
 #
 # Den har filen ar viktigare an den ser ut. Allt i riset som uttrycker farg
 # som ANSI-index arver den: lsd, zsh-prompten och Claude-statuslinjen har
@@ -8,7 +9,7 @@
 #
 # Darfor ar indexen tilldelade efter ROLL, inte efter vad de heter:
 #
-#   6  cyan     accenten. Samma #7fc8ff som niris fokusring och DMS primary.
+#   6  cyan     accenten. Samma #7fc8ff som niris fokusring och Noctalias primary.
 #               lsd anvander den for det ovanliga, statuslinjen for sokvagen.
 #   4  bla      kataloger och git-gren. Slakt med cyanen men tydligt morkare,
 #               annars gar de inte att skilja at i en listning.
