@@ -5,8 +5,9 @@ screen and clipboard history. Linux only. It replaced DankMaterialShell in
 September 2026; the DMS package is in the history, not here.
 
 niri starts it with `spawn-at-startup "noctalia"` — it daemonises itself — and
-drives it over `noctalia msg` (`panel-toggle launcher`, `bar-toggle`,
-`session lock`). `Mod+P` goes to `noctalia-rbw` in the [bin](../bin/) package.
+drives it over `noctalia msg` (`bar-toggle`, `session lock`). The launcher is
+not used: `Mod+Space` and `Mod+P` go to [rofi](../rofi/), which could be styled
+the whole way.
 
 ## two config layers, and only one belongs here
 

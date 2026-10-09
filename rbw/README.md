@@ -1,22 +1,46 @@
 # rbw
 
-Bitwarden from the keyboard: `Mod+P` opens noctalia's launcher, `Enter` copies the
+Bitwarden from the keyboard: `Mod+P` opens the vault in rofi, `Enter` copies the
 password. Linux only. For apps and terminals — the browser extension still fills
 web forms.
 
-This package is the README. The picker is `noctalia-rbw` in the [bin](../bin/)
-package, and rbw's own `~/.config/rbw/config.json` holds the account email, so it
-stays out of this public repo and is set by hand:
+This package is the README. The picker is `rbw-pick` in the [bin](../bin/)
+package, its look is `rbw.rasi` in the [rofi](../rofi/) package, and rbw's own
+config holds the account email, so it stays out of this public repo and is set by
+hand.
+
+| Key | Copies |
+|---|---|
+| `Enter` | the password — or a note's text, a card's number |
+| `Alt+U` | the username |
+| `Alt+T` | the TOTP code |
+| `Alt+V` | switches vault |
+
+## two vaults, two rbw profiles
+
+Cloud Bitwarden is what a human logs in with; Vaultwarden in the homelab holds
+what machines read. `RBW_PROFILE` gives each its own config, local database,
+agent and lock, so unlocking one says nothing about the other. Cloud is the
+default; `Alt+V` flips, and if the other vault fails (not logged in, away from
+home) the picker returns to the one it came from instead of closing.
 
 ```bash
-sudo pacman -S rbw wl-clipboard
+sudo pacman -S rbw wl-clipboard pinentry
 rbw config set email <bitwarden-email>
 rbw config set pinentry pinentry-gtk
 rbw register    # personal API key: web vault → Account settings → Security → Keys
 rbw login
+
+export RBW_PROFILE=vaultwarden
+rbw config set base_url https://vaultwarden.ehnsio.se
+rbw config set email <vaultwarden-email>
+rbw config set pinentry pinentry-gtk
+rbw login
 ```
 
-The account is on bitwarden.com, which is rbw's default, so no `base_url`.
+bitwarden.com refuses logins from devices it has not seen, so the cloud profile
+needs `rbw register` once; both API key halves are asked for in pinentry, never
+on the command line. Vaultwarden does not.
 
 ## pinentry-gtk, not the default
 
@@ -34,47 +58,55 @@ config and matches `(?i)^pinentry`. The case-insensitive flag is load-bearing �
 pinentry-gtk calls itself `Pinentry-gtk` with a capital P, and niri's regexes
 are case-sensitive.
 
-## register before login
+## our own picker, not rofi-rbw
 
-bitwarden.com refuses logins from devices it has not seen. `rbw register` uses
-the personal API key (client id + secret) to register this machine once; both
-are asked for in pinentry, never on the command line.
+rofi-rbw 1.7 was tried twice. What ended it:
 
-## the shell's launcher, not rofi-rbw
+- **It types by default.** `action = type` hands the password to `wtype` as an
+  argument, where `ps` shows it to every process while it is typed. Copy-only is
+  a config away, but it still crashes at start unless a typer is installed.
+- **Columns by padding.** It pads name and username with spaces to line them up,
+  which needs a monospace font and overflows the card into a trailing `…`.
+- **No icons.** rofi can draw one per row; rofi-rbw never passes one.
 
-rofi-rbw drew its own window in the middle of a themed shell, so `rofi/rbw.rasi`
-existed only to imitate the launcher next to it — 680 px card, radius 12, colours
-copied out of the theme by hand and re-copied whenever it changed. `noctalia
-dmenu` *is* that launcher, so the imitation and its upkeep are gone.
+`rbw-pick` is ~340 lines of Python on `rbw list --raw`, which carries name,
+folder, user, type and URIs but no secrets. Each row is two lines — name, then
+username and folder dimmed — so search hits the folder too: typing `homelab`
+narrows to that folder.
 
-What went with it: rofi-rbw's `Alt+U` and `Alt+T` for username and TOTP. Only the
-password is one keypress now; the rest is `rbw get` in a terminal.
+## favicons
 
-## the list is two columns, not one
+From each entry's first URI, fetched in a detached process so rofi never waits
+on the network, cached in `~/.cache/rbw-pick/icons/`. Until a host is fetched,
+or if it has no icon, the row gets its type's icon instead (key, note, card,
+person).
 
-`noctalia dmenu` splits each line on the first tab and draws what precedes it as
-a bold title, what follows as a smaller dimmed subtitle. A line with no tab is
-bold the whole way, which turned the vault into a wall of bold text. So the
-script emits `name<TAB>folder - username`. Search covers both halves, so a folder
-name still finds its entries.
+Cloud entries ask `icons.bitwarden.net`, as Bitwarden's own apps do by default;
+Vaultwarden entries ask Vaultwarden, so homelab hostnames stay home. Neither ever
+sees more than a domain. IP addresses and `.local`/`.lan` names are never sent.
 
-`rbw ls --fields folder,name,user` returns the whole folder path as one field, so
-nested folders need no extra work. The chosen line is matched back against that
-same list instead of looked up by name, because one name can exist in several
-folders.
+Both services answer **200 with a grey globe** for a domain they cannot find,
+never 404. The picker fetches that globe from a domain that cannot exist
+(`rbw-pick.invalid`) and compares, so a miss becomes the type icon instead of a
+row of globes. Hits refresh after a month, misses retry after a week.
 
 ## copy, never type
 
-The password reaches `wl-copy` on **stdin**. `noctalia msg clipboard-copy <text>`
-would put it in argv, where `ps` shows it to every process on the machine.
+The password reaches `wl-copy` on **stdin**, never in argv.
 
 `wl-copy --sensitive` adds the `x-kde-passwordManagerHint` mime type, and
-noctalia's clipboard history skips anything carrying it — the same contract DMS
-had. Measured 2026-09-24: a plain `wl-copy` added an entry under
-`~/.local/state/noctalia/clipboard/entries`, the same copy with `--sensitive`
-added none. Without the flag every password copied would sit among the last 100
-entries, and entries survive until they age out of the history.
+noctalia's clipboard history skips anything carrying it. Measured 2026-09-24: a
+plain `wl-copy` added an entry under `~/.local/state/noctalia/clipboard/entries`,
+the same copy with `--sensitive` added none. Without the flag every password
+copied would sit among the last 100 entries until it aged out.
 
-The script then clears the live clipboard after 45 seconds. rbw itself locks
-after `lock_timeout` (default one hour); the next `Mod+P` asks for the master
-password again.
+After 45 seconds a detached child clears the clipboard — but only if it still
+holds the secret, so something copied in the meantime survives. rbw itself locks
+after `lock_timeout` (one hour); the next `Mod+P` asks for the master password
+again.
+
+## bw is something else
+
+`rbw` reads. Moving entries between folders or changing URI match detection
+needs the official `bw` CLI, which is the `bwc` function in the [zsh](../zsh/)
+package.

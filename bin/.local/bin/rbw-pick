@@ -1,0 +1,343 @@
+#!/usr/bin/env python3
+"""Lösenordsväljare för Bitwarden och Vaultwarden (rbw) i rofi, på Mod+P.
+
+Ersätter rofi-rbw. Två rader per post — namnet, och under det användarnamn och
+mapp — med webbplatsens favicon framför. Utseendet är rofi/rbw.rasi.
+
+    Enter   kopiera lösenordet (anteckning: texten, kort: numret)
+    Alt+U   kopiera användarnamnet
+    Alt+T   kopiera TOTP-koden
+    Alt+V   växla mellan valven
+
+Två valv, var sin rbw-profil (RBW_PROFILE): cloud-Bitwarden är standard och det
+man loggar in med, Vaultwarden i homelabben har maskinernas hemligheter. Varje
+profil har egen agent och egen låsning.
+
+Hemligheter går aldrig som argument: rbw skriver dem på stdout, härifrån går de
+till wl-copy på stdin. `--sensitive` lägger till x-kde-passwordManagerHint, som
+noctalias urklippshistorik hoppar över. Urklippet töms efter CLEAR_AFTER sekunder,
+men bara om det fortfarande är hemligheten som ligger där.
+
+Ikonerna hämtas från valvets ikontjänst i bakgrunden och cachas, så första
+gången en post syns får den typens ikon och nästa gång webbplatsens. Tjänsten
+ser bara domännamnen — samma sak som Bitwardens egna appar gör som standard.
+"""
+
+import html
+import ipaddress
+import json
+import os
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
+# profile = RBW_PROFILE (None = rbw:s standardprofil). Vaultwardens domäner
+# stannar hemma, så de frågar Vaultwardens egen ikontjänst.
+VAULTS = {
+    "bitwarden": {
+        "profile": None,
+        "title": "Bitwarden",
+        "icon": "password.svg",
+        "icons": "https://icons.bitwarden.net/{host}/icon.png",
+    },
+    "vaultwarden": {
+        "profile": "vaultwarden",
+        "title": "Vaultwarden",
+        "icon": "vault.svg",
+        "icons": "https://vaultwarden.ehnsio.se/icons/{host}/icon.png",
+    },
+}
+CLEAR_AFTER = 45
+ICON_MAX_AGE = 30 * 86400  # en träff hämtas om efter en månad
+MISS_MAX_AGE = 7 * 86400  # en miss försöks igen efter en vecka
+
+CACHE = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "rbw-pick"
+ICONS = CACHE / "icons"
+USAGE = CACHE / "usage.json"
+ROFI = Path.home() / ".config" / "rofi"
+
+TYPE_ICON = {
+    "Login": "password.svg",
+    "Note": "note.svg",
+    "Card": "card.svg",
+    "Identity": "identity.svg",
+    "SSH Key": "password.svg",
+}
+TYPE_LABEL = {"Note": "Anteckning", "Card": "Kort", "Identity": "Identitet", "SSH Key": "SSH-nyckel"}
+
+# Två rader per post kräver ett annat skiljetecken än radbrytning mellan
+# posterna. 0x1e (record separator) förekommer inte i postnamn.
+SEP = "\x1e"
+
+# rofi:s returkoder: 0 = Enter, 1 = Esc, 10 + n = kb-custom-(n+1).
+KB_USER, KB_TOTP, KB_SWITCH = 10, 11, 12
+
+
+def host_of(uri):
+    """Värdnamnet att be om en ikon för, eller None.
+
+    IP-adresser och interna namn skickas inte till ikontjänsten: den når dem
+    inte ändå, och de har inget där att göra.
+    """
+    if "://" not in uri:
+        uri = "https://" + uri
+    try:
+        host = urllib.parse.urlsplit(uri).hostname
+    except ValueError:
+        return None
+    if not host or "." not in host:
+        return None
+    try:
+        ipaddress.ip_address(host)
+        return None
+    except ValueError:
+        pass
+    if host.endswith((".local", ".lan", ".home.arpa", ".internal")):
+        return None
+    return host
+
+
+def entry_host(entry):
+    for uri in entry["uris"] or []:
+        if host := host_of(uri):
+            return host
+    return None
+
+
+def icon_path(entry):
+    host = entry_host(entry)
+    if host:
+        hit = ICONS / f"{host}.png"
+        if hit.exists():
+            return hit
+    return ROFI / "icons" / TYPE_ICON.get(entry["type"], "password.svg")
+
+
+def stale_hosts(entries):
+    now = time.time()
+    hosts = set()
+    for entry in entries:
+        host = entry_host(entry)
+        if not host:
+            continue
+        hit, miss = ICONS / f"{host}.png", ICONS / f"{host}.miss"
+        if hit.exists() and now - hit.stat().st_mtime < ICON_MAX_AGE:
+            continue
+        if miss.exists() and now - miss.stat().st_mtime < MISS_MAX_AGE:
+            continue
+        hosts.add(host)
+    return sorted(hosts)
+
+
+def fetch(service, host):
+    """Ikonens bytes, b"" om tjänsten svarar nej, None om den inte gick att nå."""
+    req = urllib.request.Request(service.format(host=host), headers={"User-Agent": "rbw-pick"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return resp.read()
+    except urllib.error.HTTPError:
+        return b""
+    except OSError:
+        return None
+
+
+def fetch_icons(service, hosts):
+    """Körs som egen, frikopplad process — rofi ska inte vänta på nätet.
+
+    Både Bitwardens och Vaultwardens tjänst svarar 200 även när de inte hittar
+    något, med en grå jordglob. Den globen hämtas från en domän som garanterat
+    inte finns och jämförs mot, så en miss blir typens ikon i stället för globen.
+    """
+    ICONS.mkdir(parents=True, exist_ok=True)
+    placeholder = fetch(service, "rbw-pick.invalid")
+    if placeholder is None:
+        return  # tjänsten nås inte (Vaultwarden utanför hemmet): försök nästa gång
+
+    def one(host):
+        data = fetch(service, host)
+        if data is None:
+            return
+        if not data or data == placeholder:
+            (ICONS / f"{host}.miss").touch()
+            return
+        tmp = ICONS / f".{host}.tmp"
+        tmp.write_bytes(data)
+        tmp.rename(ICONS / f"{host}.png")
+        (ICONS / f"{host}.miss").unlink(missing_ok=True)
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(one, hosts))
+
+
+def load_usage():
+    try:
+        return json.loads(USAGE.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def save_usage(usage):
+    CACHE.mkdir(parents=True, exist_ok=True)
+    tmp = USAGE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(usage))
+    tmp.rename(USAGE)
+
+
+def row(entry):
+    sub = [entry["user"]] if entry["user"] else []
+    if entry["type"] in TYPE_LABEL and not sub:
+        sub.append(TYPE_LABEL[entry["type"]])
+    if entry["folder"]:
+        sub.append(entry["folder"])
+    title = html.escape(entry["name"])
+    subtitle = html.escape("  ·  ".join(sub)) or "&#160;"
+    text = f"<b>{title}</b>\n<span size='small' alpha='60%'>{subtitle}</span>"
+    return f"{text}\0icon\x1f{icon_path(entry)}"
+
+
+def notify(msg):
+    subprocess.run(["notify-send", "-a", "Bitwarden", "rbw-pick", msg], check=False)
+
+
+class RbwError(Exception):
+    pass
+
+
+def rbw(vault, *args):
+    env = dict(os.environ)
+    env.pop("RBW_PROFILE", None)
+    if vault["profile"]:
+        env["RBW_PROFILE"] = vault["profile"]
+    proc = subprocess.run(["rbw", *args], capture_output=True, encoding="utf-8", env=env)
+    if proc.returncode != 0:
+        # rbw:s fel är långa och lärande — notisen får sista raden, som är
+        # själva felet ("email address not set", "failed to log in" …).
+        lines = [line for line in proc.stderr.strip().splitlines() if line.strip()]
+        raise RbwError(f"{vault['title']}: {lines[-1].strip() if lines else f'rbw {args[0]} misslyckades'}")
+    return proc.stdout
+
+
+def secret_for(vault, entry):
+    """Det Enter kopierar, beroende på posttyp."""
+    raw = json.loads(rbw(vault, "get", "--raw", entry["id"]))
+    data = raw.get("data") or {}
+    match entry["type"]:
+        case "Login":
+            return data.get("password")
+        case "Note":
+            return raw.get("notes")
+        case "Card":
+            return data.get("number")
+        case "SSH Key":
+            return data.get("public_key")
+    return None
+
+
+def copy(value, sensitive):
+    args = ["wl-copy", "--sensitive"] if sensitive else ["wl-copy"]
+    subprocess.run(args, input=value, encoding="utf-8", check=True)
+    if not sensitive:
+        return
+
+    # Töm efter CLEAR_AFTER sekunder i ett frikopplat barn, så att rofi och
+    # niri inte väntar. Bara om urklippet fortfarande är hemligheten — har man
+    # kopierat något annat under tiden får det ligga kvar.
+    if os.fork() != 0:
+        return
+    os.setsid()
+    time.sleep(CLEAR_AFTER)
+    current = subprocess.run(["wl-paste", "-n"], capture_output=True, encoding="utf-8").stdout
+    if current == value:
+        subprocess.run(["wl-copy", "--clear"])
+    os._exit(0)
+
+
+def pick(name):
+    """Visa ett valv. Returnerar namnet på valvet att växla till, eller None."""
+    vault = VAULTS[name]
+    other = next(n for n in VAULTS if n != name)
+    entries = [e for e in json.loads(rbw(vault, "list", "--raw")) if e["type"] in TYPE_ICON]
+
+    if hosts := stale_hosts(entries):
+        subprocess.Popen(
+            [sys.executable, __file__, "--fetch-icons", vault["icons"], *hosts],
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    usage = load_usage()
+    entries.sort(key=lambda e: (-usage.get(e["id"], 0), e["folder"].lower() if e["folder"] else "", e["name"].lower()))
+
+    theme = (
+        f'entry {{ placeholder: "{vault["title"]}"; }} '
+        f'icon-search {{ filename: "{ROFI / "icons" / vault["icon"]}"; }}'
+    )
+    rofi = subprocess.run(
+        [
+            "rofi", "-dmenu", "-i", "-markup-rows", "-no-custom",
+            "-format", "i", "-sep", SEP, "-eh", "2",
+            "-theme", str(ROFI / "rbw.rasi"), "-theme-str", theme,
+            "-kb-custom-1", "Alt+u",
+            "-kb-custom-2", "Alt+t",
+            "-kb-custom-3", "Alt+v",
+            "-mesg",
+            "<b>Enter</b> lösenord     <b>Alt+U</b> användarnamn     <b>Alt+T</b> TOTP"
+            f"     <b>Alt+V</b> {VAULTS[other]['title']}",
+        ],
+        input=SEP.join(row(e) for e in entries),
+        capture_output=True,
+        encoding="utf-8",
+    )
+    if rofi.returncode == KB_SWITCH:
+        return other
+    if rofi.returncode not in (0, KB_USER, KB_TOTP) or not rofi.stdout.strip():
+        return None
+
+    entry = entries[int(rofi.stdout.strip())]
+    usage[entry["id"]] = usage.get(entry["id"], 0) + 1
+    save_usage(usage)
+
+    # Fel härifrån (t.ex. TOTP på en post utan) är en notis och slut — inte
+    # ett valvbyte som main() gör vid fel när listan hämtas.
+    try:
+        if rofi.returncode == KB_USER:
+            if entry["user"]:
+                copy(entry["user"], sensitive=False)
+            else:
+                notify(f"{entry['name']} har inget användarnamn")
+        elif rofi.returncode == KB_TOTP:
+            copy(rbw(vault, "code", entry["id"]).strip(), sensitive=True)
+        elif value := secret_for(vault, entry):
+            copy(value, sensitive=True)
+        else:
+            notify(f"{entry['name']}: inget att kopiera")
+    except RbwError as err:
+        notify(str(err))
+    return None
+
+
+def main():
+    if sys.argv[1:2] == ["--fetch-icons"]:
+        fetch_icons(sys.argv[2], sys.argv[3:])
+        return
+
+    name, previous = "bitwarden", None
+    while name:
+        try:
+            name, previous = pick(name), name
+        except RbwError as err:
+            notify(str(err))
+            # Gick växlingen fel (Vaultwarden inte inloggat, eller utanför
+            # hemmet) — tillbaka till valvet man kom från i stället för att
+            # stänga. Felade det första valvet finns inget att gå tillbaka till.
+            name, previous = (previous, None) if previous else (None, None)
+
+
+if __name__ == "__main__":
+    main()

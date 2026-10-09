@@ -1,0 +1,115 @@
+/*
+ * rofi: appstartaren pa Mod+Space, och via rbw.rasi Bitwarden pa Mod+P.
+ *
+ * Utseendet ar SDDM-temats (reference/sddm/): Red Hat-familjen, halvgenomskinlig
+ * yta med 1 px kant, vald rad som SDDM:s menyer. Glaset bakom ar niris blur —
+ * layer-rule pa namespace "rofi" i niri/config.kdl. rofi kan inte sudda sjalv.
+ */
+
+configuration {
+    modi:                "drun";
+    show-icons:          true;
+    icon-theme:          "Adwaita";
+    drun-display-format: "{name}";
+    matching:            "fuzzy";
+    sort:                true;
+    sorting-method:      "fzf";
+}
+
+@import "drivis.rasi"
+
+* {
+    font:             "Red Hat Display 11";
+    background-color: transparent;
+    text-color:       @text;
+}
+
+/*
+ * Fast storlek, centrerat. fixed-height i listview gor att kortet inte
+ * krymper medan man skriver — annars hoppar det runt kring mitten.
+ */
+window {
+    location:         center;
+    anchor:           center;
+    width:            640px;
+    border:           1px;
+    border-color:     @border;
+    border-radius:    14px;
+    background-color: @bg;
+}
+
+mainbox {
+    children: [ inputbar, listview, message ];
+    spacing:  0;
+}
+
+inputbar {
+    children:     [ icon-search, entry ];
+    spacing:      14px;
+    padding:      18px 20px;
+    border:       0 0 1px 0;
+    border-color: @border;
+}
+
+icon-search {
+    expand:         false;
+    filename:       "~/.config/rofi/icons/search.svg";
+    size:           22px;
+    vertical-align: 0.5;
+}
+
+entry {
+    font:              "Red Hat Display 15";
+    placeholder:       "Sök program";
+    placeholder-color: @text-faint;
+    cursor:            text;
+    vertical-align:    0.5;
+}
+
+listview {
+    lines:        8;
+    fixed-height: true;
+    dynamic:      false;
+    scrollbar:    false;
+    spacing:      2px;
+    padding:      8px;
+}
+
+element {
+    children:      [ element-icon, element-text ];
+    spacing:       12px;
+    padding:       9px 12px;
+    border-radius: 8px;
+}
+element normal.normal,
+element alternate.normal,
+element normal.active,
+element alternate.active { background-color: transparent; text-color: @text; }
+element selected.normal,
+element selected.active  { background-color: @selected-bg; text-color: @selected-text; }
+element normal.urgent,
+element alternate.urgent,
+element selected.urgent  { text-color: @error; }
+
+element-icon {
+    size:           24px;
+    vertical-align: 0.5;
+}
+
+element-text {
+    vertical-align: 0.5;
+    text-color:     inherit;
+    highlight:      bold #7fc8ff;
+}
+
+/* Raden under listan: rbw-pick:s kortkommandon, fel fran rofi. */
+message {
+    padding:      10px 20px 12px 20px;
+    border:       1px 0 0 0;
+    border-color: @border;
+}
+
+textbox {
+    font:       "Red Hat Text 9";
+    text-color: @text-dim;
+}

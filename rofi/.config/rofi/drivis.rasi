@@ -1,0 +1,17 @@
+/*
+ * Drivis-paletten for rofi. Samma varden som SDDM-temat
+ * (reference/sddm/drivis.conf) och ghostty/themes/drivis — andras paletten
+ * dar maste den andras har ocksa.
+ */
+
+* {
+    bg:            #16181dd9;   /* SDDM-ytorna, 85 % som popup-menyerna */
+    border:        #4a505c;     /* outline, SDDM border-color */
+    text:          #c8cdd6;     /* surfaceText */
+    text-dim:      #aeb4c0;     /* datum, meddelanden */
+    text-faint:    #6b717d;     /* placeholder */
+    accent:        #7fc8ff;     /* primary — fokusring, ikoner */
+    selected-bg:   #2b6d95;     /* SDDM active-option-background */
+    selected-text: #d2d7df;     /* SDDM active-content-color */
+    error:         #e06c75;
+}

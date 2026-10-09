@@ -1,0 +1,31 @@
+/*
+ * rbw-pick pa Mod+P (bin-paketet). Samma kort som appstartaren, med nyckeln
+ * fran SDDM-temat i stallet for forstoringsglaset.
+ *
+ * Varje post ar tva rader — namn, och under det anvandarnamn och mapp — sa
+ * rbw-pick startar rofi med -eh 2. Ikonen ar webbplatsens favicon, eller
+ * typens ikon (nyckel, anteckning, kort) tills den ar hamtad.
+ */
+
+@import "config.rasi"
+
+icon-search {
+    filename: "~/.config/rofi/icons/password.svg";
+}
+
+entry {
+    placeholder: "Bitwarden";
+}
+
+listview {
+    lines: 6;
+}
+
+element {
+    padding: 8px 12px;
+    spacing: 14px;
+}
+
+element-icon {
+    size: 28px;
+}

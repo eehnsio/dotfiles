@@ -260,6 +260,18 @@ window-rule {
     block-out-from "screencast"
 }
 
+// rofi ar ett layer-shell-lager, inte ett fonster, sa det ar layer-rule.
+// Glaset bakom kortet: rofi ritar halvgenomskinligt (drivis.rasi, bg) och
+// niri suddar det bakom, som blur i SDDM-temat. Radien maste vara densamma
+// som window border-radius i rofi/config.rasi, annars sticker suddade horn ut.
+layer-rule {
+    match namespace="^rofi$"
+    geometry-corner-radius 14
+    background-effect {
+        blur true
+    }
+}
+
 // ─── Bindningar ─────────────────────────────────────────────────────────
 
 binds {
@@ -268,14 +280,15 @@ binds {
     // Program
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
     Mod+Return hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-    Mod+Space hotkey-overlay-title="Run an Application: Noctalia" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
+    // rofi i stallet for noctalias launcher: ett tema for appar och losenord,
+    // se rofi-paketet. pkill forst gor bindningen till en toggle — rofi
+    // vagrar starta en andra instans och stanger inte sig sjalv.
+    Mod+Space hotkey-overlay-title="Run an Application: rofi" { spawn-sh "pkill -x rofi || rofi -show drun"; }
     Mod+B hotkey-overlay-title="Open the Browser: Zen" { spawn "zen-browser"; }
     Mod+E hotkey-overlay-title="Open Files: Nautilus" { spawn "nautilus"; }
-    // Kopiera ett losenord ur Bitwarden (rbw). Se rbw-paketet.
-    // Noctalias launcher i stallet for rofi-rbw: samma rbw-agent under,
-    // men Drivis-paletten i stallet for rofis eget utseende. Absolut
-    // sokvag - niri spawnar utan zsh, sa ~/.local/bin saknas i PATH.
-    Mod+P hotkey-overlay-title="Copy a Password: rbw" { spawn "/home/erik/.local/bin/noctalia-rbw"; }
+    // Kopiera ett losenord ur Bitwarden (rbw) med rbw-pick, samma kort som
+    // Mod+Space. Absolut sokvag - niri har inte ~/.local/bin i PATH.
+    Mod+P hotkey-overlay-title="Copy a Password: rbw" { spawn-sh "pkill -x rofi || ~/.local/bin/rbw-pick"; }
 
     // Flytande terminal ovanpa det man haller pa med. Egna app-id:t plockas
     // upp av window-rule ovan; det ar hela mekanismen.
@@ -317,7 +330,7 @@ binds {
 
     // Vaxla mellan fonster i samma app (cmd+§ pa macOS). Niri saknar inbyggd
     // atgard — skriptet fragar IPC:n och filtrerar pa app_id. Absolut sokvag
-    // kravs: niri startas av greetd och har inte ~/.local/bin i PATH.
+    // kravs: niri startas av SDDM och har inte ~/.local/bin i PATH.
     Mod+Section       { spawn "/home/erik/.local/bin/niri-cycle-app-windows"; }
     Mod+Shift+Section { spawn "/home/erik/.local/bin/niri-cycle-app-windows" "--reverse"; }
 
