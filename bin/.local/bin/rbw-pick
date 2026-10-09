@@ -90,7 +90,9 @@ def host_of(uri):
         host = urllib.parse.urlsplit(uri).hostname
     except ValueError:
         return None
-    if not host or "." not in host:
+    # Värdnamnet blir filnamn i cachen och sökväg i rofi-raden — bara det ett
+    # riktigt värdnamn kan innehålla, så inget kontrolltecken eller / tar sig in.
+    if not host or "." not in host or not all(c.isascii() and (c.isalnum() or c in ".-") for c in host):
         return None
     try:
         ipaddress.ip_address(host)
@@ -188,13 +190,24 @@ def save_usage(usage):
     tmp.rename(USAGE)
 
 
+def clean(text):
+    """Kontrolltecken bort ur det som visas.
+
+    rofi delar posterna på SEP och läser \\0 och \\x1f som radinställningar. Ett
+    postnamn med något av dem skulle dela en rad i två, och -format i:s index
+    pekar då på fel post — Enter kopierar en annan posts lösenord. Namnen är
+    ens egna, men delade poster och importer är det inte nödvändigtvis.
+    """
+    return "".join(" " if ord(c) < 32 or ord(c) == 127 else c for c in text)
+
+
 def row(entry):
-    sub = [entry["user"]] if entry["user"] else []
+    sub = [clean(entry["user"])] if entry["user"] else []
     if entry["type"] in TYPE_LABEL and not sub:
         sub.append(TYPE_LABEL[entry["type"]])
     if entry["folder"]:
-        sub.append(entry["folder"])
-    title = html.escape(entry["name"])
+        sub.append(clean(entry["folder"]))
+    title = html.escape(clean(entry["name"]))
     subtitle = html.escape("  ·  ".join(sub)) or "&#160;"
     text = f"<b>{title}</b>\n<span size='small' alpha='60%'>{subtitle}</span>"
     return f"{text}\0icon\x1f{icon_path(entry)}"
