@@ -66,6 +66,7 @@ VAULTS = {
 CLEAR_AFTER = 45
 ICON_MAX_AGE = 30 * 86400  # en träff hämtas om efter en månad
 MISS_MAX_AGE = 7 * 86400  # en miss försöks igen efter en vecka
+SYNC_WARN_AGE = 86400  # synkfel blir en notis först när kopian är ett dygn gammal
 
 CACHE = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "rbw-pick"
 ICONS = CACHE / "icons"
@@ -376,6 +377,27 @@ def typeable(text):
     return bool(text) and not any(ord(c) < 32 or ord(c) == 127 for c in text)
 
 
+def sync(name):
+    """Synka valvet. Ett fel blir en notis först när senaste lyckade synk är
+    över SYNC_WARN_AGE gammal — Vaultwarden når man inte utanför hemmet, och
+    det ska inte larma varje gång. Ett fel som ligger kvar (utloggad efter
+    lösenordsbyte, roterad API-nyckel) syns däremot inom ett dygn."""
+    vault = VAULTS[name]
+    stamp = CACHE / f"synced-{name}"
+    try:
+        rbw(vault, "sync")
+    except RbwError as err:
+        try:
+            age = time.time() - stamp.stat().st_mtime
+        except FileNotFoundError:
+            age = float("inf")
+        if age > SYNC_WARN_AGE:
+            notify(f"Synken misslyckas, listan är gammal — {err}")
+        return
+    CACHE.mkdir(parents=True, exist_ok=True)
+    stamp.touch()
+
+
 def pick(name, target):
     """Visa ett valv. Returnerar namnet på valvet att växla till, eller None."""
     vault = VAULTS[name]
@@ -387,8 +409,7 @@ def pick(name, target):
     # visas direkt ur den lokala kopian, och hinner synken klart innan Enter
     # är det redan det nya lösenordet som kopieras. Nästa öppning är aktuell.
     subprocess.Popen(
-        ["rbw", "sync"],
-        env=rbw_env(vault),
+        [sys.executable, __file__, "--sync", name],
         start_new_session=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -489,6 +510,9 @@ def login(vault, entry, target, password_only, submit):
 def main():
     if sys.argv[1:2] == ["--fetch-icons"]:
         fetch_icons(sys.argv[2], sys.argv[3:])
+        return
+    if sys.argv[1:2] == ["--sync"]:
+        sync(sys.argv[2])
         return
 
     # Innan rofi öppnas — sedan har rofi fokus.
