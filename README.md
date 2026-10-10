@@ -21,7 +21,7 @@ itself. Anything that is not a package lives out of the way: repo assets under
 | [niri](niri/) | Scrolling tiling compositor | Linux |
 | [noctalia](noctalia/) | Desktop shell for niri: bar, notifications, OSD, lock screen, palette | Linux |
 | [nvim](nvim/) | Neovim (LazyVim) + keybind cheatsheet | both |
-| [rbw](rbw/) | Bitwarden and Vaultwarden on `Mod+P`: type a login into an app, or copy it without the clipboard history | Linux |
+| [rbw](rbw/) | Bitwarden and Vaultwarden on `Mod+P`: copy a password without the clipboard history | Linux |
 | [rofi](rofi/) | Launcher on `Mod+Space` and the card `Mod+P` draws in, styled after the login screen | Linux |
 | [spotify](spotify/) | Forces the client onto native Wayland | Linux |
 | [tmux](tmux/) | Session persistence over SSH, not local splits | both |
