@@ -260,6 +260,14 @@ window-rule {
     block-out-from "screencast"
 }
 
+// WoW kor via Proton och far app-id steam_app_default precis som Battle.net,
+// darfor matchar titeln ocksa. Spelets eget helskarmslage betyder inget under
+// niri — utan regeln kaklas det in som en kolumn med kanter.
+window-rule {
+    match app-id=r#"^steam_app_default$"# title=r#"^World of Warcraft$"#
+    open-fullscreen true
+}
+
 // rofi ar ett layer-shell-lager, inte ett fonster, sa det ar layer-rule.
 // Glaset bakom kortet: rofi ritar halvgenomskinligt (drivis.rasi, bg) och
 // niri suddar det bakom, som blur i SDDM-temat. Radien maste vara densamma
