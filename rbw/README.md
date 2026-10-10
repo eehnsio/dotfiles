@@ -1,20 +1,25 @@
 # rbw
 
-Bitwarden from the keyboard: `Mod+P` opens the vault in rofi, `Enter` copies the
-password. Linux only. For apps and terminals — the browser extension still fills
-web forms.
+Bitwarden from the keyboard: `Mod+P` opens the vault in rofi, `Enter` types the
+login into the window you came from. Linux only. For apps and terminals — the
+browser extension still fills web forms.
 
 This package is the README. The picker is `rbw-pick` in the [bin](../bin/)
 package, its look is `rbw.rasi` in the [rofi](../rofi/) package, and rbw's own
 config holds the account email, so it stays out of this public repo and is set by
 hand.
 
-| Key | Copies |
+| Key | Does |
 |---|---|
-| `Enter` | the password — or a note's text, a card's number |
-| `Alt+U` | the username |
-| `Alt+T` | the TOTP code |
+| `Enter` | types username, Tab, password |
+| `Ctrl+Enter` | types only the password, for two-step logins |
+| `Shift+Enter` | types username, Tab, password, then presses Enter |
+| `Alt+C` | copies the password — or a note's text, a card's number |
+| `Alt+U` | copies the username |
+| `Alt+T` | copies the TOTP code |
 | `Alt+V` | switches vault |
+
+Notes, cards and SSH keys are always copied; only Login entries are typed.
 
 ## two vaults, two rbw profiles
 
@@ -25,7 +30,7 @@ default; `Alt+V` flips, and if the other vault fails (not logged in, away from
 home) the picker returns to the one it came from instead of closing.
 
 ```bash
-sudo pacman -S rbw wl-clipboard pinentry
+sudo pacman -S rbw wl-clipboard wtype pinentry
 rbw config set email <bitwarden-email>
 rbw config set pinentry pinentry-gtk
 rbw register    # personal API key: web vault → Account settings → Security → Keys
@@ -90,7 +95,35 @@ never 404. The picker fetches that globe from a domain that cannot exist
 (`rbw-pick.invalid`) and compares, so a miss becomes the type icon instead of a
 row of globes. Hits refresh after a month, misses retry after a week.
 
-## copy, never type
+## typing, for apps
+
+The idea comes from [bw-picker](https://github.com/capkz/bw-picker), which does
+the same on Windows, X11 and other Wayland desktops. On GNOME and KDE it needs the
+RemoteDesktop portal to send keys and AT-SPI to tell which window has focus.
+niri needs neither: it has the virtual-keyboard protocol that `wtype` speaks, and
+`niri msg --json focused-window` gives the window's id, pid, app-id and title.
+
+- **The target is read before rofi opens.** Once rofi is up, it has focus.
+- **Matching entries float to the top.** They score on the app-id's last part
+  (`org.gnome.Nautilus` → `nautilus`) and the title's words, against the entry's
+  name and URI hosts. Generic words such as `steam`, `firefox` and `login` don't
+  count. This is bw-picker's heuristic.
+- **Nothing is typed until niri hands focus back to that same window** (id and
+  pid, not title — apps rename themselves after login). Focus is checked again
+  before every field and before the final Enter. If focus moved, you get a
+  notification instead of typed keys.
+- **Text goes to `wtype -` on stdin**, never in argv, with 5 ms between keys.
+  Electron drops characters sent faster than that.
+- **Values with control characters are copied instead.** A newline in a password
+  would submit the form halfway.
+- **With no focused window** (an empty workspace), `Enter` copies as it used to.
+
+What it can't do: on Wayland there is no way to read whether Shift is still held.
+A short pause after rofi closes is the only guard against `Shift+Enter` typing a
+shifted password. XWayland windows (Proton, Battle.net) get keys through
+XWayland's keymap, so test them before relying on non-ASCII passwords there.
+
+## copying
 
 The password reaches `wl-copy` on **stdin**, never in argv.
 

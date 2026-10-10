@@ -4,10 +4,21 @@
 Ersätter rofi-rbw. Två rader per post — namnet, och under det användarnamn och
 mapp — med webbplatsens favicon framför. Utseendet är rofi/rbw.rasi.
 
-    Enter   kopiera lösenordet (anteckning: texten, kort: numret)
-    Alt+U   kopiera användarnamnet
-    Alt+T   kopiera TOTP-koden
-    Alt+V   växla mellan valven
+    Enter         skriv användarnamn, Tab, lösenord i fönstret man kom från
+    Ctrl+Enter    skriv bara lösenordet (inloggningar i två steg)
+    Shift+Enter   som Enter, och tryck Enter efteråt
+    Alt+C         kopiera lösenordet (anteckning: texten, kort: numret)
+    Alt+U         kopiera användarnamnet
+    Alt+T         kopiera TOTP-koden
+    Alt+V         växla mellan valven
+
+Att skriva in är för appar — webbläsartillägget fyller fortfarande webbformulär.
+Fönstret som hade fokus när Mod+P trycktes läses ur niri innan rofi öppnas, och
+poster som liknar dess app-id och titel hamnar överst. Efter rofi skrivs inget
+förrän niri har gett tillbaka fokus till just det fönstret, och fokus kollas
+igen före varje fält: har det flyttats blir det en notis i stället. Inloggningar
+som inte är Login-poster, och värden med kontrolltecken, kopieras som förut.
+Tangenterna går genom wtype (niri har virtual-keyboard), texten på stdin.
 
 Två valv, var sin rbw-profil (RBW_PROFILE): cloud-Bitwarden är standard och det
 man loggar in med, Vaultwarden i homelabben har maskinernas hemligheter. Varje
@@ -75,7 +86,18 @@ TYPE_LABEL = {"Note": "Anteckning", "Card": "Kort", "Identity": "Identitet", "SS
 SEP = "\x1e"
 
 # rofi:s returkoder: 0 = Enter, 1 = Esc, 10 + n = kb-custom-(n+1).
-KB_USER, KB_TOTP, KB_SWITCH = 10, 11, 12
+KB_USER, KB_TOTP, KB_SWITCH, KB_PASS, KB_SUBMIT, KB_PASS_SUBMIT, KB_COPY = range(10, 17)
+
+FOCUS_WAIT = 1.0  # så länge niri får på sig att ge tillbaka fokus efter rofi
+SETTLE = 0.15  # och sedan, så att Enter och Shift hinner släppas
+KEY_DELAY_MS = 5  # mellan tangenterna; Electron tappar tecken som kommer för tätt
+
+# Ord som säger något om fönstret men inget om vilken post det gäller.
+STOP_WORDS = {
+    "org", "com", "net", "app", "desktop", "default", "steam", "proton", "wine",
+    "firefox", "zen", "browser", "chromium", "chrome", "mozilla", "electron", "java",
+    "login", "sign", "log", "window", "welcome", "the", "and", "för", "och",
+}
 
 
 def host_of(uri):
@@ -221,12 +243,16 @@ class RbwError(Exception):
     pass
 
 
-def rbw(vault, *args):
+def rbw_env(vault):
     env = dict(os.environ)
     env.pop("RBW_PROFILE", None)
     if vault["profile"]:
         env["RBW_PROFILE"] = vault["profile"]
-    proc = subprocess.run(["rbw", *args], capture_output=True, encoding="utf-8", env=env)
+    return env
+
+
+def rbw(vault, *args):
+    proc = subprocess.run(["rbw", *args], capture_output=True, encoding="utf-8", env=rbw_env(vault))
     if proc.returncode != 0:
         # rbw:s fel är långa och lärande — notisen får sista raden, som är
         # själva felet ("email address not set", "failed to log in" …).
@@ -270,11 +296,103 @@ def copy(value, sensitive):
     os._exit(0)
 
 
-def pick(name):
+def focused_window():
+    """niri:s fokuserade fönster som dict, eller None (tom arbetsyta, eller niri svarar inte)."""
+    proc = subprocess.run(["niri", "msg", "--json", "focused-window"], capture_output=True, encoding="utf-8")
+    try:
+        return json.loads(proc.stdout) if proc.returncode == 0 else None
+    except ValueError:
+        return None
+
+
+def same_window(a, b):
+    # id återanvänds inte under en niri-session; pid fångar ändå en app som
+    # startats om i samma kolumn. Titeln får ändras — många appar byter titel
+    # när man väl har loggat in.
+    return bool(a and b) and (a["id"], a.get("pid")) == (b["id"], b.get("pid"))
+
+
+def words(text):
+    out, cur = set(), []
+    for c in (text or "").lower() + " ":
+        if c.isalnum():
+            cur.append(c)
+        elif cur:
+            out.add("".join(cur))
+            cur = []
+    return {w for w in out if len(w) >= 3 and w not in STOP_WORDS}
+
+
+def match_score(entry, target):
+    """Hur väl en post liknar fönstret — samma idé som bw-pickers Matcher.
+
+    App-id:ts sista led (org.gnome.Nautilus → nautilus) väger tyngst, sedan
+    titelns ord. Träff i postens namn räknas högre än i dess webbadresser.
+    """
+    if not target:
+        return 0
+    name = entry["name"].lower()
+    hosts = " ".join(h for uri in entry["uris"] or [] if (h := host_of(uri)))
+    app = (target.get("app_id") or "").lower().rsplit(".", 1)[-1]
+    score = 0
+    if app in words(app):
+        score += 10 * (app in name) + 8 * (app in hosts)
+    for word in words(target.get("title")) - {app}:
+        score += 3 * (word in name) + 2 * (word in hosts)
+    return score
+
+
+def type_text(target, fields, submit):
+    """Skriv fälten med Tab emellan i target. False om fokus inte stämde.
+
+    Allt går via wtype med texten på stdin, aldrig i argv. Fokus kollas före
+    varje fält, så ett fönster som byts under tiden får som mest det fält som
+    redan var på väg.
+    """
+    deadline = time.monotonic() + FOCUS_WAIT
+    while not same_window(focused_window(), target):
+        if time.monotonic() > deadline:
+            return False
+        time.sleep(0.05)
+    time.sleep(SETTLE)
+
+    for i, text in enumerate(fields):
+        if not same_window(focused_window(), target):
+            return False
+        if i:
+            subprocess.run(["wtype", "-k", "Tab"], check=True)
+            time.sleep(0.03)
+        subprocess.run(["wtype", "-d", str(KEY_DELAY_MS), "-"], input=text, encoding="utf-8", check=True)
+    if submit:
+        if not same_window(focused_window(), target):
+            return False
+        subprocess.run(["wtype", "-k", "Return"], check=True)
+    return True
+
+
+def typeable(text):
+    # En radbrytning eller tab i ett lösenord skulle skicka formuläret eller
+    # hoppa fält mitt i — sådant kopieras i stället.
+    return bool(text) and not any(ord(c) < 32 or ord(c) == 127 for c in text)
+
+
+def pick(name, target):
     """Visa ett valv. Returnerar namnet på valvet att växla till, eller None."""
     vault = VAULTS[name]
     other = next(n for n in VAULTS if n != name)
     entries = [e for e in json.loads(rbw(vault, "list", "--raw")) if e["type"] in TYPE_ICON]
+
+    # rbw synkar bara var sync_interval, så en ändring i webbvalvet syns inte
+    # förrän upp till en timme senare. Synka i bakgrunden varje gång: listan
+    # visas direkt ur den lokala kopian, och hinner synken klart innan Enter
+    # är det redan det nya lösenordet som kopieras. Nästa öppning är aktuell.
+    subprocess.Popen(
+        ["rbw", "sync"],
+        env=rbw_env(vault),
+        start_new_session=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
 
     if hosts := stale_hosts(entries):
         subprocess.Popen(
@@ -284,32 +402,52 @@ def pick(name):
             stderr=subprocess.DEVNULL,
         )
 
+    # Poster som liknar fönstret man kom från först, sedan de mest använda.
     usage = load_usage()
-    entries.sort(key=lambda e: (-usage.get(e["id"], 0), e["folder"].lower() if e["folder"] else "", e["name"].lower()))
+    entries.sort(
+        key=lambda e: (
+            -match_score(e, target),
+            -usage.get(e["id"], 0),
+            e["folder"].lower() if e["folder"] else "",
+            e["name"].lower(),
+        )
+    )
 
     theme = (
         f'entry {{ placeholder: "{vault["title"]}"; }} '
         f'icon-search {{ filename: "{ROFI / "icons" / vault["icon"]}"; }}'
     )
+    if target:
+        keys = "<b>Enter</b> skriv in     <b>Ctrl+Enter</b> bara lösenord     <b>Alt+C</b> kopiera"
+    else:
+        keys = "<b>Enter</b> kopiera"
     rofi = subprocess.run(
         [
             "rofi", "-dmenu", "-i", "-markup-rows", "-no-custom",
             "-format", "i", "-sep", SEP, "-eh", "2",
             "-theme", str(ROFI / "rbw.rasi"), "-theme-str", theme,
+            # rofi:s egna Shift/Ctrl+Return betyder inget med -no-custom, och
+            # en tangent kan bara ha en bindning — frigör dem först.
+            "-kb-accept-alt", "", "-kb-accept-custom", "", "-kb-accept-custom-alt", "",
             "-kb-custom-1", "Alt+u",
             "-kb-custom-2", "Alt+t",
             "-kb-custom-3", "Alt+v",
+            "-kb-custom-4", "Control+Return",
+            "-kb-custom-5", "Shift+Return",
+            "-kb-custom-6", "Control+Shift+Return",
+            "-kb-custom-7", "Alt+c",
             "-mesg",
-            "<b>Enter</b> lösenord     <b>Alt+U</b> användarnamn     <b>Alt+T</b> TOTP"
+            f"{keys}     <b>Alt+U</b> användarnamn     <b>Alt+T</b> TOTP"
             f"     <b>Alt+V</b> {VAULTS[other]['title']}",
         ],
         input=SEP.join(row(e) for e in entries),
         capture_output=True,
         encoding="utf-8",
     )
-    if rofi.returncode == KB_SWITCH:
+    code = rofi.returncode
+    if code == KB_SWITCH:
         return other
-    if rofi.returncode not in (0, KB_USER, KB_TOTP) or not rofi.stdout.strip():
+    if code not in (0, KB_USER, KB_TOTP, KB_PASS, KB_SUBMIT, KB_PASS_SUBMIT, KB_COPY) or not rofi.stdout.strip():
         return None
 
     entry = entries[int(rofi.stdout.strip())]
@@ -319,13 +457,16 @@ def pick(name):
     # Fel härifrån (t.ex. TOTP på en post utan) är en notis och slut — inte
     # ett valvbyte som main() gör vid fel när listan hämtas.
     try:
-        if rofi.returncode == KB_USER:
+        if code == KB_USER:
             if entry["user"]:
                 copy(entry["user"], sensitive=False)
             else:
                 notify(f"{entry['name']} har inget användarnamn")
-        elif rofi.returncode == KB_TOTP:
+        elif code == KB_TOTP:
             copy(rbw(vault, "code", entry["id"]).strip(), sensitive=True)
+        elif code != KB_COPY and target and entry["type"] == "Login":
+            login(vault, entry, target, password_only=code in (KB_PASS, KB_PASS_SUBMIT),
+                  submit=code in (KB_SUBMIT, KB_PASS_SUBMIT))
         elif value := secret_for(vault, entry):
             copy(value, sensitive=True)
         else:
@@ -335,15 +476,27 @@ def pick(name):
     return None
 
 
+def login(vault, entry, target, password_only, submit):
+    password = secret_for(vault, entry)
+    fields = [password] if password_only or not entry["user"] else [entry["user"], password]
+    if not all(typeable(f) for f in fields):
+        notify(f"{entry['name']}: går inte att skriva in — Alt+C kopierar")
+        return
+    if not type_text(target, fields, submit):
+        notify(f"Skrev inte in {entry['name']}: fokus flyttades från {target.get('title') or target.get('app_id')}")
+
+
 def main():
     if sys.argv[1:2] == ["--fetch-icons"]:
         fetch_icons(sys.argv[2], sys.argv[3:])
         return
 
+    # Innan rofi öppnas — sedan har rofi fokus.
+    target = focused_window()
     name, previous = "bitwarden", None
     while name:
         try:
-            name, previous = pick(name), name
+            name, previous = pick(name, target), name
         except RbwError as err:
             notify(str(err))
             # Gick växlingen fel (Vaultwarden inte inloggat, eller utanför

@@ -286,9 +286,9 @@ binds {
     Mod+Space hotkey-overlay-title="Run an Application: rofi" { spawn-sh "pkill -x rofi || rofi -show drun"; }
     Mod+B hotkey-overlay-title="Open the Browser: Zen" { spawn "zen-browser"; }
     Mod+E hotkey-overlay-title="Open Files: Nautilus" { spawn "nautilus"; }
-    // Kopiera ett losenord ur Bitwarden (rbw) med rbw-pick, samma kort som
+    // Skriv in eller kopiera en inloggning ur Bitwarden (rbw) med rbw-pick, samma kort som
     // Mod+Space. Absolut sokvag - niri har inte ~/.local/bin i PATH.
-    Mod+P hotkey-overlay-title="Copy a Password: rbw" { spawn-sh "pkill -x rofi || ~/.local/bin/rbw-pick"; }
+    Mod+P hotkey-overlay-title="Fill a Login: rbw" { spawn-sh "pkill -x rofi || ~/.local/bin/rbw-pick"; }
 
     // Flytande terminal ovanpa det man haller pa med. Egna app-id:t plockas
     // upp av window-rule ovan; det ar hela mekanismen.
