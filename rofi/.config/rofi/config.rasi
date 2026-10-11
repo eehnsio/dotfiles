@@ -1,8 +1,10 @@
 /*
  * rofi: appstartaren pa Mod+Space, och via rbw.rasi Bitwarden pa Mod+P.
  *
- * Utseendet ar SDDM-temats (reference/sddm/): Red Hat-familjen, halvgenomskinlig
- * yta med 1 px kant, vald rad som SDDM:s menyer. Glaset bakom ar niris blur —
+ * Utseendet ar SDDM-temats (reference/sddm/): halvgenomskinlig yta med 1 px
+ * kant, vald rad som SDDM:s menyer. Typsnittet ar daremot skalets, UbuntuMono
+ * som noctalia och ghostty. Ubuntu Mono ar liten for sin punktstorlek, darav
+ * storlekarna ett par steg over vad Red Hat hade. Glaset bakom ar niris blur —
  * layer-rule pa namespace "rofi" i niri/config.kdl. rofi kan inte sudda sjalv.
  */
 
@@ -19,7 +21,7 @@ configuration {
 @import "drivis.rasi"
 
 * {
-    font:             "Red Hat Display 11";
+    font:             "UbuntuMono Nerd Font 13";
     background-color: transparent;
     text-color:       @text;
 }
@@ -64,7 +66,7 @@ icon-search {
 }
 
 entry {
-    font:              "Red Hat Display 15";
+    font:              "UbuntuMono Nerd Font 17";
     text-color:        @text;
     placeholder:       "Sök program";
     placeholder-color: @text-faint;
@@ -116,6 +118,6 @@ message {
 }
 
 textbox {
-    font:       "Red Hat Text 9";
+    font:       "UbuntuMono Nerd Font 11";
     text-color: @text-dim;
 }

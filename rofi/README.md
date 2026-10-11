@@ -15,8 +15,9 @@ and one theme for both is the point.
 ## it looks like the login screen
 
 The look is taken from the SDDM theme (`reference/sddm/drivis.conf`), not from
-noctalia: Red Hat Display, a `#16181d` surface at 85 % with a 1 px `#4a505c`
-border, and the selected row in the colours SDDM uses for its menus. The key
+noctalia: a `#16181d` surface at 85 % with a 1 px `#4a505c` border, and the
+selected row in the colours SDDM uses for its menus. The font is the
+exception: UbuntuMono Nerd Font, the same as noctalia and ghostty. The key
 icon is SilentSDDM's own `password.svg`, recoloured to the accent; the others
 are drawn to match it.
 

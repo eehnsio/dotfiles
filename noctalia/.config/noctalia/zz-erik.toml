@@ -18,9 +18,11 @@
 ui_scale = 1.15
 
 [shell]
-# Mono - aven Propo-varianten - blev for tung och teknisk i listorna.
-# Adwaita Sans ar GNOME:s gren av Inter: lattare vikt, gjord for UI.
-font_family = "Adwaita Sans"
+# Samma familj som ghostty, sa skalet och terminalen ser ut som en sak.
+# Mono blev for tungt i noctalias launcherlistor, men den ar ersatt av rofi
+# (som ocksa kor UbuntuMono). Apparna har kvar Adwaita Sans via GTK.
+# Inte Mono-varianten som ghostty: den klammer Nerd-ikonerna till en cell.
+font_family = "UbuntuMono Nerd Font"
 
 # DMS agde polkit-agenten. Efter skalbytet kor polkitd utan nagon
 # registrerad autentiseringsagent, sa GUI-program som behover root
