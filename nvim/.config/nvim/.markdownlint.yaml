@@ -1,0 +1,6 @@
+# Grundconfig för markdownlint-cli2 i nvim, se lua/plugins/markdown.lua.
+# Ett repos egen .markdownlint-fil går före den här.
+
+# Prosa skrivs med en rad per stycke och mjuk radbrytning (wrap i
+# options.lua), så radlängden säger inget.
+MD013: false
