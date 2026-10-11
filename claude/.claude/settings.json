@@ -1,6 +1,6 @@
 {
   "env": {
-    "CLAUDE_CODE_PLUGIN_DIRS": "~/.claude/mods/sessions"
+    "CLAUDE_CODE_PLUGIN_DIRS": "~/.claude/mods/sessions:~/.claude/mods/drivis"
   },
   "attribution": {
     "commit": "",

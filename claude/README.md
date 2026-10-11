@@ -85,6 +85,14 @@ Directory and branch carry a Nerd Font icon; the 5h and 7d usage limits sit
 right-aligned with the time until they reset. Both ideas come from
 [yugal1107/ui-themes](https://github.com/yugal1107/ui-themes).
 
+## mods/drivis
+
+The Drivis palette in the transcript, also after ui-themes: each prompt and each
+reply in a box of its own (prompt on the selection colour, reply one shade
+darker than the terminal), and replies' markdown in the palette's cool colours.
+Code blocks and tables are left to Claude Code. Loaded through
+`CLAUDE_CODE_PLUGIN_DIRS` in `settings.json`, like `sessions`.
+
 ## Hooks
 
 The scripts are shared through this repo, but **they are passive until a
