@@ -1,4 +1,4 @@
-import type { Register } from 'claude-code'
+import type { EngineInterface, Register } from 'claude-code'
 
 import { printable, renderMarkdown } from './markdown'
 
@@ -16,9 +16,43 @@ import { printable, renderMarkdown } from './markdown'
 // ta över.
 const PROMPT_BG = '#2b3342' // selection-background
 const REPLY_BG = '#101216'  // palette 0
+// Ett kommando i prompten får accenten, som Claude Code själv färgar dem.
+const COMMAND = '#7fc8ff'   // palette 6
+
+// /namn räknas bara som kommando när namnet finns i sessionens kommandolista,
+// så att sökvägar (/tmp/x) och "och/eller" inte färgas. Det kan stå var som
+// helst i prompten, inte bara först: "kör på /commit" kör /commit också.
+// Listan hämtas om högst en gång i minuten; skills som dyker upp under
+// sessionen kommer med vid nästa hämtning.
+const SLASH = /(^|\s)(\/[\w:.-]+)/g
+let commands = new Set<string>()
+let fetchedAt = 0
+
+async function knownCommands($: EngineInterface) {
+  if (Date.now() - fetchedAt > 60_000) {
+    fetchedAt = Date.now()
+    try { commands = new Set((await $.command.list()).map(c => c.name)) } catch {}
+  }
+  return commands
+}
+
+function withCommands(text: string, known: Set<string>, Text: any) {
+  const out: any[] = []
+  let last = 0
+  for (const m of text.matchAll(SLASH)) {
+    const token = m[2] ?? ''
+    if (!known.has(token.slice(1))) continue
+    const at = (m.index ?? 0) + (m[1] ?? '').length
+    if (at > last) out.push(text.slice(last, at))
+    out.push(<Text key={`c${at}`} bold color={COMMAND}>{token}</Text>)
+    last = at + token.length
+  }
+  if (last < text.length) out.push(text.slice(last))
+  return out
+}
 
 export const register: Register = on => {
-  on('ui.render', { component: 'UserMessage' }, ($, e, next) => {
+  on('ui.render', { component: 'UserMessage' }, async ($, e, next) => {
     // Bara det du själv skrev vid prompten får rutan. Allt annat som ritas som
     // ett användarmeddelande (bakgrundsjobb, andra agenter och sessioner,
     // kanaler, schemalagda körningar, plugins) ritar motorn med sin egen
@@ -27,7 +61,7 @@ export const register: Register = on => {
     const { Box, Text } = $.ui.resolve(e)
     return (
       <Box backgroundColor={PROMPT_BG} paddingX={2} paddingY={1} marginTop={1}>
-        <Text>{printable(e.props.text)}</Text>
+        <Text>{withCommands(printable(e.props.text), await knownCommands($), Text)}</Text>
       </Box>
     )
   })

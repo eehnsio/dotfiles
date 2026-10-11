@@ -48,3 +48,15 @@ test('styrtecken tas bort och länkens adress syns', async ($) => {
   expect(json).not.toContain('\\u0007')
   expect(json).toContain('(https://annat.se)')
 })
+
+test('kända kommandon färgas var de än står, sökvägar inte', async ($, on) => {
+  on('command.list' as any, () => ({ value: [{ name: 'commit', description: '', source: 'skills' }] }) as any)
+  const tree = await $.ui.render({
+    surface: 'terminal', component: 'UserMessage', requestId: 'u4',
+    props: { text: 'kör på /commit och kolla /tmp/x', origin: { kind: 'composer' }, isExpanded: true },
+  } as any)
+  const json = JSON.stringify(tree)
+  expect(json).toContain('"bold":true,"color":"#7fc8ff"},"children":["/commit"]')
+  expect(json).toContain('/tmp/x')
+  expect(json).not.toContain('"children":["/tmp/x"]')
+})
