@@ -20,7 +20,19 @@
 #           och kontextfonstret sa lange det mar bra. En hue for hela
 #           "hur mycket"-familjen.
 #
-#   SOFT    BARA bindeord och skiljetecken: "in", parenteser, stapeln.
+#   SOFT    BARA etiketter och avgransaren: "cache", "5h", "7d", strecket.
+#           Raden var forst en mening ("Opus in ~/x (main) | 64% free") men
+#           delarna laste man aldrig som en mening, bara var for sig. Som
+#           avgransare provades en mittpunkt (vidrig) och bara mellanrum
+#           (delarna flot ihop).
+#
+# Fran yugal1107/ui-themes kommer Nerd Font-ikonerna for katalog och gren,
+# och anvandningsgranserna for 5h och 7d, hogerstallda med tid kvar till
+# nollning. Modellen fick en ikon per familj ocksa, men namnet racker.
+# Katalogikonen ar Material-varianten: Font Awesome-mappen var for liten i
+# UbuntuMono bredvid de andra.
+# Gransernas procent ar anvandning, inte "free" som kontextfonstret, for det
+# ar sa Claude Code sjalv anger dem; troskeln ar densamma at andra hallet.
 #
 # Regeln ar att ALLT som ar ett varde far en kulor. Ingenting ligger kvar pa
 # \033[39m: den fargen ar terminalens standardforgrund utan egen ton, och
@@ -83,27 +95,12 @@ fi
 
 model_short=$(echo "$model_name" | sed -E 's/^Claude[[:space:]]+//' | sed -E 's/([0-9]+\.[0-9]+)[[:space:]]+([A-Z][a-z]+)/\2 \1/')
 
-# Sessionens namn forst, i fet stil: det ar vad man letar efter nar man hoppar
-# mellan terminalfonster. Namnet tas ur ~/.claude/sessions/<pid>.json, inte ur
-# session_name (som ar titeln), sa det ar samma namn som sessions-modden och
-# SendMessage anvander for att peka ut den.
-#
-# Ett namn man satt sjalv med /rename (nameSource "user") ritar Claude Code
-# redan i promptens ram, sa da hoppas det over har i stallet for att sta
-# tva ganger. Det ar de genererade namnen (dotfiles-46) som annars inte syns.
-session_id=$(echo "$input" | jq -r '.session_id // empty')
-session_label=""
-if [ -n "$session_id" ]; then
-    session_file=$(grep -l "\"sessionId\":\"$session_id\"" "$HOME"/.claude/sessions/*.json 2>/dev/null | head -1)
-    [ -n "$session_file" ] && session_label=$(jq -r 'select(.nameSource != "user") | .name // empty' "$session_file" 2>/dev/null)
-fi
+SEP=" ${SOFT}│${RESET} "
 
 line=""
-[ -n "$session_label" ] && line+=$(printf "\033[1m${PATH_C}%s${RESET}${SOFT} ·${RESET} " "$session_label")
 line+=$(printf "${MODEL_C}%s${RESET}" "$model_short")
 [ -n "$effort" ] && line+=$(printf " ${MODEL_C}%s${RESET}" "$effort")
-line+=$(printf "${SOFT} in${RESET}")
-line+=$(printf " ${PATH_C}%s${RESET}" "$dir_display")
+line+=$(printf "${SEP}${PATH_C}󰉋 %s${RESET}" "$dir_display")
 
 if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
     if git rev-parse --git-dir >/dev/null 2>&1; then
@@ -134,7 +131,7 @@ if [ -n "$project_dir" ] && cd "$project_dir" 2>/dev/null; then
                 git_diff_str+=$(printf " ${COUNT_C}-%s${RESET}" "$lines_removed")
             fi
 
-            line+=$(printf " ${SOFT}(${RESET}${BRANCH_C}%s${RESET}%s%s${SOFT})${RESET}" \
+            line+=$(printf "${SEP}${BRANCH_C} %s${RESET}%s%s" \
                 "$branch" "$ahead_behind" "$git_diff_str")
         fi
     fi
@@ -154,13 +151,14 @@ if [ -n "$remaining" ]; then
         context_color="$CRIT"
     fi
 
-    line+=$(printf " ${SOFT}|${RESET} ${context_color}%d%% free${RESET}" "$remaining")
+    line+=$(printf "${SEP}${context_color}%d%% free${RESET}" "$remaining")
 fi
 
 # Promptcachen: tid kvar tills den gar kall, eftersom nasta prompt da far
 # skriva om hela prefixet. expires_at ar epoch-sekunder; raden ritas om var
 # 30:e sekund (refreshInterval i settings.json) sa nedrakningen tickar aven
-# nar man star still. Varnfarg de sista fem minuterna och nar den ar kall.
+# nar man star still. Syns bara de sista 15 minuterna, i varnfarg, och nar
+# den har gatt kall; en nedrakning fran en timme var mest brus.
 # Saknas fore forsta API-svaret, och doljs om ingen caching har observerats.
 cache=$(echo "$input" | jq -r '.prompt_cache // empty
     | select(.caching_observed)
@@ -171,14 +169,64 @@ if [ -n "$cache" ] && [ "$cache" != "cold" ]; then
     if [ $left -le 0 ]; then
         cache="cold"
     elif [ $left -lt 60 ]; then
-        line+=$(printf " ${SOFT}| cache${RESET} ${WARN}%ds${RESET}" "$left")
-    else
+        line+=$(printf "${SEP}${SOFT}cache${RESET} ${WARN}%ds${RESET}" "$left")
+    elif [ $left -le 900 ]; then
         # Avrundat uppat: "1m" ska betyda att det finns minst en minut kvar.
-        [ $left -le 300 ] && cache_color="$WARN" || cache_color="$COUNT_C"
-        line+=$(printf " ${SOFT}| cache${RESET} ${cache_color}%dm${RESET}" $(( (left + 59) / 60 )))
+        line+=$(printf "${SEP}${SOFT}cache${RESET} ${WARN}%dm${RESET}" $(( (left + 59) / 60 )))
     fi
 fi
 
-[ "$cache" = "cold" ] && line+=$(printf " ${SOFT}| cache${RESET} ${WARN}cold${RESET}")
+[ "$cache" = "cold" ] && line+=$(printf "${SEP}${SOFT}cache${RESET} ${WARN}cold${RESET}")
+
+# Anvandningsgranserna. Bara med ett Claude.ai-abonnemang, och forst efter
+# forsta API-svaret; annars saknas rate_limits och hogersidan blir tom.
+# limit <etikett> <procent> <resets_at>  ->  "5h 18% 2h13m"
+limit() {
+    local used reset diff d h m color
+    used=$(printf '%.0f' "$2")
+    if [ "$used" -lt 50 ]; then color="$COUNT_C"
+    elif [ "$used" -lt 80 ]; then color="$WARN"
+    else color="$CRIT"; fi
+    printf "${SOFT}%s${RESET} ${color}%d%%${RESET}" "$1" "$used"
+    [ -n "$3" ] || return 0
+    diff=$(( $3 - $(date +%s) ))
+    [ $diff -lt 0 ] && diff=0
+    d=$(( diff / 86400 )); h=$(( diff % 86400 / 3600 )); m=$(( diff % 3600 / 60 ))
+    if [ $d -gt 0 ]; then reset="${d}d${h}h"
+    elif [ $h -gt 0 ]; then reset="${h}h$(printf '%02d' $m)m"
+    else reset="${m}m"; fi
+    printf " ${COUNT_C}%s${RESET}" "$reset"
+}
+
+limits=""
+# Bara siffror slapps igenom: vardena hamnar i $(( )), som kor det den far.
+num() {
+    local v
+    v=$(echo "$input" | jq -r "$1 // empty | floor" 2>/dev/null)
+    [[ $v =~ ^[0-9]+$ ]] && echo "$v"
+}
+five=$(num '.rate_limits.five_hour.used_percentage')
+five_at=$(num '.rate_limits.five_hour.resets_at')
+week=$(num '.rate_limits.seven_day.used_percentage')
+week_at=$(num '.rate_limits.seven_day.resets_at')
+[ -n "$five" ] && limits+=$(limit "5h" "$five" "$five_at")
+[ -n "$week" ] && limits+="${limits:+$(printf "$SEP")}$(limit "7d" "$week" "$week_at")"
+
+# Hogerstallt nar det far plats. COLUMNS satter Claude Code; marginalen ar
+# radens egen indragning plus lite luft. Langden raknas i tecken (UTF-8), sa
+# glyferna raknas som en kolumn var, vilket de ar i en Mono-Nerd Font.
+if [ -n "$limits" ]; then
+    strip() { printf '%s' "$1" | sed $'s/\033\\[[0-9;]*m//g'; }
+    left_plain=$(strip "$line")
+    right_plain=$(strip "$limits")
+    pad=$(( ${COLUMNS:-0} - 6 - $(LC_ALL=en_US.UTF-8 bash -c 'echo ${#1}' _ "$left_plain") \
+        - $(LC_ALL=en_US.UTF-8 bash -c 'echo ${#1}' _ "$right_plain") ))
+    if [ $pad -ge 3 ]; then
+        line+=$(printf "%*s" $pad "")
+    else
+        line+=$(printf "$SEP")
+    fi
+    line+="$limits"
+fi
 
 printf "%s" "$line"

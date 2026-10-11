@@ -70,15 +70,20 @@ Ghostty is set to.
 |---|---|
 | magenta / cyan / blue | the three values you read: model, directory, branch |
 | green | quantities: commits to push, changed lines, context left |
-| dim | only `in`, parentheses and the separator |
+| dim | only labels (`cache`, `5h`, `7d`) and the `│` separator |
 
 Nothing sits on `\033[39m`. That is the terminal's default foreground with no
 hue of its own, and Claude Code already renders the whole line dimmed — an
 uncoloured tone loses the most to that, which is how "13 commits to push"
 became invisible. Colour was the fix, not a brighter grey.
 
-Yellow and red are reserved for the context window running low, so the warning
-is the only warm colour on the line.
+Yellow and red are reserved for warnings: the context window or a usage limit
+running low, and the prompt cache in its last 15 minutes or gone cold. The
+warning is then the only warm colour on the line.
+
+Directory and branch carry a Nerd Font icon; the 5h and 7d usage limits sit
+right-aligned with the time until they reset. Both ideas come from
+[yugal1107/ui-themes](https://github.com/yugal1107/ui-themes).
 
 ## Hooks
 
