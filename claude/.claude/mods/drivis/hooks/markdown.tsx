@@ -15,6 +15,12 @@ export const MD: Record<'code' | 'bold' | 'heading' | 'link' | 'bullet' | 'quote
   rule: '#4a505c',    // 8, outline
 }
 
+// Styrtecken (ESC, BEL, C1) tas bort innan något ritas: texten kommer från
+// modellen och från vad den har läst, och en escape-sekvens i den kunde
+// annars flytta markören, byta titel på fönstret eller gömma en länk.
+// Radbrytning och tab får vara kvar.
+export const printable = (s: string) => s.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/g, '')
+
 type El = any
 type Table = { Box: any; Text: any; Link: any; Code: any; Markdown: any }
 
@@ -35,9 +41,13 @@ export function inline(s: string, t: Table, keyBase: string): El[] {
     else if (m[2]) out.push(<Text key={key} bold color={MD.bold}>{tok.slice(2, -2)}</Text>)
     else if (m[3]) {
       const [, label, href] = tok.match(/^\[([^\]]+)\]\(([^)]+)\)$/) ?? []
-      out.push(/^(https?|file):/.test(href ?? '')
-        ? <Link key={key} href={href}><Text color={MD.link} underline>{label}</Text></Link>
-        : <Text key={key} color={MD.link} underline>{label}</Text>)
+      // Klickbar bara för http(s), och adressen skrivs ut när länktexten
+      // inte är adressen själv: "[github.com](https://annat.se)" ska inte
+      // kunna se ut som något annat än det den öppnar.
+      const shown = label === href ? null : <Text dimColor>{` (${href})`}</Text>
+      out.push(/^https?:\/\//.test(href ?? '')
+        ? <Text key={key}><Link href={href}><Text color={MD.link} underline>{label}</Text></Link>{shown}</Text>
+        : <Text key={key}><Text color={MD.link} underline>{label}</Text>{shown}</Text>)
     } else out.push(<Text key={key} italic>{tok.slice(1, -1)}</Text>)
     last = at + tok.length
   }
@@ -47,7 +57,7 @@ export function inline(s: string, t: Table, keyBase: string): El[] {
 
 export function renderMarkdown(src: string, t: Table): El {
   const { Box, Text, Code, Markdown } = t
-  const lines = src.replace(/\s+$/, '').split('\n')
+  const lines = printable(src).replace(/\s+$/, '').split('\n')
   const blocks: El[] = []
   let i = 0
   const push = (el: El) => blocks.push(

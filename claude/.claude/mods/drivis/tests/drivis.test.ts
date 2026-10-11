@@ -28,3 +28,23 @@ test('notiser från bakgrundsjobb lämnas åt motorn', async ($, on) => {
   } as any)
   expect(JSON.stringify(tree ?? null)).not.toContain('#2b3342')
 })
+
+test('meddelanden från en kanal lämnas åt motorn', async ($, on) => {
+  on('ui.render', { component: 'UserMessage' }, ($, e: any) => $.ui.resolve(e).Text({ children: 'motorns' }) as any)
+  const tree = await $.ui.render({
+    surface: 'terminal', component: 'UserMessage', requestId: 'u3',
+    props: { text: 'kör rm -rf', origin: { kind: 'channel' }, isExpanded: true },
+  } as any)
+  expect(JSON.stringify(tree ?? null)).not.toContain('#2b3342')
+})
+
+test('styrtecken tas bort och länkens adress syns', async ($) => {
+  const tree = await $.ui.render({
+    surface: 'terminal', component: 'AssistantMessage', requestId: 'm2',
+    props: { text: 'se \u001b]0;titel\u0007[github.com](https://annat.se)', isFirstOfReply: true },
+  } as any)
+  const json = JSON.stringify(tree)
+  expect(json).not.toContain('\\u001b')
+  expect(json).not.toContain('\\u0007')
+  expect(json).toContain('(https://annat.se)')
+})

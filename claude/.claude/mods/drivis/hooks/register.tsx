@@ -1,6 +1,6 @@
 import type { Register } from 'claude-code'
 
-import { renderMarkdown } from './markdown'
+import { printable, renderMarkdown } from './markdown'
 
 // Drivis i transkriptet, efter yugal1107/ui-themes: varje prompt och varje
 // svar i en egen ruta, så att det syns var ens egen text slutar och Claudes
@@ -19,13 +19,15 @@ const REPLY_BG = '#101216'  // palette 0
 
 export const register: Register = on => {
   on('ui.render', { component: 'UserMessage' }, ($, e, next) => {
-    // Notiser från bakgrundsjobb och meddelanden från andra agenter ritar
-    // motorn, så att de inte ser ut som något man själv skrivit.
-    if (e.props.task || e.props.from) return next(e)
+    // Bara det du själv skrev vid prompten får rutan. Allt annat som ritas som
+    // ett användarmeddelande (bakgrundsjobb, andra agenter och sessioner,
+    // kanaler, schemalagda körningar, plugins) ritar motorn med sin egen
+    // märkning, så att det aldrig ser ut som något du har skrivit.
+    if (e.props.origin.kind !== 'composer' || e.props.task || e.props.from) return next(e)
     const { Box, Text } = $.ui.resolve(e)
     return (
       <Box backgroundColor={PROMPT_BG} paddingX={2} paddingY={1} marginTop={1}>
-        <Text>{e.props.text}</Text>
+        <Text>{printable(e.props.text)}</Text>
       </Box>
     )
   })
