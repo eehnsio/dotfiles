@@ -18,8 +18,11 @@ export const MD: Record<'code' | 'bold' | 'heading' | 'link' | 'bullet' | 'quote
 // Styrtecken (ESC, BEL, C1) tas bort innan något ritas: texten kommer från
 // modellen och från vad den har läst, och en escape-sekvens i den kunde
 // annars flytta markören, byta titel på fönstret eller gömma en länk.
-// Radbrytning och tab får vara kvar.
-export const printable = (s: string) => s.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/g, '')
+// Radbrytning och tab får vara kvar. Likaså bort: riktningstecknen och de
+// osynliga tecknen (U+200B–200F, U+202A–202E, U+2066–2069, U+FEFF), som kan
+// vända eller dölja en del av en adress så att den läses som en annan.
+export const printable = (s: string) =>
+  s.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u200b-\u200f\u2028-\u202e\u2060-\u2069\ufeff]/g, '')
 
 type El = any
 type Table = { Box: any; Text: any; Link: any; Code: any; Markdown: any }

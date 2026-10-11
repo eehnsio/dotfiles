@@ -60,3 +60,14 @@ test('kända kommandon färgas var de än står, sökvägar inte', async ($, on)
   expect(json).toContain('/tmp/x')
   expect(json).not.toContain('"children":["/tmp/x"]')
 })
+
+test('riktningstecken och osynliga tecken tas bort', async ($) => {
+  const tree = await $.ui.render({
+    surface: 'terminal', component: 'AssistantMessage', requestId: 'm3',
+    props: { text: '[x](https://ev‮il.se​)', isFirstOfReply: true },
+  } as any)
+  const json = JSON.stringify(tree)
+  expect(json).not.toContain('‮')
+  expect(json).not.toContain('​')
+  expect(json).toContain('(https://evil.se)')
+})
