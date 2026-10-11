@@ -11,6 +11,10 @@ import { printable, renderMarkdown } from './markdown'
 // ~/.claude: riset har en palett, och den bor i ghostty/themes/drivis.
 // Statuslinjen har vi redan, och den tar sina färger från terminalen.
 //
+// Bara i terminalen. Claude-appen och de andra ytorna ritar transkriptet med
+// sin egen stil och formatering, och där kom rutorna dessutom på plats först
+// en stund efter att appen redan ritat sitt.
+//
 // Prompten får markeringens bakgrund, så den läses som "det här valde du".
 // Svaret får index 0, en nyans mörkare än terminalen, så rutan syns utan att
 // ta över.
@@ -57,6 +61,7 @@ export const register: Register = on => {
     // ett användarmeddelande (bakgrundsjobb, andra agenter och sessioner,
     // kanaler, schemalagda körningar, plugins) ritar motorn med sin egen
     // märkning, så att det aldrig ser ut som något du har skrivit.
+    if (e.surface !== 'terminal') return next(e)
     if (e.props.origin.kind !== 'composer' || e.props.task || e.props.from) return next(e)
     const { Box, Text } = $.ui.resolve(e)
     return (
@@ -68,7 +73,7 @@ export const register: Register = on => {
 
   on('ui.render', { component: 'AssistantMessage' }, ($, e, next) => {
     // Sammanfattningar ritar motorn: bara dess rad får ` · summary`-märket.
-    if (e.props.isSummary) return next(e)
+    if (e.surface !== 'terminal' || e.props.isSummary) return next(e)
     const t = $.ui.resolve(e)
     const { Box } = t
     return (

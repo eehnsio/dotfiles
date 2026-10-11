@@ -71,3 +71,12 @@ test('riktningstecken och osynliga tecken tas bort', async ($) => {
   expect(json).not.toContain('​')
   expect(json).toContain('(https://evil.se)')
 })
+
+test('appen och andra ytor ritar sitt eget', async ($, on) => {
+  on('ui.render', { component: 'AssistantMessage' }, ($, e: any) => $.ui.resolve(e).Text({ children: 'motorns' }) as any)
+  const tree = await $.ui.render({
+    surface: 'desktop', component: 'AssistantMessage', requestId: 'm4',
+    props: { text: '### Rubrik', isFirstOfReply: true },
+  } as any)
+  expect(JSON.stringify(tree ?? null)).not.toContain('#101216')
+})
