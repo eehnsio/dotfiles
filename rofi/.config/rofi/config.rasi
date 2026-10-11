@@ -43,7 +43,12 @@ mainbox {
     spacing:  0;
 }
 
+/*
+ * rofis inbyggda tema satter text-color direkt pa inputbar och entry
+ * (normal-foreground, morkt solarized), sa * ovan nar inte fram dit.
+ */
 inputbar {
+    text-color:   @text;
     children:     [ icon-search, entry ];
     spacing:      14px;
     padding:      18px 20px;
@@ -60,6 +65,7 @@ icon-search {
 
 entry {
     font:              "Red Hat Display 15";
+    text-color:        @text;
     placeholder:       "Sök program";
     placeholder-color: @text-faint;
     cursor:            text;
