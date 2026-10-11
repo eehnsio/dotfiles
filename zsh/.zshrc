@@ -73,6 +73,11 @@ alias ffhw='fastfetch --config hardware'
 alias ..='cd ..;pwd'
 alias tree='tree --dirsfirst -F'
 
+# Claude Code med kurskontot. Egen konfigkatalog, så inloggning, minne,
+# plugins och global CLAUDE.md hålls isär från vanliga `claude`.
+# Första gången: kör claude-kurs och /login med kurskontot.
+alias claude-kurs='CLAUDE_CONFIG_DIR=~/.claude-kurs claude'
+
 # Vilka tjänster lyssnar på TCP just nu. Valfritt filter: `ports 5432`,
 # `ports node`. Utan sudo syns bara egna processer. lsof saknas i Archs bas,
 # där tar ss över.
