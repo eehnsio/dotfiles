@@ -6,6 +6,7 @@ mapp — med webbplatsens favicon framför. Utseendet är rofi/rbw.rasi.
 
     Enter   kopiera lösenordet (anteckning: texten, kort: numret)
     Alt+U   kopiera användarnamnet
+    Alt+A   användarnamnet, och lösenordet så fort det klistrats in
     Alt+T   kopiera TOTP-koden
     Alt+V   växla mellan valven
 
@@ -53,6 +54,7 @@ VAULTS = {
     },
 }
 CLEAR_AFTER = 45
+CHAIN_WAIT = 60  # så länge Alt+A väntar på att användarnamnet klistras in
 ICON_MAX_AGE = 30 * 86400  # en träff hämtas om efter en månad
 MISS_MAX_AGE = 7 * 86400  # en miss försöks igen efter en vecka
 SYNC_WARN_AGE = 86400  # synkfel blir en notis först när kopian är ett dygn gammal
@@ -76,7 +78,7 @@ TYPE_LABEL = {"Note": "Anteckning", "Card": "Kort", "Identity": "Identitet", "SS
 SEP = "\x1e"
 
 # rofi:s returkoder: 0 = Enter, 1 = Esc, 10 + n = kb-custom-(n+1).
-KB_USER, KB_TOTP, KB_SWITCH = 10, 11, 12
+KB_USER, KB_TOTP, KB_SWITCH, KB_BOTH = 10, 11, 12, 13
 
 
 def host_of(uri):
@@ -275,6 +277,30 @@ def copy(value, sensitive):
     os._exit(0)
 
 
+def copy_both(user, password):
+    """Användarnamnet först, lösenordet när det klistrats in — ett Alt+A i
+    stället för två varv i väljaren.
+
+    `wl-copy --paste-once` lämnar ut användarnamnet en gång och avslutar.
+    Användarnamnet måste också vara --sensitive: utan det läser noctalias
+    urklippshistorik det direkt, och den läsningen är den enda inklistringen.
+    Klistras inget in inom CHAIN_WAIT dör wl-copy, urklippet töms med det och
+    lösenordet kopieras aldrig.
+    """
+    if os.fork() != 0:
+        return
+    os.setsid()
+    try:
+        subprocess.run(
+            ["wl-copy", "--paste-once", "--foreground", "--sensitive"],
+            input=user, encoding="utf-8", check=True, timeout=CHAIN_WAIT,
+        )
+        copy(password, sensitive=True)
+    except (subprocess.SubprocessError, OSError):
+        pass
+    os._exit(0)
+
+
 def sync(name):
     """Synka valvet. Ett fel blir en notis först när senaste lyckade synk är
     över SYNC_WARN_AGE gammal — Vaultwarden når man inte utanför hemmet, och
@@ -336,8 +362,10 @@ def pick(name):
             "-kb-custom-1", "Alt+u",
             "-kb-custom-2", "Alt+t",
             "-kb-custom-3", "Alt+v",
+            "-kb-custom-4", "Alt+a",
             "-mesg",
-            "<b>Enter</b> lösenord     <b>Alt+U</b> användarnamn     <b>Alt+T</b> TOTP"
+            "<b>Enter</b> lösenord     <b>Alt+U</b> användarnamn     <b>Alt+A</b> båda"
+            "     <b>Alt+T</b> TOTP"
             f"     <b>Alt+V</b> {VAULTS[other]['title']}",
         ],
         input=SEP.join(row(e) for e in entries),
@@ -346,7 +374,7 @@ def pick(name):
     )
     if rofi.returncode == KB_SWITCH:
         return other
-    if rofi.returncode not in (0, KB_USER, KB_TOTP) or not rofi.stdout.strip():
+    if rofi.returncode not in (0, KB_USER, KB_TOTP, KB_BOTH) or not rofi.stdout.strip():
         return None
 
     entry = entries[int(rofi.stdout.strip())]
@@ -361,6 +389,12 @@ def pick(name):
                 copy(entry["user"], sensitive=False)
             else:
                 notify(f"{entry['name']} har inget användarnamn")
+        elif rofi.returncode == KB_BOTH:
+            password = secret_for(vault, entry) if entry["type"] == "Login" else None
+            if entry["user"] and password:
+                copy_both(entry["user"], password)
+            else:
+                notify(f"{entry['name']} saknar användarnamn eller lösenord")
         elif rofi.returncode == KB_TOTP:
             copy(rbw(vault, "code", entry["id"]).strip(), sensitive=True)
         elif value := secret_for(vault, entry):

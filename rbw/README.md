@@ -13,6 +13,7 @@ hand.
 |---|---|
 | `Enter` | the password — or a note's text, a card's number |
 | `Alt+U` | the username |
+| `Alt+A` | the username, then the password once that is pasted |
 | `Alt+T` | the TOTP code |
 | `Alt+V` | switches vault |
 
@@ -104,6 +105,15 @@ After 45 seconds a detached child clears the clipboard — but only if it still
 holds the secret, so something copied in the meantime survives. rbw itself locks
 after `lock_timeout` (one hour); the next `Mod+P` asks for the master password
 again.
+
+## username and password in one go
+
+`Alt+A` serves the username through `wl-copy --paste-once` and copies the
+password the moment it has been pasted: paste, Tab, paste. The username is
+marked `--sensitive` too — without it noctalia's clipboard history reads it the
+instant it lands, and that read is the one paste. Measured 2026-10-13: a plain
+`--paste-once` exited at once, a `--sensitive` one waited. Nothing pasted within
+60 seconds and the chain gives up with the clipboard empty.
 
 ## bw is something else
 
