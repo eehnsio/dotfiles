@@ -14,7 +14,7 @@
 // saved state never carries a session for a deployed environment.
 
 import { chromium } from 'playwright'
-import { mkdir } from 'node:fs/promises'
+import { chmod, mkdir, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
 const argv = process.argv.slice(2)
@@ -50,8 +50,10 @@ while (Date.now() < deadline) {
 }
 
 if (ok) {
-  await mkdir(dirname(statePath), { recursive: true })
-  await ctx.storageState({ path: statePath })
+  // Session cookies: owner-only, also when the file already existed.
+  await mkdir(dirname(statePath), { recursive: true, mode: 0o700 })
+  await writeFile(statePath, JSON.stringify(await ctx.storageState()), { mode: 0o600 })
+  await chmod(statePath, 0o600)
   console.error(`Session sparad -> ${statePath}`)
 }
 await browser.close()

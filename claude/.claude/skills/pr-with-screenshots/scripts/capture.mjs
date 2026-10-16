@@ -26,7 +26,7 @@
 // Only localhost/127.0.0.1 is allowed. Requires Playwright chromium.
 
 import { chromium, request } from 'playwright'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname } from 'node:path'
 
@@ -79,8 +79,9 @@ if (statePath && existsSync(statePath)) {
 } else {
   const state = await login()
   if (statePath) {
-    await mkdir(dirname(statePath), { recursive: true })
-    await writeFile(statePath, JSON.stringify(state))
+    await mkdir(dirname(statePath), { recursive: true, mode: 0o700 })
+    await writeFile(statePath, JSON.stringify(state), { mode: 0o600 })
+    await chmod(statePath, 0o600)
     storageState = statePath
   } else {
     storageState = state
@@ -158,7 +159,10 @@ try {
       }
       await page.setViewportSize(VIEWPORTS[vp])
     }
-    if (statePath) await ctx.storageState({ path: statePath }) // keep renewed session cookies
+    if (statePath) { // keep renewed session cookies, owner-only
+      await writeFile(statePath, JSON.stringify(await ctx.storageState()), { mode: 0o600 })
+      await chmod(statePath, 0o600)
+    }
     await ctx.close()
   }
 } finally {
