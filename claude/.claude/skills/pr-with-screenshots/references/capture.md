@@ -1,112 +1,92 @@
-# Capture — run the app and screenshot the new state
+# Capture — screenshot the working tree headless
 
-Goal: produce PNGs of the confirmed routes showing the **working-tree** version
-with real data. A bundled script does the browser work:
-[`scripts/capture.mjs`](../scripts/capture.mjs). Your job is to get a running
-instance + valid auth, then call it.
+`SKILL` below means `~/.claude/skills/pr-with-screenshots`. The stack reference
+says how to start the dev server and log in; this file covers the shooting.
 
-## 1. Prefer an already-running dev server
+## 1. Playwright
 
-Vite serves the working tree with hot-reload, so if the user is already running
-the app (common — they've usually been looking at their change), it **already**
-reflects the edits. Reuse it instead of launching a second stack.
-
-Probe for it (Vite may increment past 5173 if busy — check a few):
+The scripts import `playwright` from `SKILL/scripts/node_modules`. If
+`node -e "import('playwright')"` fails from that directory:
 ```bash
-for p in 5173 5174 5175; do
-  curl -sf "http://localhost:$p/" >/dev/null && echo "frontend on $p"; done
-curl -sf http://localhost:5096/ | grep -q "Economic API" && echo "backend up"
-```
-Use the frontend port as `--base-url` (screenshot through Vite so `/api` is
-proxied and the cookie is host-scoped correctly). If nothing is running, launch
-it (§4).
-
-## 2. Ensure Playwright chromium is available
-
-The script needs Playwright. If `node -e "require.resolve('playwright')"` fails,
-install into a throwaway location and run from there, or reuse the environment's
-Playwright (the `webapp-testing` skill ships it). Quick self-contained setup:
-```bash
-cd "$(dirname <skill>/scripts/capture.mjs)" && bun add playwright 2>/dev/null || npm i playwright
-bunx playwright install chromium 2>/dev/null || npx playwright install chromium
+cd ~/.claude/skills/pr-with-screenshots/scripts && npm ci
+npx playwright install chromium
 ```
 
-## 3. Authenticate + capture
+## 2. Session
 
-Auth is a session cookie (`reda.session`) from `POST /api/auth/login`
-`{email,password}` — no dev bypass, so real credentials are needed. Handle them
-safely:
+Sessions are Playwright storageState files in `SKILL/.auth/<repo>.json`
+(gitignored, never inside the target repo). Two ways to get one:
 
-- Prefer a **saved session**: pass `--state <path>` (default suggestion
-  `~/.claude/skills/pr-with-screenshots/.auth/state.json`). If it exists and is
-  still valid (30-day sliding cookie), no password is touched at all.
-- First time / expired: the script logs in using `REDA_EMAIL` / `REDA_PASSWORD`
-  from the environment and saves the session to `--state`. Ask the user to
-  export those in their shell (once); **never** hard-code the password, print it,
-  echo `$REDA_PASSWORD`, or write it to the repo or the PR.
+- **Interactive login** (SSO/Azure AD/MFA, anything that can't be scripted). The
+  user signs in themselves in a visible window; nothing types credentials:
+  ```bash
+  node ~/.claude/skills/pr-with-screenshots/scripts/login.mjs \
+    --base-url http://localhost:3000 --cookie session \
+    --state ~/.claude/skills/pr-with-screenshots/.auth/<repo>.json
+  ```
+  Tell the user a Chromium window is opening and wait for it to return.
+- **Scripted login** (Reda only): `capture.mjs` posts `REDA_EMAIL`/`REDA_PASSWORD`
+  when no state file exists. See stack-vite-dotnet.md.
 
-Run it:
+`capture.mjs` writes the state back after each run, so sliding sessions that the
+server renews stay alive. If a run fails with "Not authenticated", run
+`login.mjs` again. A session in the user's Chrome can't be reused: the cookie is
+httpOnly and Chrome's cookie store is off-limits.
+
+## 3. Shoot
+
 ```bash
-REDA_EMAIL="$REDA_EMAIL" REDA_PASSWORD="$REDA_PASSWORD" \
-node <skill>/scripts/capture.mjs \
-  --base-url http://localhost:5173 \
-  --routes / \
-  --out /tmp/reda-shots \
+node ~/.claude/skills/pr-with-screenshots/scripts/capture.mjs \
+  --base-url http://localhost:3000 \
+  --routes /planning/plan-vs-actual \
+  --out "$SCRATCH/shots" \
   --viewport desktop \
-  --state ~/.claude/skills/pr-with-screenshots/.auth/state.json \
-  --crop-selectors '[aria-label="Föregående månad"]||[aria-label="Nästa månad"]||button:has-text("▾")' \
-  --crop-pad 56 \
-  --crop-slug period-nav
+  --state ~/.claude/skills/pr-with-screenshots/.auth/<repo>.json \
+  --crop-selectors ':text-is("Team under plan") >> xpath=ancestor::*[contains(@class,"rounded")][1]||:text-is("Outnyttjad kapacitet") >> xpath=ancestor::*[contains(@class,"rounded")][1]' \
+  --crop-pad 24 --crop-slug nyckeltal
 ```
-- **`--crop-selectors`** (`||`-separated — commas clash with `:has-text(",")`)
-  are the anchors for the changed component confirmed in Step 2. The crop is the
-  union bounding box of every selector that matches, plus `--crop-pad` px of
-  context on each side (default 48; ~56 gives a bit more breathing room). Output
-  goes to `<route>-<crop-slug>.png` alongside the full-page `<route>.png`. Omit
-  these flags to capture full-page only.
-- Deriving anchors from the diff: prefer stable, semantic hooks — a new/changed
-  `aria-label`, `data-testid`, distinctive visible text, or a unique class.
-  Avoid brittle nth-child paths. If nothing distinctive changed, skip the crop
-  and use full-page.
-- `--viewport both` also grabs a 390px mobile shot — use it when the change is
-  about responsive/mobile behaviour.
-- The script prints a JSON `{ "shots": [{route, viewport, kind, file}] }` on
-  stdout (`kind` is `full` or `crop`); use those file paths for the upload step.
-- It **fails loudly** if a route bounces to `/login` (bad/expired session) rather
-  than shipping a screenshot of the login form. If that happens, refresh the
-  session (delete the state file, re-run with env creds) and retry.
 
-Sanity-check the PNGs before proceeding: open them and confirm they show the
-expected screen with data (not a spinner, empty state, or login). Note: the
-local DB dump excludes BYOK AI keys, so **AI-generated prose** (e.g. period
-summaries) may be blank — that's expected and fine; the authoritative numbers are
-real. Don't shoot a screen whose only change is AI prose.
+- `--out`: use the session's scratchpad, not the repo.
+- `--crop-selectors`: `||`-separated Playwright selectors; the crop is the union
+  box of every match plus `--crop-pad` px. Output `<route>-<crop-slug>.png` next
+  to the full-page `<route>.png`. Anchoring on bare text cuts cards in half:
+  select the label, then climb to the card with
+  `>> xpath=ancestor::*[contains(@class,"rounded")][1]` (or the card's own
+  `data-testid`/tag).
+- `--viewport mobile|both`: 390×844 with mobile emulation (`-mobile.png`).
+  No window resizing involved, so it works regardless of the user's browser.
+- `--settle`: waits until none of these selectors exist (default
+  `.animate-spin, .animate-pulse`, i.e. spinners and Tailwind skeletons).
+- `--hide`: CSS selectors hidden before shooting (default `nextjs-portal`, the
+  Next dev indicator).
+- `--tag before|after`: extra filename suffix for before/after pairs.
+- Built in: `reducedMotion: 'reduce'` (Recharts and transitions render their
+  final state, no half-drawn bars), and the viewport grows to the document
+  height before the full shot so `h-screen` sidebars reach the bottom.
+- Stdout is JSON `{ "shots": [{route, viewport, kind, file}] }`; `kind` is
+  `full` or `crop`.
+- Only `localhost`/`127.0.0.1` are accepted.
 
-## 4. Fallback — launch the full stack
+Then open each PNG with Read and check it. Fix and re-shoot rather than ship a
+wrong one.
 
-Only if nothing is running. This is heavier and the data restore is destructive
-to the **local** DB, so confirm with the user first.
+## 4. Before/after (optional)
 
+Only when Step 2 decided on it. Shoot "before" from `main` in a throwaway
+worktree on another port; cookies are per host, not per port, so the same
+state file works:
 ```bash
-# 1. Postgres (host port 5433)
-docker compose up -d postgres
-
-# 2. Real data — restores the prod snapshot economic.dump (already in repo root).
-#    DESTRUCTIVE to local DB only. Skip if the local DB already has data.
-scripts/pull-my-db.sh -y --restore
-
-# 3. Backend on :5096 — seed a known Playwright admin via env so we have creds
-#    without secrets (AuthBootstrap creates it as Admin in the seeded household,
-#    which is where the restored data lives). Run in background.
-Auth__InitialUser__Email="playwright@local" Auth__InitialUser__Password="<pick-one>" \
-  dotnet run --project src/backend/Economic.Api &
-#    wait until ready:
-until curl -sf http://localhost:5096/health >/dev/null; do sleep 1; done
-
-# 4. Frontend — run in background, then read the actual port from its stdout.
-( cd src/frontend && bun install && bun run dev ) &
+git worktree add "$SCRATCH/before" main
+# copy untracked config the app needs (e.g. .env.local), install deps,
+# start the dev server on a free port (stack reference has the command)
+node .../capture.mjs --base-url http://localhost:3001 --tag before ...
+node .../capture.mjs --base-url http://localhost:3000 --tag after  ...
 ```
-Then set `REDA_EMAIL=playwright@local` / `REDA_PASSWORD=<the one you picked>` and
-run the capture script from §3.
+Stop that server and `git worktree remove "$SCRATCH/before"` afterwards. In the
+body, put the pair in a table: `| Före | Efter |`.
 
-Clean up any servers you started once capture is done.
+## 5. Mobile/narrow checks while developing
+
+To *look* at a narrow layout (not for PR images), the built-in browser can
+emulate it: `resize_window` with `preset: "mobile"`, then reload; reset with
+`preset: "desktop"`. Claude in Chrome can't shrink below the window's minimum.
