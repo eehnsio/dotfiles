@@ -1,6 +1,7 @@
 # Gitea — create the PR, upload images, embed them
 
-Verified against this instance: **Gitea 1.26.2**. A PR is an issue, so its
+Secondary host (the Reda/economics repo on `gitea.shcizo.se`); GitHub is the
+default, see host-github.md. Verified against **Gitea 1.26.2**. A PR is an issue, so its
 `number` is also its issue `index`. Screenshots go up as issue **assets** and
 embed by their `browser_download_url`. Those URLs are **members-only** (anonymous
 → 404), so real data in the shots stays inside the repo — no public leak.
@@ -90,6 +91,7 @@ and flag any the user asked for that couldn't be captured.
   (harmless). If you re-shoot, upload fresh and rebuild the body from the new
   URLs.
 - **Fallback (not needed on 1.26.2)**: if the assets endpoint were unavailable,
-  commit the PNGs into the branch and reference
-  `https://$HOST/$SLUG/raw/branch/<branch>/<path>` (also members-only, also
-  inline) — but that pollutes the diff with binaries, so prefer assets.
+  use the same orphan branch as on GitHub:
+  `scripts/push-pr-assets.sh $NUM <files>` prints
+  `https://$HOST/$SLUG/raw/branch/pr-assets/$NUM/<file>` (members-only, inline,
+  never merged). Don't commit PNGs on the PR branch.
