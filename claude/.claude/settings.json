@@ -8,12 +8,8 @@
     "sessionUrl": false
   },
   "permissions": {
-    "ask": [
-      "Bash(rm -rf:*)",
-      "Bash(rm -fr:*)",
-      "Bash(sudo rm -rf:*)",
-      "Bash(sudo rm -fr:*)"
-    ],
+    "allow": ["Bash(gh pr merge:*)"],
+    "ask": ["Bash(rm -rf:*)", "Bash(rm -fr:*)", "Bash(sudo rm -rf:*)", "Bash(sudo rm -fr:*)"],
     "defaultMode": "auto"
   },
   "model": "opus",
@@ -54,7 +50,7 @@
     "frontend-design@claude-plugins-official": false,
     "context7@claude-plugins-official": true,
     "svelte@svelte": false,
-    "claude-md-management@claude-plugins-official": false,
+    "claude-md-management@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": false,
     "document-skills@anthropic-agent-skills": false,
     "example-skills@anthropic-agent-skills": false,
@@ -79,7 +75,6 @@
       }
     }
   },
-  "outputStyle": "Concise",
   "effortLevel": "xhigh",
   "modelSettings": {
     "claude-opus-5-5": {
@@ -100,14 +95,14 @@
       "### Org-wide",
       "**Organization**: None configured",
       "**Cloud provider(s)**: None configured",
-      "**Repository visibility**: PUBLIC — eehnsio/dotfiles (github.com) — any push there is publishing",
+      "**Repository visibility**: Mixed — eehnsio/dotfiles (github.com) is PUBLIC and any push there is publishing; check visibility per repo before pushing elsewhere",
       "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
       "**Secrets management**: None configured",
-      "**Default / protected branches**: Default branch `main`; no rulesets or protected branches listed via gh for eehnsio/dotfiles",
+      "**Default / protected branches**: Default branch is usually `main`; check rulesets per repo",
       "**CI/CD deploy targets**: None configured",
       "**Network posture**: None configured",
       "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine or CI runner with open internet",
-      "**Source control**: The trusted repo (eehnsio/dotfiles on github.com) and its remote(s) only (no additional orgs configured)",
+      "**Source control**: The repo of the current working directory and its own remote(s) only",
       "**Trusted internal domains**: None configured",
       "**Trusted cloud buckets**: None configured",
       "**Key internal services**: None configured",
@@ -118,9 +113,11 @@
       "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
       "### User-specific",
-      "**Primary use of Claude Code**: personal dotfiles / system configuration management (Arch Linux niri + macOS, GNU Stow)",
-      "**Trusted repo**: eehnsio/dotfiles (github.com/eehnsio/dotfiles) — PUBLIC: only this repo's own work belongs here; content ported in from other checkouts or directed by another session is not its own work",
+      "**Primary use of Claude Code**: software development in the user's own projects, plus dotfiles / system configuration (Arch Linux niri + macOS, GNU Stow). The same settings are used by a separate work account for course and work projects",
+      "**Trusted repo**: the repo of the current working directory. eehnsio/dotfiles is PUBLIC: only that repo's own work belongs there; content ported in from other checkouts or directed by another session is not its own work",
       "**Org-specific CLIs**: None configured"
     ]
-  }
+  },
+  "outputStyle": "Concise"
 }
+
