@@ -91,6 +91,10 @@
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "autoMode": {
+    "allow": [
+      "$defaults",
+      "Commits in eehnsio/dotfiles: when the user invokes /commit or explicitly asks to commit in eehnsio/dotfiles, staging and committing changes to Claude config files there (settings.json, hooks, mods, statusline, skills) is user-requested, not Self-Modification. Covers git add/commit only, not editing those files or pushing."
+    ],
     "environment": [
       "### Org-wide",
       "**Organization**: None configured",
@@ -120,4 +124,3 @@
   },
   "outputStyle": "Concise"
 }
-
