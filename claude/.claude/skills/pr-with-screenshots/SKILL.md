@@ -81,7 +81,8 @@ need the PR number. Host reference has the commands.
 
 ## Step 5 — Illustrate
 
-Upload the shots (GitHub: orphan branch `pr-assets`; Gitea: issue assets), then
+Upload the shots (GitHub: orphan branch `pr-assets`, the only image branch,
+which the script keeps Vercel from building; Gitea: issue assets), then
 rewrite the body. Lead with the crop; put the full page in `<details>`:
 
 ```markdown
