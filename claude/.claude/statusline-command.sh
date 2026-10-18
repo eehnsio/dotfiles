@@ -98,12 +98,12 @@ model_short=$(echo "$model_name" | sed -E 's/^Claude[[:space:]]+//' | sed -E 's/
 SEP=" ${SOFT}│${RESET} "
 
 line=""
-# Jobbkontot (claude-kurs i .zshrc) delar allt utom inloggningen med
+# Jobbkontot (claude-work i .zshrc) delar allt utom inloggningen med
 # privatkontot, sa det ar bara har man ser vilket konto sessionen kor pa.
 # Etiketten ar det enda i raden med bakgrundsfarg, och gul eftersom fel konto
 # ar en varning.
-if [[ "${CLAUDE_CONFIG_DIR%/}" == *.claude-kurs ]]; then
-    line+=$(printf '\033[1;30;43m KURS \033[0m ')
+if [[ "${CLAUDE_CONFIG_DIR%/}" == *.claude-work ]]; then
+    line+=$(printf '\033[1;30;43m WORK \033[0m ')
 fi
 line+=$(printf "${MODEL_C}%s${RESET}" "$model_short")
 [ -n "$effort" ] && line+=$(printf " ${MODEL_C}%s${RESET}" "$effort")

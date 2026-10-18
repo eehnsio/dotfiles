@@ -81,7 +81,7 @@ Yellow and red are reserved for warnings: the context window or a usage limit
 running low, and the prompt cache in its last 15 minutes or gone cold. The
 warning is then the only warm colour on the line.
 
-A session on the work account (see below) opens the line with `KURS` on a
+A session on the work account (see below) opens the line with `WORK` on a
 yellow background, the only background colour on the line: being on the wrong
 account is a warning too.
 
@@ -91,13 +91,13 @@ right-aligned with the time until they reset. Both ideas come from
 
 ## Two accounts
 
-Plain `claude` is the private account. `claude-kurs` (a function in
-`zsh/.zshrc`) runs the work account, used for a course, with
-`CLAUDE_CONFIG_DIR=~/.claude-kurs`, because the login belongs to the config
-directory. Everything else is linked in from `~/.claude` on every start:
-`settings.json`, hooks, mods, commands, skills, plugins, the global `CLAUDE.md`
-and each project's memory. A session on either account therefore knows what the
-other has learned, and anything in `settings.json` applies to both.
+Plain `claude` is the private account. `claude-work` (a function in
+`zsh/.zshrc`) runs the work account with `CLAUDE_CONFIG_DIR=~/.claude-work`,
+because the login belongs to the config directory. Everything else is linked
+in from `~/.claude` on every start: `settings.json`, hooks, mods, commands,
+skills, plugins, the global `CLAUDE.md` and each project's memory. A session
+on either account therefore knows what the other has learned, and anything in
+`settings.json` applies to both.
 
 Not shared: MCP servers in `~/.claude.json` and claude.ai connectors (both per
 account), session transcripts, and memory the work account writes in a project

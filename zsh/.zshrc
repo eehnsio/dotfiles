@@ -73,16 +73,16 @@ alias ffhw='fastfetch --config hardware'
 alias ..='cd ..;pwd'
 alias tree='tree --dirsfirst -F'
 
-# Claude Code med jobbkontot, som används i kursen. Vanliga `claude` är
-# privatkontot. Egen konfigkatalog, eftersom inloggningen hör till katalogen,
-# men allt annat länkas in från ~/.claude: settings, hooks, mods, kommandon,
-# skills, plugins, global CLAUDE.md och minnet per projekt. Länkarna läggs vid
-# varje start, så minne från projekt som tillkommit sedan sist följer med.
+# Claude Code med jobbkontot. Vanliga `claude` är privatkontot. Egen
+# konfigkatalog, eftersom inloggningen hör till katalogen, men allt annat
+# länkas in från ~/.claude: settings, hooks, mods, kommandon, skills, plugins,
+# global CLAUDE.md och minnet per projekt. Länkarna läggs vid varje start, så
+# minne från projekt som tillkommit sedan sist följer med.
 # Minne som jobbkontot skriver i ett projekt som saknar minne i ~/.claude
-# stannar däremot i ~/.claude-kurs. Statusraden börjar med KURS.
-# Första gången: kör claude-kurs och /login med jobbkontot.
-claude-kurs() {
-  local src=~/.claude dst=~/.claude-kurs f d p
+# stannar däremot i ~/.claude-work. Statusraden börjar med WORK.
+# Första gången: kör claude-work och /login med jobbkontot.
+claude-work() {
+  local src=~/.claude dst=~/.claude-work f d p
   mkdir -p $dst/skills $dst/projects
   # Riktiga filer och kataloger skrivs aldrig över, bara saknade och länkar.
   for f in settings.json statusline-command.sh CLAUDE.md hooks.enabled \
