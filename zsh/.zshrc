@@ -73,10 +73,36 @@ alias ffhw='fastfetch --config hardware'
 alias ..='cd ..;pwd'
 alias tree='tree --dirsfirst -F'
 
-# Claude Code med kurskontot. Egen konfigkatalog, så inloggning, minne,
-# plugins och global CLAUDE.md hålls isär från vanliga `claude`.
-# Första gången: kör claude-kurs och /login med kurskontot.
-alias claude-kurs='CLAUDE_CONFIG_DIR=~/.claude-kurs claude'
+# Claude Code med jobbkontot, som används i kursen. Vanliga `claude` är
+# privatkontot. Egen konfigkatalog, eftersom inloggningen hör till katalogen,
+# men allt annat länkas in från ~/.claude: settings, hooks, mods, kommandon,
+# skills, plugins, global CLAUDE.md och minnet per projekt. Länkarna läggs vid
+# varje start, så minne från projekt som tillkommit sedan sist följer med.
+# Minne som jobbkontot skriver i ett projekt som saknar minne i ~/.claude
+# stannar däremot i ~/.claude-kurs. Statusraden börjar med KURS.
+# Första gången: kör claude-kurs och /login med jobbkontot.
+claude-kurs() {
+  local src=~/.claude dst=~/.claude-kurs f d p
+  mkdir -p $dst/skills $dst/projects
+  # Riktiga filer och kataloger skrivs aldrig över, bara saknade och länkar.
+  for f in settings.json statusline-command.sh CLAUDE.md hooks.enabled \
+           commands hooks mods plugins; do
+    [[ -e $src/$f && ( -L $dst/$f || ! -e $dst/$f ) ]] && ln -sfn $src/$f $dst/$f
+  done
+  # synced/ är kontots egna skills från claude.ai och hör inte till det andra.
+  for d in $src/skills/*(N); do
+    [[ ${d:t} == synced ]] && continue
+    [[ -L $dst/skills/${d:t} || ! -e $dst/skills/${d:t} ]] && ln -sfn $d $dst/skills/${d:t}
+  done
+  for d in $src/projects/*/memory(N/F); do
+    p=$dst/projects/${d:h:t}
+    mkdir -p $p
+    # Ett tomt minne som jobbkontot redan skapat ersätts, ett med innehåll får vara.
+    [[ -d $p/memory && ! -L $p/memory ]] && rmdir $p/memory 2>/dev/null
+    [[ -L $p/memory || ! -e $p/memory ]] && ln -sfn $d $p/memory
+  done
+  CLAUDE_CONFIG_DIR=$dst command claude "$@"
+}
 
 # Vilka tjänster lyssnar på TCP just nu. Valfritt filter: `ports 5432`,
 # `ports node`. Utan sudo syns bara egna processer. lsof saknas i Archs bas,

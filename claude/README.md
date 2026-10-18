@@ -81,9 +81,33 @@ Yellow and red are reserved for warnings: the context window or a usage limit
 running low, and the prompt cache in its last 15 minutes or gone cold. The
 warning is then the only warm colour on the line.
 
+A session on the work account (see below) opens the line with `KURS` on a
+yellow background, the only background colour on the line: being on the wrong
+account is a warning too.
+
 Directory and branch carry a Nerd Font icon; the 5h and 7d usage limits sit
 right-aligned with the time until they reset. Both ideas come from
 [yugal1107/ui-themes](https://github.com/yugal1107/ui-themes).
+
+## Two accounts
+
+Plain `claude` is the private account. `claude-kurs` (a function in
+`zsh/.zshrc`) runs the work account, used for a course, with
+`CLAUDE_CONFIG_DIR=~/.claude-kurs`, because the login belongs to the config
+directory. Everything else is linked in from `~/.claude` on every start:
+`settings.json`, hooks, mods, commands, skills, plugins, the global `CLAUDE.md`
+and each project's memory. A session on either account therefore knows what the
+other has learned, and anything in `settings.json` applies to both.
+
+Not shared: MCP servers in `~/.claude.json` and claude.ai connectors (both per
+account), session transcripts, and memory the work account writes in a project
+that has none in `~/.claude`.
+
+`autoMode` exceptions for a single project cannot move into that project:
+Claude Code reads `autoMode` only from user settings, managed settings and
+`--settings`, never from a repo's `.claude/settings*.json`. Add them here for as
+long as the task needs them, then remove them, rather than leaving them
+uncommitted.
 
 ## mods/drivis
 
