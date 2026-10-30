@@ -135,7 +135,7 @@
   "effortLevel": "xhigh",
   "modelSettings": {
     "claude-opus-5-5": {
-      "effortLevel": "high"
+      "effortLevel": "medium"
     },
     "claude-fable-5-1": {
       "effortLevel": "xhigh"
@@ -145,6 +145,7 @@
   "skipWorkflowUsageWarning": true,
   "theme": "dark-ansi",
   "autoCompactEnabled": false,
+  "switchModelsOnFlag": false,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "autoMode": {
