@@ -49,6 +49,11 @@ theme = drivis
 
 copy-on-select = clipboard
 
+# Ett klick på promptraden skickar piltangenter för att flytta markören dit.
+# Höger pil accepterar Claude Codes gråa förslag, så ett klick för att
+# fokusera terminalen klistrade in förslaget.
+cursor-click-to-move = false
+
 keybind = shift+enter=text:\x1b\r
 
 # Jämna ut splits (som en tiling wm)
