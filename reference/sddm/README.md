@@ -1,5 +1,9 @@
 # SDDM + SilentSDDM
 
+> Replaced by [greetd + Noctalia Greeter](../noctalia-greeter/) on 2026-11-01:
+> every log out left a black screen (`sddm-helper exited with 63`). SDDM stays
+> installed as the fallback; see the rollback there.
+
 Not a stow package: these files live in `/etc` and `/usr/share` and are owned by
 root. Replaces [greetd + nwg-hello](../greetd/), which is kept as the fallback.
 

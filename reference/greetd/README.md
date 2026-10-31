@@ -1,7 +1,9 @@
 # greetd + nwg-hello
 
-> Replaced by [SDDM + SilentSDDM](../sddm/) on 2026-10-08. greetd stays
-> installed as the fallback; see the rollback there.
+> Replaced by [SDDM + SilentSDDM](../sddm/) on 2026-10-08, and SDDM in turn by
+> [greetd + Noctalia Greeter](../noctalia-greeter/) on 2026-11-01. greetd is
+> back, so the greetd notes below still apply; `pam.d-greetd` is shared, and
+> `/etc/greetd/greetd.conf` now holds the Noctalia config.
 
 Not a stow package: these files live in `/etc` and are owned by root. The copies
 here are what to put back on a new machine, and this file is why they look the

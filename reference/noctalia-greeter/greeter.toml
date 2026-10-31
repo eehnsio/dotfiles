@@ -1,0 +1,15 @@
+# /var/lib/noctalia-greeter/greeter.toml - se README.md bredvid.
+# Vinner over sync.toml, som Noctalias "Sync Now" skriver.
+
+[keyboard]
+# Losenordet skrivs har, och fel layout gar inte att skilja fran fel losenord.
+# Satt uttryckligen: greetern laser inte KEYMAP i /etc/vconsole.conf.
+layout = "se"
+numlock = true
+
+[output]
+# Formularet bara pa liggande skarmen. Saknas DP-1 faller greetern tillbaka
+# till alla anslutna skarmar, sa fel kabel ger fler formular, aldrig inget.
+# Inga width/height/refresh_rate: ett lage skarmen inte erbjuder ger svart
+# skarm (lardom fran niri.kdl i ../greetd/).
+name = "DP-1"
