@@ -38,6 +38,12 @@ action = "overview-open"
 layout = "se"
 numlock_toggle = true
 
+# Som niri: ingen acceleration, och lite langsammare an libinputs standard.
+# Utan detta kandes musen snabbare an i niri.
+[input.mouse]
+accel_profile = "flat"
+sensitivity = -0.3
+
 # Som niri: focus-follows-mouse max-scroll-amount="0%"
 [input.focus]
 follows_mouse = true
