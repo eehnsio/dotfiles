@@ -41,7 +41,7 @@ carries the machine identity instead.
 
 **Icons are Nerd Font glyphs from the Font Awesome range** (`\uf0xx`–`\uf2xx`),
 which every Nerd Font ships. The terminal must be running one; Ghostty is set to
-`UbuntuMono Nerd Font Mono`. Empty boxes instead of icons means the terminal
+`MonaspiceNe Nerd Font Mono` (Monaspace Neon). Empty boxes instead of icons means the terminal
 fell back to a font without them.
 
 **No `title` module**, so `user@host` is not printed. One less thing to redact in

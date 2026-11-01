@@ -1,6 +1,8 @@
-# font-family = Berkeley Mono Variable
-font-family = UbuntuMono Nerd Font Mono
-font-size = 16
+# Monaspace Neon (Nerd-varianten heter Monaspice). Lilex att jamfora med:
+# font-family = Lilex Nerd Font Mono
+font-family = MonaspiceNe Nerd Font Mono
+# 14 och inte 16 som UbuntuMono: Neon ar bredare, samma storlek gav farre kolumner.
+font-size = 14
 
 adjust-cell-height = 25%
 adjust-cursor-height = 25%

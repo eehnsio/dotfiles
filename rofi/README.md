@@ -17,7 +17,8 @@ and one theme for both is the point.
 The look is taken from the SDDM theme (`reference/sddm/drivis.conf`), not from
 noctalia: a `#16181d` surface at 85 % with a 1 px `#4a505c` border, and the
 selected row in the colours SDDM uses for its menus. The font is the
-exception: UbuntuMono Nerd Font, the same as noctalia and ghostty. The key
+exception: Mona Sans, the same as noctalia (ghostty runs its sibling Monaspace
+Neon). It has no Nerd glyphs; fontconfig falls back for any. The key
 icon is SilentSDDM's own `password.svg`, recoloured to the accent; the others
 are drawn to match it.
 
