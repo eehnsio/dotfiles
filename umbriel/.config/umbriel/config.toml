@@ -280,6 +280,13 @@ default_fullscreen = true
 match.app_id = "^steam_app_.*$"
 confine_pointer = true
 
+# ...men inte launchers. Battle.net via Faugus/umu far ocksa steam_app_default.
+# Senare regel vinner.
+[[window_rule]]
+match.app_id = "^steam_app_default$"
+match.title = "^Battle\\.net$"
+confine_pointer = false
+
 # ==============================================================================
 # Blur bakom Noctalias bar, paneler och notiser (fran standardkonfigen)
 [[layer_rule]]
