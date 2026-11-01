@@ -1,0 +1,8 @@
+[Desktop Entry]
+# Döljer paketets post i rofi. Den kör `noctalia --daemon`, som inte gör
+# något när skalet redan kör. Inställningarna: noctalia-settings.desktop.
+Type=Application
+Name=Noctalia
+Exec=noctalia --daemon
+Icon=noctalia
+NoDisplay=true
