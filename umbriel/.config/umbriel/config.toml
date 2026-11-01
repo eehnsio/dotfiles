@@ -1,0 +1,287 @@
+# Umbriel - se README.md i paketet. Ersatter /usr/share/umbriel/config.toml
+# helt (ingen sammanslagning), sa standardens aktiva delar ar kopierade hit.
+# Validera efter varje andring: umbriel config validate
+
+[general]
+autostart = ["noctalia"]
+
+# ==============================================================================
+# Skarmar. Umbriel tar skarmens "preferred" lage (60 Hz), niri tar hogsta.
+[output.DP-1]
+mode = "2560x1440@240"
+position = [0, 0]
+
+[output.DP-2]
+mode = "1920x1080@144"
+position = [2560, 0]
+transform = "90"
+# Staende: workspaces staplas i sidled, sa kolumnremsan gar uppifran och ned.
+# Det enda niri inte kan (niri-wm/niri#1071).
+workspace_axis = "horizontal"
+
+# ==============================================================================
+# Fran standardkonfigen: den har filen ERSATTER /usr/share/umbriel/config.toml
+# helt, sa det som stod aktivt dar maste med hit.
+[appearance.blur]
+radius = 3
+
+# Ovre vanstra hornet oppnar oversikten, som i niri
+[hot_corners.top_left]
+enabled = true
+delay_ms = 500
+action = "overview-open"
+
+# ==============================================================================
+[input.keyboard]
+# Losenord och allt annat skrivs har; satt uttryckligen i stallet for att lita
+# pa XKB-miljon.
+layout = "se"
+numlock_toggle = true
+
+# Som niri: focus-follows-mouse max-scroll-amount="0%"
+[input.focus]
+follows_mouse = true
+follows_mouse_max_scroll = 0.0
+
+# ==============================================================================
+[layout]
+mode = "scrolling"
+gap = 20
+extent_presets = [0.333, 0.5, 0.667]
+
+[layout.scrolling]
+default_extent_fraction = 0.5
+# niri vansterstaller nar fonstren inte fyller skarmen
+center_underfull_strip = false
+
+# ==============================================================================
+# Bindningar. Tabellen ERSATTER standarduppsattningen helt, och speglar
+# niri-bindningarna (niri/.config/niri/config.kdl). Scratchpad ar det enda
+# Umbriel-specifika.
+[keybinds]
+# Program och session
+"Mod+Return" = { action = "spawn ghostty", repeat = false }
+"Mod+T" = { action = "spawn ghostty", repeat = false }
+"Mod+Space" = { action = "spawn pkill -x rofi || rofi -show drun", repeat = false }
+"Mod+B" = { action = "spawn zen-browser", repeat = false }
+"Mod+E" = { action = "spawn nautilus", repeat = false }
+"Mod+P" = { action = "spawn pkill -x rofi || ~/.local/bin/rbw-pick", repeat = false }
+"Mod+Shift+B" = { action = "spawn noctalia msg bar-toggle", repeat = false }
+"Super+Ctrl+Q" = { action = "spawn noctalia msg session lock", repeat = false }
+# Nodutgang: avsluta sessionen
+"Mod+Escape" = "session-quit"
+"Ctrl+Alt+Delete" = "session-quit"
+"Mod+Shift+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
+
+# Skarmdumpar via Noctalia (niri har dem inbyggda)
+"Mod+Shift+3" = { action = "spawn noctalia msg screenshot-fullscreen", repeat = false }
+"Mod+Shift+4" = { action = "spawn noctalia msg screenshot-region", repeat = false }
+"Mod+Shift+5" = { action = "spawn noctalia msg screenshot-fullscreen pick", repeat = false }
+"Print" = { action = "spawn noctalia msg screenshot-region", repeat = false }
+
+# Media
+"XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down", allow_when_locked = true }
+"XF86AudioMute" = { action = "spawn noctalia msg volume-mute", allow_when_locked = true, repeat = false }
+"XF86AudioMicMute" = { action = "spawn wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle", allow_when_locked = true, repeat = false }
+"XF86AudioPlay" = { action = "spawn noctalia msg media toggle", allow_when_locked = true, repeat = false }
+"XF86AudioNext" = { action = "spawn noctalia msg media next", allow_when_locked = true }
+"XF86AudioPrev" = { action = "spawn noctalia msg media previous", allow_when_locked = true }
+
+# Fonster
+"Mod+Q" = { action = "window-close", repeat = false }
+"Mod+W" = { action = "window-close", repeat = false }
+"Mod+Shift+W" = { action = "window-close", repeat = false }
+"Mod+V" = { action = "window-toggle-floating", repeat = false }
+"Mod+Shift+V" = { action = "window-focus-switch-floating", repeat = false }
+"Mod+F" = { action = "window-toggle-maximize", repeat = false }
+"Mod+Shift+F" = { action = "window-toggle-fullscreen", repeat = false }
+"Mod+M" = { action = "window-toggle-maximize-to-edges", repeat = false }
+"Mod+C" = { action = "column-center", repeat = false }
+"Mod+O" = { action = "overview-toggle", repeat = false }
+"Mod+R" = "window-cycle-primary-extent"
+"Mod+Shift+R" = "window-cycle-primary-extent-back"
+"Mod+Alt+1" = "window-set-primary-extent 0.333"
+"Mod+Alt+2" = "window-set-primary-extent 0.5"
+"Mod+Alt+3" = "window-set-primary-extent 0.667"
+"Mod+Alt+4" = "window-set-primary-extent 1.0"
+"Mod+Minus" = "window-modify-primary-extent -0.1"
+"Mod+Equal" = "window-modify-primary-extent +0.1"
+"Mod+Plus" = "window-modify-primary-extent +0.1"
+"Mod+Shift+Minus" = "window-modify-secondary-extent -0.1"
+"Mod+Shift+Equal" = "window-modify-secondary-extent +0.1"
+"Mod+Shift+Plus" = "window-modify-secondary-extent +0.1"
+# Sla ihop med / bryt ut ur kolumnen. I niri ar Mod+, och Mod+. envags;
+# har ar de at-bada-hallen, vilket visade sig battre.
+"Mod+Comma" = "window-consume-or-expel-left"
+"Mod+Period" = "window-consume-or-expel-right"
+"Mod+Aring" = "window-consume-or-expel-left"
+"Mod+Dead_Diaeresis" = "window-consume-or-expel-right"
+"Mod+BracketLeft" = "window-consume-or-expel-left"
+"Mod+BracketRight" = "window-consume-or-expel-right"
+
+# Fokus
+"Mod+Left" = "window-focus-left"
+"Mod+Right" = "window-focus-right"
+"Mod+Down" = "window-focus-or-workspace-down"
+"Mod+Up" = "window-focus-or-workspace-up"
+"Mod+H" = "window-focus-left"
+"Mod+L" = "window-focus-right"
+"Mod+J" = "window-focus-down"
+"Mod+K" = "window-focus-up"
+"Mod+Home" = "column-focus-first"
+"Mod+End" = "column-focus-last"
+
+# Flytta inom workspace
+"Mod+Shift+Left" = "column-move-left"
+"Mod+Shift+Right" = "column-move-right"
+"Mod+Shift+Down" = "window-move-down"
+"Mod+Shift+Up" = "window-move-up"
+"Mod+Shift+H" = "column-move-left"
+"Mod+Shift+L" = "column-move-right"
+"Mod+Shift+J" = "window-move-down"
+"Mod+Shift+K" = "window-move-up"
+"Mod+Ctrl+Home" = "column-move-to-first"
+"Mod+Ctrl+End" = "column-move-to-last"
+
+# Skarmar
+"Mod+Alt+Left" = "output-focus-left"
+"Mod+Alt+Right" = "output-focus-right"
+"Mod+Alt+Up" = "output-focus-up"
+"Mod+Alt+Down" = "output-focus-down"
+"Mod+Ctrl+Left" = "column-move-to-output-left"
+"Mod+Ctrl+Right" = "column-move-to-output-right"
+"Mod+Ctrl+H" = "column-move-to-output-left"
+"Mod+Ctrl+L" = "column-move-to-output-right"
+"Mod+Shift+Ctrl+Left" = "column-move-to-output-left"
+"Mod+Shift+Ctrl+Right" = "column-move-to-output-right"
+"Mod+Shift+Ctrl+Up" = "column-move-to-output-up"
+"Mod+Shift+Ctrl+Down" = "column-move-to-output-down"
+"Mod+Shift+Ctrl+H" = "column-move-to-output-left"
+"Mod+Shift+Ctrl+L" = "column-move-to-output-right"
+"Mod+Shift+Ctrl+K" = "column-move-to-output-up"
+"Mod+Shift+Ctrl+J" = "column-move-to-output-down"
+
+# Workspaces. Umbriel har ingen relativ workspace-switch; PgUp/PgDn och
+# scroll gar fonster for fonster och byter workspace vid kanten.
+"Mod+Page_Down" = "window-focus-or-workspace-down"
+"Mod+Page_Up" = "window-focus-or-workspace-up"
+"Mod+WheelDown" = "window-focus-or-workspace-down"
+"Mod+WheelUp" = "window-focus-or-workspace-up"
+"Mod+Ctrl+Up" = "column-move-to-workspace-previous"
+"Mod+Ctrl+Down" = "column-move-to-workspace-next"
+"Mod+Ctrl+K" = "column-move-to-workspace-previous"
+"Mod+Ctrl+J" = "column-move-to-workspace-next"
+"Mod+Ctrl+Page_Down" = "column-move-to-workspace-next"
+"Mod+Ctrl+Page_Up" = "column-move-to-workspace-previous"
+"Mod+Ctrl+U" = "column-move-to-workspace-next"
+"Mod+Ctrl+I" = "column-move-to-workspace-previous"
+"Mod+Shift+Page_Down" = "workspace-move-down"
+"Mod+Shift+Page_Up" = "workspace-move-up"
+"Mod+Shift+U" = "workspace-move-down"
+"Mod+Shift+I" = "workspace-move-up"
+"Mod+1" = "workspace-switch 1"
+"Mod+2" = "workspace-switch 2"
+"Mod+3" = "workspace-switch 3"
+"Mod+4" = "workspace-switch 4"
+"Mod+5" = "workspace-switch 5"
+"Mod+6" = "workspace-switch 6"
+"Mod+7" = "workspace-switch 7"
+"Mod+8" = "workspace-switch 8"
+"Mod+9" = "workspace-switch 9"
+"Mod+Ctrl+1" = "column-move-to-workspace 1"
+"Mod+Ctrl+2" = "column-move-to-workspace 2"
+"Mod+Ctrl+3" = "column-move-to-workspace 3"
+"Mod+Ctrl+4" = "column-move-to-workspace 4"
+"Mod+Ctrl+5" = "column-move-to-workspace 5"
+"Mod+Ctrl+6" = "column-move-to-workspace 6"
+"Mod+Ctrl+7" = "column-move-to-workspace 7"
+"Mod+Ctrl+8" = "column-move-to-workspace 8"
+"Mod+Ctrl+9" = "column-move-to-workspace 9"
+
+# Scratchpad (Umbriel-specifikt). Mod+Space ar rofi som i niri.
+"Mod+Shift+Space" = { action = "window-move-to-scratchpad", repeat = false }
+"Mod+Ctrl+Space" = "scratchpad-toggle"
+"Mod+Ctrl+Shift+Space" = { action = "window-restore-from-scratchpad", repeat = false }
+"Mod+Tab" = "scratchpad-focus-next"
+
+# ==============================================================================
+# Fonsterregler. Regex ar ECMAScript: (?i) fungerar inte.
+[[window_rule]]
+corner_radius = 8
+# Blur bakom genomskinliga fonster (fran standardkonfigen)
+blur = true
+
+# Noctalias egna fonster (fran standardkonfigen)
+[[window_rule]]
+match.app_id = "^dev\\.noctalia\\.Noctalia$"
+default_floating = true
+default_floating_size_px = { width = 1020, height = 900 }
+
+[[window_rule]]
+match.app_id = "^dev\\.noctalia\\.UmbrielSharePicker$"
+default_floating = true
+default_floating_size_px = { width = 800, height = 600 }
+
+[[window_rule]]
+match.title = "^(Picture-in-Picture|Picture in picture)$"
+default_floating = true
+default_maximize = false
+default_position = { x = 20, y = 20, anchor = "bottom_right" }
+
+[[window_rule]]
+match.title = "^notificationtoasts_.+_desktop"
+default_position = { x = 0, y = 0, anchor = "bottom_right" }
+default_focused = false
+default_pinned = true
+
+# Portat fran niri
+[[window_rule]]
+match.app_id = "^mpv$"
+default_floating = true
+
+[[window_rule]]
+match.app_id = "^com\\.mitchellh\\.ghostty\\.floating$"
+default_floating = true
+default_floating_size = { width = 0.5, height = 0.5 }
+
+[[window_rule]]
+match.app_id = "^org\\.gnome\\.Nautilus$"
+default_floating = true
+default_floating_size = { width = 0.5, height = 0.6 }
+
+[[window_rule]]
+match.app_id = "^[Pp]inentry"
+default_floating = true
+block_capture = true
+default_floating_size_px = { width = 480, height = 220 }
+
+[[window_rule]]
+match.app_id = "^zen$"
+match.title = "^Extension: \\(Bitwarden"
+default_floating = true
+block_capture = true
+default_floating_size_px = { width = 420, height = 600 }
+
+[[window_rule]]
+match.app_id = "^steam_app_default$"
+match.title = "^World of Warcraft$"
+default_fullscreen = true
+
+# Spel: haller pekaren inne i fonstret (Big Walk smet till DP-2 under niri).
+# Ett fokus- eller workspacebyte slapper pekaren.
+[[window_rule]]
+match.app_id = "^steam_app_.*$"
+confine_pointer = true
+
+# ==============================================================================
+# Blur bakom Noctalias bar, paneler och notiser (fran standardkonfigen)
+[[layer_rule]]
+match.namespace = "^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd|desktop-widget-[^\"]*)$"
+blur = true
+blur_ignore_alpha = 0.5
+blur_popups = true
+
+[[layer_rule]]
+match.namespace = "^noctalia-(notification|dock|panel|attached-panel|osd)$"
+blur_optimized = false
