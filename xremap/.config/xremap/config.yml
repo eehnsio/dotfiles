@@ -28,7 +28,8 @@ keymap:
   # Ctrl+Shift+Q, inte Ctrl+Shift+W, sa en oversattning hit hamnade i tomma
   # intet. Niris close-window fungerar oavsett vad appen har for genvagar.
   # Super-f är medvetet inte mappad: den är niris maximize-column. Sök på sidan
-  # ligger på Alt+F i Zens egna genvägsinställningar.
+  # är vanliga Ctrl+F (tillbaka från Alt+F 2026-11-01: Zen tar en genväg per
+  # funktion, och Alt+F var en kompromiss för Cmd+F som aldrig satt i handen).
   - name: Zen browser
     application:
       only: [zen]
