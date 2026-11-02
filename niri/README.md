@@ -5,7 +5,8 @@ Scrolling tiling compositor. Linux only.
 ## Keybinds
 
 macOS muscle memory where possible: `Mod+W` closes, `Mod+Space` launches,
-`Mod+B`/`Mod+E` open browser and files, `Mod+Shift+3/4/5` screenshot, and
+`Mod+B`/`Mod+E` open browser and files, `Mod+Shift+3` saves a region to disk,
+`Mod+Shift+4` copies a region (via Noctalia), `Mod+Shift+5` the window, and
 `Mod+§` cycles windows within an app (see the `bin` package).
 
 `Mod+Shift+M` fills the screen while keeping the window floating. `Mod+M` also

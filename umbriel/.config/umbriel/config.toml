@@ -79,8 +79,9 @@ center_underfull_strip = false
 "Ctrl+Alt+Delete" = "session-quit"
 "Mod+Shift+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
 
-# Skarmdumpar via Noctalia (niri har dem inbyggda)
-"Mod+Shift+3" = { action = "spawn noctalia msg screenshot-fullscreen", repeat = false }
+# Skarmdumpar: 4 = yta till urklipp (Noctalia), 3 = yta till disk (grim/slurp,
+# ~/Pictures/Screenshots som niri), 5 = valj skarm till urklipp
+"Mod+Shift+3" = { action = "spawn ~/.local/bin/screenshot-region-save", repeat = false }
 "Mod+Shift+4" = { action = "spawn noctalia msg screenshot-region", repeat = false }
 "Mod+Shift+5" = { action = "spawn noctalia msg screenshot-fullscreen pick", repeat = false }
 "Print" = { action = "spawn noctalia msg screenshot-region", repeat = false }

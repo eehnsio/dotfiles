@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Valj en yta och spara den som PNG, utan urklipp. Mod+Shift+3 i umbriel;
+# niri gor samma sak med sin inbyggda `screenshot`. Mod+Shift+4 (bara urklipp)
+# ar Noctalias screenshot-region. Samma mapp och filnamn som niris
+# screenshot-path, sa bada sessionerna sparar pa ett stalle.
+set -euo pipefail
+
+dir="$HOME/Pictures/Screenshots"
+mkdir -p "$dir"
+region=$(slurp) || exit 0   # Esc i slurp = avbrutet, inget fel
+grim -g "$region" "$dir/Screenshot from $(date '+%Y-%m-%d %H-%M-%S').png"

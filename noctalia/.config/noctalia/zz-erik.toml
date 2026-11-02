@@ -47,3 +47,10 @@ compact = false
 # ...) ar kvitto pa tangenter som INTE har nagon egen indikator. Vill man
 # doda hela OSD:n finns [osd] enabled = false.
 lock_keys = false
+
+# Skarmdumpar gar bara till urklipp (Mod+Shift+4). Till disk ar Mod+Shift+3,
+# som inte gar via Noctalia. directory galler annoteringsverktygets Spara.
+[shell.screenshot]
+save_to_file = false
+copy_to_clipboard = true
+directory = "~/Pictures/Screenshots"

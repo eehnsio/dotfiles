@@ -70,4 +70,6 @@ Things learned 2026-11-01:
 - `Mod+§` window cycling — `niri-cycle-app-windows` talks to `niri msg`
 - `Mod+Shift+M` (fill screen, stay floating), `Mod+Ctrl+F` (expand to
   available width) — no direct equivalents found
-- Screenshots are Noctalia's (`noctalia msg screenshot-*`), not built in
+- Screenshots aren't built in: `Mod+Shift+4` is Noctalia's region to clipboard,
+  `Mod+Shift+3` is `screenshot-region-save` (grim + slurp, `bin` package) to
+  `~/Pictures/Screenshots`

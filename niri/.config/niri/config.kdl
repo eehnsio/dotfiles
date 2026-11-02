@@ -501,8 +501,11 @@ binds {
     Print { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }
-    Mod+Shift+3 { screenshot-screen; }
-    Mod+Shift+4 { screenshot; }
+    // 3 = valj yta, spara till disk (niri lagger den i urklipp ocksa).
+    // 4 = valj yta, bara urklipp: niris screenshot skriver alltid till disk,
+    // sa den gar via Noctalia (save_to_file = false i zz-erik.toml).
+    Mod+Shift+3 { screenshot; }
+    Mod+Shift+4 { spawn "noctalia" "msg" "screenshot-region"; }
     Mod+Shift+5 { screenshot-window; }
 
     // Har lag tidigare binds for att andra skarmskalan i steg. Borttagna:
