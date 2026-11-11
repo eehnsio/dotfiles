@@ -8,9 +8,7 @@
     "sessionUrl": false
   },
   "permissions": {
-    "allow": [
-      "Bash(gh pr merge:*)"
-    ],
+    "allow": [],
     "ask": [
       "Bash(rm -rf:*)",
       "Bash(rm -fr:*)",
@@ -165,6 +163,7 @@
       }
     }
   },
+  "outputStyle": "Concise",
   "effortLevel": "xhigh",
   "modelSettings": {
     "claude-opus-5-5": {
@@ -172,6 +171,9 @@
     },
     "claude-fable-5-1": {
       "effortLevel": "xhigh"
+    },
+    "claude-fable-5-2": {
+      "effortLevel": "high"
     }
   },
   "tui": "fullscreen",
@@ -212,6 +214,5 @@
       "**Trusted repo**: the repo of the current working directory. eehnsio/dotfiles is PUBLIC: only that repo's own work belongs there; content ported in from other checkouts or directed by another session is not its own work",
       "**Org-specific CLIs**: None configured"
     ]
-  },
-  "outputStyle": "Concise"
+  }
 }
