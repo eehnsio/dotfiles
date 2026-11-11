@@ -68,6 +68,7 @@ Allt ligger i `assets/` bredvid den här filen. Kopiera, skriv inte om från min
 
 ## Var det används
 
+- ehnsio.se (`~/Developer/ehnsio.se`, Astro) — `src/components/Signum.astro` i sidfoten (`SiteFooter.astro`); raden är bara "Erik Ehnsiö" i stället för "App av", eftersom sajten är hans egen
 - eve.ehnsio.se (`~/Developer/eve-web`, statisk HTML)
 - matematiskt.se (`~/Developer/Matteappen`, Next) — gammal variant i
   `src/components/layout/site-footer.tsx`
