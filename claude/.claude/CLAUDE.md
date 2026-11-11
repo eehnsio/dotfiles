@@ -1,7 +1,12 @@
 ## Rex
 
-Gäller bara när sessionsstarten säger att jag kör i en Rex-terminal. Föreslå
-då Rex-paneler självmant, utan att Erik behöver be om det:
+Gäller bara när sessionsstarten säger att jag kör i en Rex-terminal.
+
+När jag döper sessionen börjar namnet med repots mappnamn (git-roten, annars
+arbetskatalogen), sedan uppgiften: `dotfiles-rex-history`, inte bara
+`rex-history`. Erik ska se i sessionslistan vilket projekt det gäller.
+
+Föreslå Rex-paneler självmant, utan att Erik behöver be om det:
 
 - **Långkörande eller sådant att titta på** (tester, byggen, dev-servrar,
   `docker logs -f`, `journalctl -f`, deploys): kör i en namngiven panel
