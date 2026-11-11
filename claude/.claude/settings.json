@@ -96,6 +96,39 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh -c 'rex __internal session-start --agent claude 2>/dev/null || true'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x ~/.claude/hooks/rex-subagent-status.sh ] && ~/.claude/hooks/rex-subagent-status.sh || exit 0",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x ~/.claude/hooks/rex-subagent-status.sh ] && ~/.claude/hooks/rex-subagent-status.sh || exit 0",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
