@@ -196,43 +196,6 @@ bwc() {
   esac
 }
 
-# ── Rex-sessionens namn ─────────────────────────────────────────────────
-# En ny Rex-session döps efter mappen den startar i (git-roten om det finns
-# en), i stället för Rex egna fading-valley. Byter man mapp följer namnet med,
-# men bara så länge det är det namn som sattes här: ett namn man gett själv
-# rörs aldrig. "Ny" betyder att sessions-ID:t (UUIDv7, tidsstämpel i de 48
-# första bitarna) är under 10 s gammalt, så sessioner som Rex återställer
-# efter en omstart behåller sina namn.
-if [[ -n $REX_SESSION ]] && (( $+commands[rex] && $+commands[jq] )); then
-  _rex_dir_label() {
-    local root
-    root=$(git rev-parse --show-toplevel 2>/dev/null) || root=$PWD
-    [[ $root == $HOME ]] && print -r -- '~' || print -r -- ${root:t}
-  }
-  _rex_label() { rex api call session.view -s $REX_SESSION 2>/dev/null | jq -r '.label // empty' }
-
-  _rex_auto_label=
-  () {
-    local hex=${${REX_SESSION#session:}//-/}
-    (( $(date +%s) - 16#${hex[1,12]} / 1000 < 10 )) || return
-    _rex_auto_label=$(_rex_dir_label)
-    rex session rename $REX_SESSION $_rex_auto_label >/dev/null 2>&1 &!
-  }
-
-  _rex_follow_dir() {
-    [[ -n $_rex_auto_label ]] || return
-    local new=$(_rex_dir_label)
-    [[ $new == $_rex_auto_label ]] && return
-    if [[ $(_rex_label) == $_rex_auto_label ]]; then
-      rex session rename $REX_SESSION $new >/dev/null 2>&1 && _rex_auto_label=$new
-    else
-      _rex_auto_label=   # någon har döpt om sessionen, släpp den
-    fi
-  }
-  autoload -Uz add-zsh-hook
-  add-zsh-hook chpwd _rex_follow_dir
-fi
-
 # Privata alias och config (ej versionshanterad)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
