@@ -14,6 +14,9 @@ rofi-rbw, and how the password stays out of clipboard history.
 niri's `screenshot-path`. Nothing goes to the clipboard — that is
 `Mod+Shift+4`, Noctalia's region screenshot.
 
+`rexbg KOMMANDO...` runs a command in a minimized floating Rex pane and returns
+at once. See the [rex](../rex/) package.
+
 The compositors spawn these by **absolute path**, not by name. They are started
 by the greeter, and their `PATH` does not contain `~/.local/bin` — that entry
 comes from `.zshrc`, which interactive shells read and compositors do not.

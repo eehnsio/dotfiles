@@ -1,0 +1,8 @@
+#!/bin/sh
+# Kör ett kommando i en minimerad flytande Rex-ruta och kommer tillbaka direkt.
+# Går det fel visas rutan. Exempel: rexbg go test ./...    rexbg npm run dev
+[ -n "$REX_SESSION" ] || { echo "rexbg: inte i en Rex-terminal" >&2; exit 1; }
+[ $# -gt 0 ] || { echo "användning: rexbg KOMMANDO..." >&2; exit 2; }
+script="${XDG_CONFIG_HOME:-$HOME/.config}/rex/bg.lua"
+args=$(jq -nc --arg cmd "$*" --arg cwd "$PWD" '{cmd: $cmd, cwd: $cwd}')
+nohup rex do "$script" -s "$REX_SESSION" --args "$args" >/dev/null 2>&1 &
